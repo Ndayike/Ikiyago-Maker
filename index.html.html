@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IKIYAGO MAKER Office App</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- jsPDF and html2pdf.js for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        /* General Body Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            display: flex;
+            width: 95%;
+            max-width: 1400px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            min-height: 90vh;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* Menu Column Styles */
+        .menu-column {
+            width: 280px;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 25px;
+            box-sizing: border-box;
+            flex-shrink: 0;
+            border-right: 1px solid #34495e;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* --- NEW LOGO STYLES START --- */
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            height: 70px;
+        }
+
+        .book-logo {
+            width: 60px;
+            height: 45px;
+            background-color: #345e9d; /* Blue cover/spine */
+            position: relative;
+            border-radius: 4px 2px 2px 4px;
+            transform: perspective(1000px) rotateY(15deg);
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .book-logo::before, .book-logo::after {
+            content: '';
+            position: absolute;
+            background-color: #ffffff; /* White pages */
+            border: 1px solid #ddd;
+        }
+        
+        .book-logo::before { /* Left Page */
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            transform-origin: left center;
+            transform: rotateY(25deg);
+            border-radius: 4px 2px 2px 4px;
+            background-image: 
+                linear-gradient(to bottom, #CD2A3E 20%, #CD2A3E 35%, transparent 35%),
+                linear-gradient(to bottom, transparent 45%, #CD2A3E 45%, #CD2A3E 60%, transparent 60%);
+        }
+
+        .book-logo::after { /* Right Page */
+            width: 100%;
+            height: 100%;
+            top: 0;
+            right: 0;
+            transform-origin: right center;
+            transform: rotateY(-25deg);
+            border-radius: 2px 4px 4px 2px;
+             background-image: 
+                linear-gradient(to bottom, #CD2A3E 20%, #CD2A3E 45%, transparent 45%),
+                linear-gradient(to bottom, transparent 55%, #CD2A3E 55%, #CD2A3E 70%, transparent 70%);
+        }
+        /* --- NEW LOGO STYLES END --- */
+
+
+        .menu-column h1 {
+            text-align: center;
+            color: #ecf0f1;
+            margin-top: 0;
+            margin-bottom: 10px; /* Reduced margin */
+            font-size: 1.8em; /* Adjusted size */
+            font-weight: 600;
+        }
+        
+        .title-divider {
+            width: 60%;
+            margin: 0 auto 10px auto;
+            border: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .designer-credit {
+            color: yellow;
+            text-align: center;
+            font-size: 0.8em;
+            margin-top: 0;
+            margin-bottom: 30px; /* Space before menu items */
+        }
+
+
+        .menu-column nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .menu-column nav ul li {
+            margin-bottom: 10px;
+        }
+
+        .menu-column nav ul li button {
+            width: 100%;
+            padding: 14px 20px;
+            background-color: #34495e;
+            color: #ecf0f1;
+            border: none;
+            border-radius: 6px;
+            text-align: left;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .menu-column nav ul li button:hover {
+            background-color: #4a667f;
+            transform: translateX(3px);
+        }
+
+        .menu-column nav ul li button.active {
+            background-color: #1abc9c;
+            font-weight: bold;
+        }
+        
+        .menu-column nav ul li button i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .menu-column nav ul li.separator {
+            border-top: 1px solid #4a667f;
+            margin: 25px 0;
+        }
+
+        /* Main Content Area Styles */
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+            overflow-x: auto;
+            max-height: 90vh;
+            box-sizing: border-box;
+            background-color: #e0e6ed; /* Contrasting background for pages */
+        }
+
+        .main-content h2 {
+            color: #2c3e50;
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e0e6ed;
+            padding-bottom: 10px;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+
+        /* Section Specific Styles */
+        .book-section {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #cfd8e3;
+        }
+        .book-section:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        /* Cover Page Styles */
+        .cover-page {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #fdfefe;
+            border: 1px dashed #dbe3ed;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .cover-page h2 {
+            font-size: 2.2em;
+            margin-bottom: 15px;
+            border-bottom: none;
+            padding-bottom: 0;
+            color: #34495e;
+        }
+
+        .cover-page label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+            font-size: 1.1em;
+        }
+
+        .cover-page input[type="file"] {
+            display: block;
+            margin: 0 auto 20px auto;
+            border: 1px solid #c0d0e0;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #fff;
+            width: 70%;
+            max-width: 400px;
+        }
+
+        /* Front & Back Cover Specific Styles */
+        .cover-design-area {
+            position: relative;
+            width: 210mm;
+            height: 287mm;
+            margin: 15px auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-color: #f0f0f0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-style: italic;
+            color: #aaa;
+        }
+
+        .cover-design-area .cover-preview {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        .cover-design-area .cover-preview[src="#"] {
+            display: none;
+        }
+
+        .book-number-container {
+            position: absolute;
+            bottom: 1in;
+            right: 1in;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            z-index: 2;
+            min-width: 120px;
+        }
+
+        .book-number-container input[type="text"] {
+            width: 100%;
+            padding: 5px;
+            border: none;
+            background-color: transparent;
+            font-size: 1em;
+            color: #333;
+            text-align: center;
+            font-weight: bold;
+        }
+        .book-number-container label {
+            display: block;
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+
+        /* Page Header and Footer Styles */
+        .page-header-footer {
+            padding-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+        .header-input, .section-footer-input {
+            width: 90%;
+            border: none;
+            font-size: 0.95em;
+            text-align: center;
+            color: #6c7a89;
+            padding: 5px;
+            background-color: transparent;
+            border-bottom: 1px dashed #ccc;
+            margin: 0 auto 5px auto;
+            display: block;
+            transition: all 0.3s ease;
+        }
+        .page-header-footer.is-empty {
+            padding-bottom: 0;
+        }
+        .page-header-footer.is-empty .header-input,
+        .page-header-footer.is-empty .section-footer-input {
+            margin-bottom: 0;
+            border-color: transparent;
+        }
+        
+        .page-wrapper .page-footer-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end; /* Pushes content to the right */
+            align-items: center;
+            border-top: 1px solid #e0e6ed;
+            padding-top: 10px;
+            margin-top: 20px;
+            gap: 15px;
+        }
+        
+        .page-number-container {
+            position: relative;
+            background-color: #27ae60; /* GREEN */
+            color: white;
+            padding: 4px 10px;
+            padding-right: 22px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            font-weight: bold;
+            flex-shrink: 0;
+            transition: opacity 0.3s ease;
+        }
+        .page-number-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .remove-page-number {
+            position: absolute;
+            top: -2px;
+            right: 4px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            color: #fff;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+        }
+        .remove-page-number:hover {
+            opacity: 1;
+        }
+        
+        .page-controls-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .remove-page-btn {
+            background: none;
+            border: none;
+            color: #c0392b;
+            font-size: 1.2em;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+        .remove-page-btn:hover {
+            color: #fff;
+            background-color: #e74c3c;
+        }
+
+
+        .page-numbering-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: #555;
+            padding: 5px;
+            border: 1px solid #e0e6ed;
+            border-radius: 5px;
+        }
+        .page-numbering-controls label {
+            cursor: pointer;
+        }
+        .page-start-input {
+            width: 50px;
+            padding: 2px 4px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .page-start-input:disabled {
+            background-color: #f1f1f1;
+            cursor: not-allowed;
+        }
+
+        .title-section {
+            padding: 15px;
+            border-bottom: 1px solid #dbe3ed;
+        }
+        
+        .main-title-container {
+            background-color: #009E60;
+            padding: 15px 20px;
+            padding-bottom: 25px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+            transition: all 0.3s ease;
+        }
+        .main-title-container.is-empty {
+            padding-top: 5px;
+            padding-bottom: 10px;
+            margin-bottom: 5px;
+            min-height: 25px;
+        }
+
+        .main-title-container::before,
+        .main-title-container::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .main-title-container::before {
+            background-color: #F4F5F0;
+            bottom: 4px;
+        }
+
+        .main-title-container::after {
+            background-color: #CD212A;
+            bottom: 0;
+        }
+
+        .title-section .main-title {
+            width: 100%;
+            display: block;
+            border: none;
+            padding: 8px;
+            background-color: transparent;
+            text-align: center;
+            box-sizing: border-box;
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.3;
+        }
+        
+        .subtitle-container {
+            padding: 10px 0;
+            transition: padding 0.3s ease;
+        }
+        .subtitle-container.is-empty {
+            padding: 0;
+        }
+
+        .title-section .subtitle {
+            width: 100%;
+            display: inline-block;
+            border: none;
+            border-bottom: 3px solid #c0392b;
+            padding: 8px;
+            padding-bottom: 5px;
+            background-color: transparent;
+            text-align: center;
+            box-sizing: border-box;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #c0392b;
+            transition: border-color 0.3s ease;
+        }
+        .subtitle-container.is-empty .subtitle {
+            border-bottom-color: transparent;
+        }
+
+        .rich-text-editor-container {
+            border: 1px solid #dbe3ed;
+            border-radius: 4px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .editor-toolbar {
+            background-color: #e0e6ed;
+            padding: 8px 10px;
+            border-bottom: 1px solid #dbe3ed;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .editor-toolbar button {
+            background-color: #f0f2f5;
+            border: 1px solid #c0d0e0;
+            padding: 6px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.9em;
+            color: #333;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+        .editor-toolbar button:hover {
+            background-color: #d8e0e9;
+            border-color: #aebecf;
+        }
+        .editor-toolbar button.active {
+            background-color: #aebecf;
+            border-color: #8fa1b8;
+            color: #2c3e50;
+        }
+        .editor-toolbar input[type="color"] {
+            -webkit-appearance: none; -moz-appearance: none; appearance: none;
+            width: 30px; height: 30px; border: none; background: none; cursor: pointer;
+            padding: 0; margin-left: 10px; vertical-align: middle;
+        }
+        .editor-toolbar input[type="color"]::-webkit-color-swatch {
+            border-radius: 3px; border: 1px solid #c0d0e0;
+        }
+        .editor-toolbar input[type="color"]::-moz-color-swatch {
+            border-radius: 3px; border: 1px solid #c0d0e0;
+        }
+
+        .editor-toolbar select {
+            padding: 6px; border: 1px solid #c0d0e0; border-radius: 3px;
+            background-color: #f0f2f5; color: #333; cursor: pointer; font-size: 0.9em;
+        }
+        .editor-toolbar select:hover {
+            background-color: #d8e0e9; border-color: #aebecf;
+        }
+
+        .master-text-editor {
+            width: 210mm;
+            height: 287mm;
+            padding: 1in;
+            box-sizing: border-box;
+            background-color: #fff;
+            outline: none;
+            overflow-y: hidden;
+            margin: 15px auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .master-text-editor[data-placeholder-visible="true"]::before {
+            content: attr(data-placeholder);
+            color: #999;
+            font-style: italic;
+            position: absolute;
+            top: 1in;
+            left: 1in;
+            pointer-events: none;
+            display: block;
+        }
+        
+        .page-wrapper {
+            position: relative;
+            margin-bottom: 25px; padding-bottom: 25px; border-bottom: 2px dashed #aebecf;
+        }
+        .page-wrapper:last-child {
+            border-bottom: none; margin-bottom: 0; padding-bottom: 0;
+        }
+
+        .limit-indicator {
+            position: absolute;
+            bottom: calc(1in + 45px);
+            left: 5%;
+            width: 90%;
+            background-color: rgba(211, 84, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-weight: bold;
+            z-index: 10;
+            display: none;
+            pointer-events: none;
+        }
+
+
+        .add-page-button-container {
+            text-align: center; margin-top: 20px; display: flex; justify-content: center; gap: 15px;
+        }
+
+        .add-page-btn {
+            background-color: #27ae60; color: white; border: none; padding: 12px 25px;
+            border-radius: 5px; cursor: pointer; font-size: 1em; font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .add-page-btn:hover {
+            background-color: #229954;
+        }
+        .add-page-btn i {
+            margin-right: 8px;
+        }
+        
+        .design-page-btn {
+            background-color: #3498db;
+        }
+        .design-page-btn:hover {
+            background-color: #2980b9;
+        }
+
+        .image-with-caption {
+            display: block; margin: 1em 0; max-width: 100%;
+            text-align: left;
+        }
+
+        .resizable-image-container {
+            position: relative; display: inline-block; resize: both; overflow: hidden; 
+            min-width: 50px; min-height: 50px; border: 1px dashed transparent; max-width: 100%; 
+        }
+        .resizable-image-container:hover {
+            border-color: #c0d0e0;
+        }
+        .resizable-image-container img {
+            display: block; width: 100%; height: auto;
+        }
+
+        .image-with-caption figcaption {
+            font-size: 0.9em; font-style: italic; color: #555;
+            padding: 8px; outline: none; background-color: #f9f9f9;
+            border-radius: 0 0 4px 4px; margin-top: -1px;
+            text-align: center;
+        }
+
+        .image-with-caption figcaption:empty::before {
+            content: attr(data-placeholder); color: #999;
+        }
+        
+        .master-text-editor .custom-quote {
+            position: relative;
+            padding-left: 25px;
+            margin: 1em 0;
+            font-style: italic;
+            border: none;
+            background-color: #f9f9f9;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            padding-right: 10px;
+            border-radius: 4px;
+        }
+
+        .master-text-editor .custom-quote::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 5px;
+            bottom: 5px;
+            width: 9px;
+            background: linear-gradient(to right, 
+                #CD2A3E 33.3%, 
+                #F4F5F0 33.3%, #F4F5F0 66.6%, 
+                #008C45 66.6%
+            );
+            border-radius: 5px;
+        }
+        
+        .design-page-container {
+            width: 210mm;
+            height: 287mm;
+            margin: 15px auto;
+            background-color: #f0f0f0;
+            border: 1px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .design-page-container .design-preview-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none; /* Hidden by default */
+        }
+        
+        .design-page-container .upload-prompt {
+            text-align: center;
+            color: #888;
+        }
+        
+        .design-page-container .upload-prompt i {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .custom-context-menu {
+            position: absolute; z-index: 1000; background-color: #ffffff;
+            border: 1px solid #ccc; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border-radius: 5px; padding: 5px 0; display: none; font-size: 0.9em;
+        }
+        .custom-context-menu ul {
+            list-style: none; padding: 0; margin: 0;
+        }
+        .custom-context-menu ul li {
+            padding: 8px 15px; cursor: pointer;
+        }
+        .custom-context-menu ul li i {
+            margin-right: 8px; width: 16px; text-align: center;
+        }
+        .custom-context-menu ul li:hover {
+            background-color: #f0f2f5;
+        }
+        .custom-context-menu .separator {
+            height: 1px; background-color: #eee; margin: 5px 0; padding: 0;
+        }
+        
+        @media (max-width: 1024px) {
+            .app-container { width: 98%; margin: 10px 0; min-height: 95vh; }
+            .menu-column { width: 220px; padding: 20px; }
+            .menu-column h1 { font-size: 1.6em; }
+            .menu-column nav ul li button { font-size: 1em; padding: 12px 15px; }
+            .main-content { padding: 20px; }
+            .main-content h2 { font-size: 1.6em; }
+            .book-number-container { padding: 8px 12px; bottom: 10px; right: 10px; min-width: 100px; }
+            .editor-toolbar button, .editor-toolbar select { font-size: 0.8em; padding: 5px 8px; }
+            .editor-toolbar input[type="color"] { width: 25px; height: 25px; }
+        }
+
+        @media (max-width: 768px) {
+            .app-container { flex-direction: column; width: 100%; margin: 0; min-height: auto; border-radius: 0; box-shadow: none; }
+            .menu-column { width: 100%; padding: 15px; border-right: none; border-bottom: 1px solid #34495e; }
+            .menu-column h1 { margin-bottom: 20px; }
+            .menu-column nav ul { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+            .menu-column nav ul li { width: calc(50% - 5px); margin-bottom: 0; }
+            .menu-column nav ul li button { text-align: center; font-size: 0.9em; padding: 10px; }
+            .menu-column nav ul li.separator { width: 100%; margin: 15px 0; }
+            .main-content { padding: 15px; max-height: none; }
+            .cover-page, .book-section { padding: 15px 0; margin-bottom: 20px; }
+            .title-section .main-title { font-size: 1.8em; }
+            .title-section .subtitle { font-size: 1em; }
+            .book-number-container { padding: 5px 8px; bottom: 8px; right: 8px; min-width: 90px; }
+            .editor-toolbar { flex-direction: row; justify-content: center; gap: 3px; }
+            .editor-toolbar button, .editor-toolbar select { font-size: 0.7em; padding: 4px 6px; min-width: unset; flex-grow: 1; }
+            .editor-toolbar input[type="color"] { width: 20px; height: 20px; margin-left: 5px; }
+        }
+
+        @media print {
+            body { background-color: #fff; }
+            .menu-column, .add-page-button-container, .page-footer-container, .header-controls {
+                display: none;
+            }
+            .app-container, .main-content {
+                width: 100%;
+                max-width: 100%;
+                padding: 0;
+                margin: 0;
+                box-shadow: none;
+            }
+            .book-section {
+                border: none;
+            }
+            .page-wrapper {
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Menu Column -->
+        <aside class="menu-column">
+             <div class="logo-container">
+                <div class="book-logo"></div>
+            </div>
+            <h1>IKIYAGO MAKER</h1>
+            <hr class="title-divider">
+            <p class="designer-credit">Designed by N.Apollinaire</p>
+            <nav>
+                <ul>
+                    <li><button id="showFrontCoverBtn" onclick="showSection('front-cover', this)"><i class="fas fa-book-open"></i>Front Cover</button></li>
+                    <li><button id="showKirundiBtn" onclick="showSection('kirundi', this)"><i class="fas fa-file-alt"></i>Kirundi Section</button></li>
+                    <li><button id="showFrenchBtn" onclick="showSection('french', this)"><i class="fas fa-file-alt"></i>French Section</button></li>
+                    <li><button id="showEnglishBtn" onclick="showSection('english', this)"><i class="fas fa-file-alt"></i>English Section</button></li>
+                    <li><button id="showBackCoverBtn" onclick="showSection('back-cover', this)"><i class="fas fa-book"></i>Back Cover</button></li>
+                    <li class="separator"></li>
+                    <li><button id="openProjectBtn" onclick="openProject()"><i class="fas fa-folder-open"></i> Open Project</button></li>
+                    <li><button id="saveProjectBtn" onclick="saveProject()"><i class="fas fa-save"></i> Save Project</button></li>
+                    <li class="separator"></li>
+                    <li><button id="previewBookBtn" onclick="previewBook()"><i class="fas fa-eye"></i> Preview Book</button></li>
+                    <li><button id="exportPdf" onclick="exportToPdf()"><i class="fas fa-file-pdf"></i> Export to PDF</button></li>
+                    <li><button id="exportDocx" onclick="exportToDoc()"><i class="fas fa-file-word"></i> Export to Word</button></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Front Cover Section -->
+            <section id="front-cover-section" class="book-section cover-page" style="display: none;">
+                <h2>Front Cover</h2>
+                <div class="cover-content">
+                    <label for="frontCoverImage">Upload Front Cover Image:</label>
+                    <input type="file" id="frontCoverImage" accept="image/png, image/jpeg">
+
+                    <div class="cover-design-area">
+                        <span id="coverPlaceholder" style="color: #aaa; font-style: italic;">Upload Front Cover Image</span>
+                        <img id="frontCoverPreview" src="#" alt="Front Cover Preview" class="cover-preview" style="display:none;">
+                        <div class="book-number-container">
+                            <label for="bookNumber">Book Number:</label>
+                            <input type="text" id="bookNumber" placeholder="Enter #">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Kirundi Section -->
+            <section id="kirundi-section" class="book-section" data-section-lang="kirundi" style="display: block;">
+                <div class="header-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2>Kirundi Section</h2>
+                    <div class="page-numbering-controls">
+                        <label><b>Numbering:</b></label>
+                        <input type="radio" id="continue-kirundi" name="numbering-kirundi" value="continue"> <label for="continue-kirundi">Continue</label>
+                        <input type="radio" id="start-new-kirundi" name="numbering-kirundi" value="start_new" checked> <label for="start-new-kirundi">Start New</label>
+                        <input type="radio" id="start-from-kirundi" name="numbering-kirundi" value="start_from"> <label for="start-from-kirundi">Start at:</label>
+                        <input type="number" class="page-start-input" id="start-input-kirundi" value="1" min="1">
+                    </div>
+                </div>
+                <div class="page-header-footer">
+                     <input type="text" class="header-input" placeholder="Kirundi Header (applies to all pages in this section)">
+                     <input type="text" class="section-footer-input" placeholder="Kirundi Footer (applies to all pages in this section)">
+                </div>
+                <div class="pages-container" id="pages-container-kirundi">
+                </div>
+                <div class="add-page-button-container">
+                    <button class="add-page-btn" onclick="addPage('kirundi', 'text')"><i class="fas fa-plus-circle"></i> Add New Page</button>
+                    <button class="add-page-btn design-page-btn" onclick="addPage('kirundi', 'design')"><i class="fas fa-image"></i> Add a Design</button>
+                </div>
+            </section>
+
+            <!-- French Section -->
+            <section id="french-section" class="book-section" data-section-lang="french" style="display: none;">
+                <div class="header-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2>French Section</h2>
+                     <div class="page-numbering-controls">
+                        <label><b>Numbering:</b></label>
+                        <input type="radio" id="continue-french" name="numbering-french" value="continue"> <label for="continue-french">Continue</label>
+                        <input type="radio" id="start-new-french" name="numbering-french" value="start_new" checked> <label for="start-new-french">Start New</label>
+                        <input type="radio" id="start-from-french" name="numbering-french" value="start_from"> <label for="start-from-french">Start at:</label>
+                        <input type="number" class="page-start-input" id="start-input-french" value="1" min="1">
+                    </div>
+                </div>
+                 <div class="page-header-footer">
+                     <input type="text" class="header-input" placeholder="French Header (applies to all pages in this section)">
+                     <input type="text" class="section-footer-input" placeholder="French Footer (applies to all pages in this section)">
+                </div>
+                <div class="pages-container" id="pages-container-french">
+                </div>
+                 <div class="add-page-button-container">
+                    <button class="add-page-btn" onclick="addPage('french', 'text')"><i class="fas fa-plus-circle"></i> Add New Page</button>
+                    <button class="add-page-btn design-page-btn" onclick="addPage('french', 'design')"><i class="fas fa-image"></i> Add a Design</button>
+                </div>
+            </section>
+
+            <!-- English Section -->
+            <section id="english-section" class="book-section" data-section-lang="english" style="display: none;">
+                 <div class="header-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h2>English Section</h2>
+                    <div class="page-numbering-controls">
+                        <label><b>Numbering:</b></label>
+                        <input type="radio" id="continue-english" name="numbering-english" value="continue"> <label for="continue-english">Continue</label>
+                        <input type="radio" id="start-new-english" name="numbering-english" value="start_new" checked> <label for="start-new-english">Start New</label>
+                        <input type="radio" id="start-from-english" name="numbering-english" value="start_from"> <label for="start-from-english">Start at:</label>
+                        <input type="number" class="page-start-input" id="start-input-english" value="1" min="1">
+                    </div>
+                </div>
+                 <div class="page-header-footer">
+                     <input type="text" class="header-input" placeholder="English Header (applies to all pages in this section)">
+                     <input type="text" class="section-footer-input" placeholder="English Footer (applies to all pages in this section)">
+                </div>
+                <div class="pages-container" id="pages-container-english">
+                </div>
+                 <div class="add-page-button-container">
+                    <button class="add-page-btn" onclick="addPage('english', 'text')"><i class="fas fa-plus-circle"></i> Add New Page</button>
+                    <button class="add-page-btn design-page-btn" onclick="addPage('english', 'design')"><i class="fas fa-image"></i> Add a Design</button>
+                </div>
+            </section>
+
+            <!-- Back Cover Section -->
+            <section id="back-cover-section" class="book-section cover-page" style="display: none;">
+                <h2>Back Cover</h2>
+                <div class="cover-content">
+                    <label for="backCoverImage">Upload Back Cover Image:</label>
+                    <input type="file" id="backCoverImage" accept="image/png, image/jpeg">
+                    <div class="cover-design-area">
+                        <span id="backCoverPlaceholder" style="color: #aaa; font-style: italic;">Upload Back Cover Image</span>
+                        <img id="backCoverPreview" src="#" alt="Back Cover Preview" class="cover-preview" style="display:none;">
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Hidden file input for image insertion -->
+    <input type="file" id="image-inserter" accept="image/*" style="display:none;">
+    <input type="file" id="project-opener" accept=".json" style="display:none;">
+
+    <!-- Custom Context Menus -->
+    <div id="text-context-menu" class="custom-context-menu">
+        <ul>
+            <li id="insert-image-option"><i class="fas fa-image"></i> Insert Image</li>
+        </ul>
+    </div>
+    <div id="image-context-menu" class="custom-context-menu">
+        <ul>
+            <li id="align-left-option"><i class="fas fa-align-left"></i> Align Left</li>
+            <li id="align-center-option"><i class="fas fa-align-center"></i> Align Center</li>
+            <li id="align-right-option"><i class="fas fa-align-right"></i> Align Right</li>
+            <li class="separator"></li>
+            <li id="replace-image-option"><i class="fas fa-sync-alt"></i> Replace Image</li>
+            <li id="remove-image-option"><i class="fas fa-trash-alt"></i> Remove Image</li>
+        </ul>
+    </div>
+
+
+    <script>
+        const SECTION_ORDER = ['kirundi', 'french', 'english'];
+
+        function updateAllPageNumbers() {
+            let currentPageNumber = 1;
+            for (const lang of SECTION_ORDER) {
+                const section = document.getElementById(`${lang}-section`);
+                if (!section) continue;
+                const selectedOption = section.querySelector(`input[name="numbering-${lang}"]:checked`).value;
+                const startInput = section.querySelector(`#start-input-${lang}`);
+                const pageWrappers = section.querySelectorAll('.page-wrapper');
+                pageWrappers.forEach((page, index) => {
+                    if (index === 0) {
+                        switch (selectedOption) {
+                            case 'continue': break;
+                            case 'start_new': currentPageNumber = 1; break;
+                            case 'start_from': currentPageNumber = parseInt(startInput.value, 10) || 1; break;
+                        }
+                    }
+                    const pageNumberSpan = page.querySelector('.page-number');
+                    if (pageNumberSpan) {
+                        pageNumberSpan.textContent = currentPageNumber;
+                    }
+                    currentPageNumber++;
+                });
+            }
+        }
+
+        function initializeNumberingControls() {
+            for (const lang of SECTION_ORDER) {
+                const section = document.getElementById(`${lang}-section`);
+                if (!section) continue;
+                const controls = section.querySelectorAll(`input[name="numbering-${lang}"]`);
+                const startInput = section.querySelector(`#start-input-${lang}`);
+                controls.forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        updateAllPageNumbers();
+                    });
+                });
+                startInput.addEventListener('input', updateAllPageNumbers);
+            }
+        }
+
+        function showSection(sectionId, clickedButton = null) {
+            document.querySelectorAll('.book-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            const activeSectionElement = document.getElementById(sectionId + '-section');
+            if (activeSectionElement) {
+                activeSectionElement.style.display = 'block';
+            }
+            document.querySelectorAll('.menu-column nav ul li button').forEach(button => {
+                button.classList.remove('active');
+            });
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            } else {
+                const btn = document.getElementById('show' + sectionId.charAt(0).toUpperCase() + sectionId.slice(1).replace('-', '') + 'Btn');
+                if (btn) btn.classList.add('active');
+            }
+        }
+
+        function getEditorFromEvent(event) {
+            let target = event.target.closest('button, select, input');
+            return target.closest('.page-wrapper').querySelector('.master-text-editor');
+        }
+
+        function formatText(command, event) {
+            const editor = getEditorFromEvent(event);
+            editor.focus();
+            document.execCommand(command, false, null);
+            updatePlaceholder(editor);
+            checkContentLimit(editor);
+        }
+
+        function setTextColor(color, event) {
+            const editor = getEditorFromEvent(event);
+            editor.focus();
+            document.execCommand('foreColor', false, color);
+        }
+
+        function setFontSize(size, event) {
+            const editor = getEditorFromEvent(event);
+            editor.focus();
+            if (size) document.execCommand('fontSize', false, size);
+        }
+
+        function setFontName(fontName, event) {
+            const editor = getEditorFromEvent(event);
+            editor.focus();
+            if (fontName) document.execCommand('fontName', false, fontName);
+        }
+
+        function formatColumns(count, event) {
+            const editor = getEditorFromEvent(event);
+            editor.focus();
+            const selection = window.getSelection();
+            if (!selection.rangeCount || selection.isCollapsed) {
+                alert("Please select the text you want to format into columns.");
+                return;
+            }
+            const range = selection.getRangeAt(0);
+            const selectedContent = range.extractContents();
+            const columnWrapper = document.createElement('div');
+            columnWrapper.style.columnCount = count;
+            columnWrapper.style.columnGap = '20px';
+            columnWrapper.style.marginBottom = '1em';
+            columnWrapper.appendChild(selectedContent);
+            if (columnWrapper.firstElementChild) {
+                columnWrapper.firstElementChild.style.marginTop = '0';
+            }
+            range.insertNode(columnWrapper);
+            checkContentLimit(editor);
+        }
+        
+        function toggleQuote(event) {
+            const editor = getEditorFromEvent(event);
+            editor.focus();
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+
+            const range = selection.getRangeAt(0);
+            const container = range.commonAncestorContainer.nodeType === 1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement;
+            
+            const existingQuote = container.closest('blockquote.custom-quote');
+            
+            if (existingQuote) {
+                const content = document.createDocumentFragment();
+                while(existingQuote.firstChild) {
+                    content.appendChild(existingQuote.firstChild);
+                }
+                existingQuote.parentNode.replaceChild(content, existingQuote);
+                document.execCommand('removeFormat', false, null);
+            } else {
+                document.execCommand('formatBlock', false, 'blockquote');
+                const blockquote = editor.querySelector('blockquote:not(.custom-quote)');
+                if (blockquote) {
+                    blockquote.className = 'custom-quote';
+                }
+            }
+            updatePlaceholder(editor);
+            checkContentLimit(editor);
+        }
+
+        const textContextMenu = document.getElementById('text-context-menu');
+        const imageContextMenu = document.getElementById('image-context-menu');
+        const imageInserter = document.getElementById('image-inserter');
+        let lastSelectionRange = null;
+        let rightClickedFigure = null;
+        let activeEditor = null;
+        let imageAction = 'insert';
+
+        document.addEventListener('contextmenu', (event) => {
+            const target = event.target;
+            const editor = target.closest('.master-text-editor');
+            textContextMenu.style.display = 'none';
+            imageContextMenu.style.display = 'none';
+            if (editor) {
+                event.preventDefault();
+                activeEditor = editor;
+                const imageFigure = target.closest('.image-with-caption');
+                if (imageFigure) {
+                    rightClickedFigure = imageFigure;
+                    showContextMenu(imageContextMenu, event.pageX, event.pageY);
+                } else {
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                        lastSelectionRange = selection.getRangeAt(0).cloneRange();
+                    }
+                    showContextMenu(textContextMenu, event.pageX, event.pageY);
+                }
+            }
+        });
+
+        function showContextMenu(menu, x, y) {
+            menu.style.left = `${x}px`;
+            menu.style.top = `${y}px`;
+            menu.style.display = 'block';
+        }
+
+        document.addEventListener('click', () => {
+            textContextMenu.style.display = 'none';
+            imageContextMenu.style.display = 'none';
+        });
+
+        document.getElementById('insert-image-option').addEventListener('click', (event) => {
+            event.stopPropagation();
+            imageAction = 'insert';
+            imageInserter.click();
+        });
+        document.getElementById('replace-image-option').addEventListener('click', () => { if (rightClickedFigure) { imageAction = 'replace'; imageInserter.click(); } });
+        document.getElementById('remove-image-option').addEventListener('click', () => { if (rightClickedFigure) { rightClickedFigure.remove(); rightClickedFigure = null; } });
+        document.getElementById('align-left-option').addEventListener('click', () => alignImage('left'));
+        document.getElementById('align-center-option').addEventListener('click', () => alignImage('center'));
+        document.getElementById('align-right-option').addEventListener('click', () => alignImage('right'));
+        
+        function alignImage(alignment) {
+            if (rightClickedFigure) {
+                rightClickedFigure.style.textAlign = alignment;
+            }
+        }
+
+        imageInserter.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const dataUrl = e.target.result;
+                if (imageAction === 'insert') {
+                    if (lastSelectionRange && activeEditor) {
+                        activeEditor.focus();
+                        const sel = window.getSelection();
+                        sel.removeAllRanges();
+                        sel.addRange(lastSelectionRange);
+
+                        const figure = document.createElement('figure');
+                        figure.className = 'image-with-caption';
+                        figure.contentEditable = false;
+                        const container = document.createElement('div');
+                        container.className = 'resizable-image-container';
+                        const img = document.createElement('img');
+                        img.src = dataUrl;
+                        const figcaption = document.createElement('figcaption');
+                        figcaption.contentEditable = true;
+                        figcaption.dataset.placeholder = 'Enter caption here...';
+                        container.appendChild(img);
+                        figure.appendChild(container);
+                        figure.appendChild(figcaption);
+                        
+                        const range = sel.getRangeAt(0);
+                        range.deleteContents();
+                        range.insertNode(figure);
+
+                        const space = document.createTextNode('\u00A0');
+                        range.setStartAfter(figure);
+                        range.insertNode(space);
+                        
+                        range.setStartAfter(space);
+                        sel.removeAllRanges();
+                        sel.addRange(range);
+
+                        updatePlaceholder(activeEditor);
+                        checkContentLimit(activeEditor);
+                    }
+                } else if (imageAction === 'replace' && rightClickedFigure) {
+                    const imgToReplace = rightClickedFigure.querySelector('img');
+                    if (imgToReplace) imgToReplace.src = dataUrl;
+                }
+                imageInserter.value = null;
+                rightClickedFigure = null;
+                activeEditor = null;
+                imageAction = 'insert';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function addPage(lang, type = 'text') {
+            const container = document.getElementById(`pages-container-${lang}`);
+            const newPageWrapper = document.createElement('div');
+            newPageWrapper.className = 'page-wrapper';
+            newPageWrapper.dataset.pageType = type;
+            const langCapitalized = lang.charAt(0).toUpperCase() + lang.slice(1);
+            
+            if (type === 'text') {
+                 const pageCount = container.querySelectorAll('.page-wrapper[data-page-type="text"]').length + 1;
+                 newPageWrapper.innerHTML = `
+                    <div class="rich-text-editor-container">
+                        <div class="title-section">
+                            <div class="main-title-container">
+                                <input type="text" class="main-title" placeholder="Main Title (${langCapitalized} - Page ${pageCount})">
+                            </div>
+                            <div class="subtitle-container"><input type="text" class="subtitle" placeholder="Optional Subtitle (${langCapitalized} - Page ${pageCount})"></div>
+                        </div>
+                        <div class="editor-toolbar">
+                             <button onclick="formatText('undo', event)" title="Undo"><i class="fas fa-undo"></i></button><button onclick="formatText('redo', event)" title="Redo"><i class="fas fa-redo"></i></button><button onclick="toggleQuote(event)" title="Quote"><i class="fas fa-quote-left"></i></button><button onclick="formatText('bold', event)" title="Bold"><i class="fas fa-bold"></i></button><button onclick="formatText('italic', event)" title="Italic"><i class="fas fa-italic"></i></button><button onclick="formatText('underline', event)" title="Underline"><i class="fas fa-underline"></i></button><button onclick="formatText('copy', event)" title="Copy"><i class="fas fa-copy"></i></button><button onclick="formatText('cut', event)" title="Cut"><i class="fas fa-cut"></i></button><button onclick="formatText('paste', event)" title="Paste"><i class="fas fa-paste"></i></button><button onclick="formatText('delete', event)" title="Delete"><i class="fas fa-trash"></i></button><button onclick="formatText('selectAll', event)" title="Select All"><i class="fas fa-object-group"></i></button><select onchange="setFontSize(this.value, event)" title="Font Size"><option value="">Size</option><option value="1">Small</option><option value="2">Normal</option><option value="3">Medium</option><option value="4">Large</option><option value="5">X-Large</option><option value="6">XX-Large</option><option value="7">Huge</option></select><select onchange="setFontName(this.value, event)" title="Font Name"><option value="">Font</option><option value="Arial">Arial</option><option value="Verdana">Verdana</option><option value="Times New Roman">Times New Roman</option><option value="Georgia">Georgia</option><option value="Courier New">Courier New</option><option value="Lucida Console">Lucida Console</option></select><input type="color" oninput="setTextColor(this.value, event)" title="Text Color"><button onclick="formatText('justifyLeft', event)" title="Align Left"><i class="fas fa-align-left"></i></button><button onclick="formatText('justifyCenter', event)" title="Align Center"><i class="fas fa-align-center"></i></button><button onclick="formatText('justifyRight', event)" title="Align Right"><i class="fas fa-align-right"></i></button><button onclick="formatText('justifyFull', event)" title="Justify"><i class="fas fa-align-justify"></i></button><button onclick="formatColumns(2, event)" title="2 Columns"><i class="fas fa-columns"></i> 2</button><button onclick="formatColumns(3, event)" title="3 Columns"><i class="fas fa-columns"></i> 3</button>
+                        </div>
+                        <div class="master-text-editor" contenteditable="true" data-placeholder="Start typing on page ${pageCount}..."></div>
+                    </div>
+                    <div class="limit-indicator">LIMIT REACHED</div>
+                    <div class="page-footer-container">
+                        <div class="page-controls-container">
+                            <button class="remove-page-btn" title="Remove this page"><i class="fas fa-trash-alt"></i></button>
+                            <div class="page-number-container">
+                                <span class="page-number">0</span>
+                                <span class="remove-page-number" title="Hide page number">&times;</span>
+                            </div>
+                        </div>
+                    </div>`;
+            } else if (type === 'design') {
+                newPageWrapper.innerHTML = `
+                    <div class="design-page-container">
+                        <div class="upload-prompt">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div>Click or drag file to this area to upload</div>
+                        </div>
+                        <img class="design-preview-img" src="#">
+                        <input type="file" accept="image/*" style="display: none;">
+                    </div>
+                     <div class="page-footer-container">
+                        <div class="page-controls-container">
+                            <button class="remove-page-btn" title="Remove this page"><i class="fas fa-trash-alt"></i></button>
+                            <div class="page-number-container">
+                                <span class="page-number">0</span>
+                                <span class="remove-page-number" title="Hide page number">&times;</span>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+
+            container.appendChild(newPageWrapper);
+            const newEditor = newPageWrapper.querySelector('.master-text-editor');
+            if (newEditor) {
+                newEditor.addEventListener('paste', handlePaste);
+                newEditor.addEventListener('input', () => {
+                    updatePlaceholder(newEditor);
+                    checkContentLimit(newEditor);
+                });
+                newEditor.addEventListener('scroll', () => checkContentLimit(newEditor)); // For good measure
+                checkContentLimit(newEditor); // Initial check
+                
+                newPageWrapper.querySelectorAll('.main-title, .subtitle').forEach(updateLayoutForEmptyInputs);
+                updatePlaceholder(newEditor);
+            }
+            updateAllPageNumbers();
+        }
+
+        function generatePreviewHtml(forWord = false) {
+            let style = `
+            <style>
+                @charset "UTF-8";
+                @page { size: 210mm 287mm; margin: 0; }
+                * { box-sizing: border-box; }
+                body {
+                    font-family: 'Times New Roman', Times, serif; line-height: 1.5;
+                    margin: 0; padding: 0; background-color: #e9e9e9;
+                    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+                }
+                .preview-container {
+                    margin: 0; padding: 20px 0; display: flex;
+                    flex-direction: column; align-items: center; gap: 20px;
+                }
+                .page {
+                    width: 210mm; height: 287mm; box-sizing: border-box;
+                    page-break-after: always; background: #fff;
+                    font-size: 12pt; color: #000;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+                    position: relative;
+                }
+                .page:last-of-type { page-break-after: auto; }
+                .cover-page-preview, .design-page-preview {
+                    padding: 0; display: flex; align-items: center; justify-content: center;
+                }
+                .cover-page-preview { position: relative; }
+                .cover-page-preview img, .design-page-preview img {
+                    width: 100%; height: 100%; object-fit: cover;
+                }
+                .design-page-preview img { object-fit: contain; }
+                .book-number-preview {
+                    position: absolute; bottom: 1in; right: 1in; z-index: 2;
+                    background-color: rgba(255, 255, 255, 0.9); color: #000;
+                    padding: 5pt 10pt; border-radius: 3px; font-size: 12pt; font-weight: bold;
+                }
+                .header {
+                    position: absolute; top: 0; left: 0; right: 0; height: 0.5in;
+                    padding: 0 1in;
+                    font-size: 9pt; color: #444; display: flex; 
+                    align-items: center; justify-content: center;
+                }
+                .content {
+                    padding: 0.5in 1in 1in 1in;
+                    height: 100%;
+                    overflow: hidden;
+                }
+                .footer {
+                    position: absolute; bottom: 0; left: 0; right: 0; height: 1in;
+                    padding: 0 1in 0.5in 1in;
+                    display: flex; align-items: flex-end;
+                    justify-content: space-between;
+                    border-top: 1px solid #ddd;
+                }
+                .footer-text-container-preview {
+                    background-color: #c0392b; color: white; padding: 4px 10px;
+                    border-radius: 5px; font-size: 12px;
+                }
+                .page-number-container-preview {
+                    background-color: #27ae60; color: white; padding: 4px 10px;
+                    border-radius: 5px; font-weight: bold; font-size: 14px;
+                }
+                .main-title-container-preview {
+                    margin: 0 auto 0.25in auto; padding: 0.15in; padding-bottom: calc(0.15in + 8px);
+                    text-align: center; background-color: #009E60; color: #ffffff;
+                    border-radius: 8px; position: relative; overflow: hidden;
+                }
+                .main-title-container-preview::before, .main-title-container-preview::after {
+                    content: ''; position: absolute; left: 0; width: 100%; height: 4px;
+                }
+                .main-title-container-preview::before { background-color: #F4F5F0; bottom: 4px; }
+                .main-title-container-preview::after { background-color: #CD212A; bottom: 0; }
+                .main-title-container-preview h1 {
+                    margin: 0; padding: 0; font-size: 24pt; font-weight: bold; line-height: 1.2;
+                }
+                .subtitle-wrapper { text-align: center; margin-bottom: 0.25in; }
+                .subtitle-wrapper h2 {
+                    display: inline-block; margin: 0; padding: 0 0 4pt 0; font-size: 14pt;
+                    font-weight: bold; color: #c0392b; border-bottom: 2pt solid #c0392b;
+                }
+                .content p { margin-top: 0; margin-bottom: 0.5em; }
+                .content div, .content blockquote { margin-top: 0; margin-bottom: 1em; }
+                .content figure { max-width: 100%; margin: 1em 0; page-break-inside: avoid; }
+                .content figure img { max-width: 100%; height: auto; }
+                .content figcaption {
+                    font-size: 10pt; font-style: italic; color: #555;
+                    padding-top: 4pt; text-align: center;
+                }
+                .content div[style*="column-count"] { margin-top: 1em; margin-bottom: 1em; }
+                .content .custom-quote {
+                    position: relative; margin: 1em 0; padding: 0.1in 0.15in 0.1in 25px;
+                    font-style: italic; background-color: #f5f5f5; border-radius: 4px; page-break-inside: avoid;
+                }
+                .content .custom-quote::before {
+                    content: ''; position: absolute; left: 8px; top: 5px; bottom: 5px; width: 9px;
+                    background: linear-gradient(to right, #CD2A3E 33.3%, #F4F5F0 33.3%, #F4F5F0 66.6%, #008C45 66.6%);
+                    border-radius: 5px;
+                }
+                .content b, .content strong { font-weight: bold; }
+                .content i, .content em { font-style: italic; }
+                .content u { text-decoration: underline; }
+                .content div[style*="text-align: center"] { text-align: center; }
+                .content div[style*="text-align: right"] { text-align: right; }
+                .content div[style*="text-align: justify"] { text-align: justify; }
+                .content font[color] { color: inherit; } .content font[face] { font-family: inherit; }
+                .content font[size="1"] { font-size: x-small; } .content font[size="2"] { font-size: small; }
+                .content font[size="3"] { font-size: medium; } .content font[size="4"] { font-size: large; }
+                .content font[size="5"] { font-size: x-large; } .content font[size="6"] { font-size: xx-large; }
+                .content font[size="7"] { font-size: xxx-large; }
+                .preview-context-menu {
+                    position: absolute; z-index: 10000; background-color: #ffffff;
+                    border: 1px solid #ccc; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                    border-radius: 6px; padding: 5px 0; display: none;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                    font-size: 11pt; min-width: 180px;
+                }
+                .preview-context-menu ul { list-style: none; padding: 0; margin: 0; }
+                .preview-context-menu ul li {
+                    padding: 9px 15px; cursor: pointer; display: flex; align-items: center; color: #333;
+                }
+                .preview-context-menu ul li:hover { background-color: #f0f2f5; }
+                .preview-context-menu ul li svg {
+                    margin-right: 12px; width: 16px; height: 16px;
+                }
+            </style>
+            `;
+            
+            let body = `<div class="preview-container">`;
+            const frontCoverImgSrc = document.getElementById('frontCoverPreview').src;
+            if (frontCoverImgSrc && !frontCoverImgSrc.endsWith('#')) {
+                const bookNumber = document.getElementById('bookNumber').value;
+                body += `<div class="page cover-page-preview"><img src="${frontCoverImgSrc}" alt="Front Cover">${bookNumber ? `<div class="book-number-preview">${bookNumber}</div>` : ''}</div>`;
+            }
+            SECTION_ORDER.forEach(lang => {
+                const sectionEl = document.getElementById(`${lang}-section`);
+                const header = sectionEl.querySelector('.header-input').value;
+                const footerText = sectionEl.querySelector('.section-footer-input').value;
+                sectionEl.querySelectorAll('.page-wrapper').forEach(page => {
+                    const pageType = page.dataset.pageType;
+                    const pageNumSpan = page.querySelector('.page-number');
+                    const pageNumContainer = page.querySelector('.page-number-container');
+                    const isPageNumVisible = pageNumSpan && !pageNumContainer.classList.contains('hidden');
+                    
+                    if (pageType === 'design') {
+                        const imgSrc = page.querySelector('.design-preview-img')?.src;
+                        if (imgSrc && !imgSrc.endsWith('#')) {
+                             body += `<div class="page design-page-preview"><img src="${imgSrc}" alt="Design Page"></div>`;
+                        }
+                    } else {
+                        const title = page.querySelector('.main-title').value;
+                        const subtitle = page.querySelector('.subtitle').value;
+                        const editor = page.querySelector('.master-text-editor');
+                        const editorContent = editor.innerHTML.trim();
+                        const hasText = editor.textContent.trim() !== '' || editor.querySelector('img, figure, blockquote, div');
+
+                        if (title || subtitle || hasText || header || footerText || isPageNumVisible) {
+                            body += `<div class="page">`;
+                            body += `<div class="header">${header || ''}</div>`;
+                            body += `<div class="content">`;
+                            if (title) body += `<div class="main-title-container-preview"><h1>${title}</h1></div>`;
+                            if (subtitle) body += `<div class="subtitle-wrapper"><h2>${subtitle}</h2></div>`;
+                            body += editorContent;
+                            body += `</div>`;
+                            body += `<div class="footer">`;
+                            if (footerText) {
+                                body += `<div class="footer-text-container-preview">${footerText}</div>`;
+                            } else {
+                                body += `<div></div>`; 
+                            }
+                            if (isPageNumVisible) {
+                                body += `<div class="page-number-container-preview">${pageNumSpan.textContent}</div>`;
+                            }
+                            body += `</div>`;
+                            body += `</div>`;
+                        }
+                    }
+                });
+            });
+            const backCoverImgSrc = document.getElementById('backCoverPreview').src;
+            if (backCoverImgSrc && !backCoverImgSrc.endsWith('#')) {
+                body += `<div class="page cover-page-preview"><img src="${backCoverImgSrc}" alt="Back Cover"></div>`;
+            }
+            body += `</div>`;
+
+            const contextMenuHTML = `
+                <div id="preview-context-menu" class="preview-context-menu">
+                    <ul>
+                        <li id="save-pdf-option">
+                            <svg fill="#c0392b" viewBox="0 0 384 512"><path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM112 256H272c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64H272c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64H272c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16z"/></svg>
+                            Save as PDF
+                        </li>
+                        <li id="save-word-option">
+                             <svg fill="#2980b9" viewBox="0 0 384 512"><path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM128 256h32.1c2.1 0 4.1 1 5.4 2.6l44.2 53.1 44.2-53.1c1.4-1.6 3.3-2.6 5.4-2.6H256c8.8 0 16 7.2 16 16s-7.2 16-16 16h-4.3L192 332.1 132.3 288H128c-8.8 0-16-7.2-16-16s7.2-16 16-16z"/></svg>
+                            Save as Word
+                        </li>
+                    </ul>
+                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const contextMenu = document.getElementById('preview-context-menu');
+                        if (!contextMenu) return;
+                        document.addEventListener('contextmenu', (event) => {
+                            event.preventDefault();
+                            contextMenu.style.top = \`\${event.pageY}px\`;
+                            contextMenu.style.left = \`\${event.pageX}px\`;
+                            contextMenu.style.display = 'block';
+                        });
+                        document.addEventListener('click', () => {
+                            contextMenu.style.display = 'none';
+                        });
+                        document.getElementById('save-pdf-option').addEventListener('click', () => {
+                            if (window.opener && typeof window.opener.exportToPdf === 'function') {
+                                window.opener.exportToPdf();
+                            }
+                        });
+                        document.getElementById('save-word-option').addEventListener('click', () => {
+                            if (window.opener && typeof window.opener.exportToDoc === 'function') {
+                                window.opener.exportToDoc();
+                            }
+                        });
+                    });
+                <\/script>
+            `;
+
+            let finalHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Book Preview</title>${style}</head><body>${body}${contextMenuHTML}</body></html>`;
+
+            if (forWord) {
+                return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Book Preview</title>${style}</head><body>${body}</body></html>`;
+            }
+
+            const exportContainer = document.createElement('div');
+            exportContainer.innerHTML = finalHtml;
+            return exportContainer;
+        }
+        
+        function previewBook() {
+            const previewElement = generatePreviewHtml();
+            const previewHtml = previewElement.innerHTML;
+            const previewWindow = window.open('', '_blank');
+            if (!previewWindow) {
+                alert('Please allow pop-ups for this site to see the preview.');
+                return;
+            }
+            previewWindow.document.open();
+            previewWindow.document.write(previewHtml);
+            previewWindow.document.close();
+        }
+
+        function handlePaste(event) {
+            event.preventDefault();
+            const text = (event.clipboardData || window.clipboardData).getData('text/plain');
+            const editor = event.target;
+            
+            document.execCommand('insertText', false, text);
+
+            setTimeout(() => {
+                updatePlaceholder(editor);
+                checkContentLimit(editor);
+            }, 100);
+        }
+
+        function updateLayoutForEmptyInputs(input) {
+            if (!input) return;
+            let container;
+            const isEmpty = input.value.trim() === '';
+
+            if (input.classList.contains('header-input') || input.classList.contains('section-footer-input')) {
+                container = input.closest('.page-header-footer');
+            } else if (input.classList.contains('main-title')) {
+                container = input.closest('.main-title-container');
+            } else if (input.classList.contains('subtitle')) {
+                container = input.closest('.subtitle-container');
+            }
+
+            if (container) {
+                container.classList.toggle('is-empty', isEmpty);
+            }
+        }
+
+        function updatePlaceholder(editor) {
+            if (!editor) return;
+            const isEmpty = editor.textContent.trim() === '' && !editor.querySelector('img, figure, blockquote, div');
+            editor.setAttribute('data-placeholder-visible', isEmpty.toString());
+        }
+
+        function checkContentLimit(editor) {
+            const wrapper = editor.closest('.page-wrapper');
+            if (!wrapper) return;
+            const indicator = wrapper.querySelector('.limit-indicator');
+            const threshold = 48; // Approx 0.5 inch
+            if (editor.scrollHeight >= editor.clientHeight - threshold) {
+                indicator.style.display = 'block';
+            } else {
+                indicator.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            SECTION_ORDER.forEach(lang => addPage(lang, 'text')); 
+            
+            const kirundiButton = document.getElementById('showKirundiBtn');
+            showSection('kirundi', kirundiButton);
+            initializeNumberingControls();
+            updateAllPageNumbers();
+
+            document.querySelectorAll('.header-input, .main-title, .subtitle, .section-footer-input').forEach(updateLayoutForEmptyInputs);
+            document.querySelectorAll('.master-text-editor').forEach(editor => {
+                updatePlaceholder(editor);
+                checkContentLimit(editor);
+            });
+            
+            document.querySelector('.main-content').addEventListener('click', function(event) {
+                const removeNumBtn = event.target.closest('.remove-page-number');
+                if (removeNumBtn) {
+                    removeNumBtn.closest('.page-number-container').classList.toggle('hidden');
+                }
+                const removePageBtn = event.target.closest('.remove-page-btn');
+                if (removePageBtn) {
+                     if (confirm('Are you sure you want to remove this page and all its content?')) {
+                        const pageWrapper = removePageBtn.closest('.page-wrapper');
+                        const pagesContainer = pageWrapper.parentElement;
+                        if (pagesContainer.children.length > 1) {
+                            pageWrapper.remove();
+                            updateAllPageNumbers();
+                        } else {
+                            alert("You cannot delete the only page in a section.");
+                        }
+                    }
+                }
+            });
+
+            document.querySelector('.main-content').addEventListener('input', (event) => {
+                if (event.target.matches('.header-input, .main-title, .subtitle, .section-footer-input')) {
+                    updateLayoutForEmptyInputs(event.target);
+                }
+                 if (event.target.matches('.master-text-editor')) {
+                    updatePlaceholder(event.target);
+                    checkContentLimit(event.target);
+                }
+            });
+        });
+
+        document.addEventListener('change', (event) => {
+            if (event.target.matches('input[type="file"]') && !event.target.id.includes('inserter')) {
+                const fileInput = event.target;
+                let imagePreview = null, coverPlaceholder = null;
+                if (fileInput.id === 'frontCoverImage') {
+                    imagePreview = document.getElementById('frontCoverPreview');
+                    coverPlaceholder = document.getElementById('coverPlaceholder');
+                } else if (fileInput.id === 'backCoverImage') {
+                    imagePreview = document.getElementById('backCoverPreview');
+                    coverPlaceholder = document.getElementById('backCoverPlaceholder');
+                }
+                if (imagePreview) {
+                    if (fileInput.files && fileInput.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            imagePreview.src = e.target.result;
+                            imagePreview.style.display = 'block';
+                            if (coverPlaceholder) coverPlaceholder.style.display = 'none';
+                        };
+                        reader.readAsDataURL(fileInput.files[0]);
+                    } else {
+                        imagePreview.src = '#';
+                        imagePreview.style.display = 'none';
+                        if (coverPlaceholder) coverPlaceholder.style.display = 'block';
+                    }
+                }
+            }
+        });
+
+        // --- EXPORT FUNCTIONS ---
+        function exportToPdf() {
+            const element = generatePreviewHtml();
+            const opt = {
+                margin:       0,
+                filename:     'ikiyago-book.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true,
+                    dpi: 192,
+                    letterRendering: true
+                },
+                jsPDF:        { 
+                    unit: 'mm', 
+                    format: [210, 287], 
+                    orientation: 'portrait' 
+                },
+                pagebreak:    { mode: 'legacy', before: '.page' }
+            };
+            html2pdf().from(element.querySelector('.preview-container')).set(opt).save();
+        }
+
+        function exportToDoc() {
+            const htmlContent = generatePreviewHtml(true);
+            const blob = new Blob(['\ufeff', htmlContent], {
+                type: 'application/msword'
+            });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'ikiyago-book.doc';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- SAVE/OPEN PROJECT ---
+        const projectOpener = document.getElementById('project-opener');
+
+        function saveProject() {
+            const projectData = {
+                frontCover: {
+                    imageSrc: document.getElementById('frontCoverPreview').src,
+                    bookNumber: document.getElementById('bookNumber').value,
+                },
+                backCover: {
+                    imageSrc: document.getElementById('backCoverPreview').src
+                },
+                sections: {}
+            };
+
+            for (const lang of SECTION_ORDER) {
+                const sectionEl = document.getElementById(`${lang}-section`);
+                const sectionData = {
+                    header: sectionEl.querySelector('.header-input').value,
+                    footer: sectionEl.querySelector('.section-footer-input').value,
+                    numberingOption: sectionEl.querySelector(`input[name="numbering-${lang}"]:checked`).value,
+                    startAt: sectionEl.querySelector(`#start-input-${lang}`).value,
+                    pages: []
+                };
+                
+                sectionEl.querySelectorAll('.page-wrapper').forEach(page => {
+                    const pageType = page.dataset.pageType;
+                    const pageContent = (pageType === 'text') ? 
+                        {
+                            title: page.querySelector('.main-title').value,
+                            subtitle: page.querySelector('.subtitle').value,
+                            content: page.querySelector('.master-text-editor').innerHTML
+                        } : {
+                            designSrc: page.querySelector('.design-preview-img').src
+                        };
+
+                    sectionData.pages.push({
+                        type: pageType,
+                        ...pageContent
+                    });
+                });
+                projectData.sections[lang] = sectionData;
+            }
+
+            const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'ikiyago-project.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function openProject() {
+            projectOpener.click();
+        }
+
+        projectOpener.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const projectData = JSON.parse(e.target.result);
+                    rebuildEditor(projectData);
+                } catch (error) {
+                    alert('Error: Could not open or parse the project file.');
+                    console.error("Error parsing project file:", error);
+                }
+            };
+            reader.readAsText(file);
+            projectOpener.value = null; // Reset for next open
+        });
+
+        function rebuildEditor(data) {
+            // Restore covers
+            const frontPrev = document.getElementById('frontCoverPreview');
+            const frontPlaceholder = document.getElementById('coverPlaceholder');
+            frontPrev.src = data.frontCover.imageSrc || '#';
+            const hasFrontImg = data.frontCover.imageSrc && !data.frontCover.imageSrc.endsWith('#');
+            frontPrev.style.display = hasFrontImg ? 'block' : 'none';
+            frontPlaceholder.style.display = hasFrontImg ? 'none' : 'block';
+            document.getElementById('bookNumber').value = data.frontCover.bookNumber || '';
+            
+            const backPrev = document.getElementById('backCoverPreview');
+            const backPlaceholder = document.getElementById('backCoverPlaceholder');
+            backPrev.src = data.backCover.imageSrc || '#';
+            const hasBackImg = data.backCover.imageSrc && !data.backCover.imageSrc.endsWith('#');
+            backPrev.style.display = hasBackImg ? 'block' : 'none';
+            backPlaceholder.style.display = hasBackImg ? 'none' : 'block';
+
+
+            // Restore sections and pages
+            for (const lang of SECTION_ORDER) {
+                if (data.sections[lang]) {
+                    const sectionData = data.sections[lang];
+                    const sectionEl = document.getElementById(`${lang}-section`);
+                    
+                    sectionEl.querySelector('.header-input').value = sectionData.header || '';
+                    sectionEl.querySelector('.section-footer-input').value = sectionData.footer || '';
+                    sectionEl.querySelector(`input[value="${sectionData.numberingOption}"]`).checked = true;
+                    const startInput = sectionEl.querySelector(`#start-input-${lang}`);
+                    startInput.value = sectionData.startAt || '1';
+                    
+                    const pagesContainer = sectionEl.querySelector('.pages-container');
+                    pagesContainer.innerHTML = ''; // Clear all existing pages
+
+                    sectionData.pages.forEach((pageData) => {
+                        addPage(lang, pageData.type);
+                        const newPage = pagesContainer.lastElementChild;
+                        
+                        if (pageData.type === 'text') {
+                            newPage.querySelector('.main-title').value = pageData.title || '';
+                            newPage.querySelector('.subtitle').value = pageData.subtitle || '';
+                            newPage.querySelector('.master-text-editor').innerHTML = pageData.content || '';
+                        } else if (pageData.type === 'design') {
+                            const previewImg = newPage.querySelector('.design-preview-img');
+                            previewImg.src = pageData.designSrc || '#';
+                            previewImg.style.display = pageData.designSrc && !pageData.designSrc.endsWith('#') ? 'block' : 'none';
+                            newPage.querySelector('.upload-prompt').style.display = previewImg.style.display === 'block' ? 'none' : 'flex';
+                        }
+                    });
+                }
+            }
+            updateAllPageNumbers();
+            document.querySelectorAll('.header-input, .main-title, .subtitle, .section-footer-input').forEach(updateLayoutForEmptyInputs);
+            document.querySelectorAll('.master-text-editor').forEach(editor => {
+                updatePlaceholder(editor);
+                checkContentLimit(editor);
+            });
+            alert('Project loaded successfully!');
+        }
+        
+        // Handle design page uploads
+        document.addEventListener('click', function(event) {
+            const designContainer = event.target.closest('.design-page-container');
+            if (designContainer) {
+                designContainer.querySelector('input[type="file"]').click();
+            }
+        });
+        
+        document.addEventListener('change', function(event) {
+            const input = event.target;
+            if (input.type === 'file' && input.parentElement.classList.contains('design-page-container')) {
+                const file = input.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const previewImg = input.parentElement.querySelector('.design-preview-img');
+                        const prompt = input.parentElement.querySelector('.upload-prompt');
+                        previewImg.src = e.target.result;
+                        previewImg.style.display = 'block';
+                        prompt.style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>```
