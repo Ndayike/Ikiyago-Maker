@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- jsPDF and html2pdf.js for PDF Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Google Font: Playfair Display by Claus Eggers Sørensen -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
     <style>
         /* General Body Styles */
         body {
@@ -32,6 +34,28 @@
             margin: 20px 0;
             border-radius: 10px;
             overflow: hidden;
+            position: relative; /* Needed for absolute positioning of language selector */
+        }
+
+        /* Language Selector Styling */
+        .language-selector {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 1001; /* Ensure it's above other content */
+            background-color: #f0f2f5;
+            border-radius: 5px;
+            padding: 5px 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .language-selector select {
+            border: 1px solid #ccc;
+            padding: 5px 8px;
+            border-radius: 4px;
+            background-color: #fff;
+            font-size: 0.9em;
+            cursor: pointer;
         }
 
         /* Menu Column Styles */
@@ -123,6 +147,21 @@
             font-size: 0.8em;
             margin-top: 0;
             margin-bottom: 30px; /* Space before menu items */
+            font-family: 'Playfair Display', serif; /* Applied Playfair Display font */
+        }
+
+        /* New Menu Footer Styling */
+        .menu-footer-info {
+            background-color: #27ae60; /* Green container */
+            color: #ffffff; /* White characters */
+            padding: 15px;
+            margin-top: auto; /* Pushes content to the bottom of the flex container */
+            border-radius: 8px;
+            font-family: 'Playfair Display', serif; /* Playfair Display font */
+            font-style: italic; /* Italic font */
+            font-size: 0.9em;
+            line-height: 1.4;
+            text-align: justify;
         }
 
 
@@ -352,6 +391,7 @@
             font-weight: bold;
             flex-shrink: 0;
             transition: opacity 0.3s ease;
+            bottom: 22px; /* Lift page number container upward by 22px */
         }
         .page-number-container.hidden {
             opacity: 0;
@@ -573,6 +613,7 @@
             margin: 15px auto;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             position: relative;
+            font-family: 'Times New Roman', Times, serif; /* Default font */
         }
         
         .master-text-editor[data-placeholder-visible="true"]::before {
@@ -635,20 +676,34 @@
             background-color: #2980b9;
         }
 
+        /* Styles for inserted images to be inline, resizable */
         .image-with-caption {
-            display: block; margin: 1em 0; max-width: 100%;
-            text-align: left;
+            display: inline-block; /* Inline object */
+            vertical-align: middle; /* Align with text baseline */
+            margin: 0 0.5em; /* Small horizontal margin to separate from text */
+            max-width: 100%; /* Ensure it doesn't exceed editor width */
+            width: auto; /* Allow auto width or specific inline width from resizable container */
         }
 
         .resizable-image-container {
-            position: relative; display: inline-block; resize: both; overflow: hidden; 
-            min-width: 50px; min-height: 50px; border: 1px dashed transparent; max-width: 100%; 
+            position: relative;
+            display: inline-block; /* Essential for text-align: center on parent and for float behavior */
+            resize: both; /* Enable resizing */
+            overflow: auto; /* To show resize handles */
+            min-width: 50px;
+            min-height: 50px;
+            border: 1px dashed transparent; /* Visual border for resizing */
+            box-sizing: border-box; /* Include padding/border in width/height */
+            cursor: nwse-resize; /* Resizing cursor */
         }
         .resizable-image-container:hover {
             border-color: #c0d0e0;
         }
         .resizable-image-container img {
-            display: block; width: 100%; height: auto;
+            display: block;
+            width: 100%; /* Image fills its resizable container */
+            height: 100%;
+            object-fit: contain; /* Ensure image fits without cropping */
         }
 
         .image-with-caption figcaption {
@@ -656,6 +711,7 @@
             padding: 8px; outline: none; background-color: #f9f9f9;
             border-radius: 0 0 4px 4px; margin-top: -1px;
             text-align: center;
+            display: block; /* Caption is block within the inline-block figure */
         }
 
         .image-with-caption figcaption:empty::before {
@@ -757,6 +813,8 @@
 
         @media (max-width: 768px) {
             .app-container { flex-direction: column; width: 100%; margin: 0; min-height: auto; border-radius: 0; box-shadow: none; }
+            .language-selector { top: 10px; right: 10px; padding: 3px 8px; }
+            .language-selector select { font-size: 0.8em; padding: 4px 6px; }
             .menu-column { width: 100%; padding: 15px; border-right: none; border-bottom: 1px solid #34495e; }
             .menu-column h1 { margin-bottom: 20px; }
             .menu-column nav ul { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
@@ -775,7 +833,7 @@
 
         @media print {
             body { background-color: #fff; }
-            .menu-column, .add-page-button-container, .page-footer-container, .header-controls {
+            .menu-column, .add-page-button-container, .page-footer-container, .header-controls, .language-selector {
                 display: none;
             }
             .app-container, .main-content {
@@ -796,6 +854,15 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Language Selector -->
+        <div class="language-selector">
+            <select id="language-switcher">
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="pt">Português</option>
+            </select>
+        </div>
+
         <!-- Menu Column -->
         <aside class="menu-column">
              <div class="logo-container">
@@ -803,40 +870,44 @@
             </div>
             <h1>IKIYAGO MAKER</h1>
             <hr class="title-divider">
-            <p class="designer-credit">Designed by N.Apollinaire</p>
+            <p class="designer-credit" data-i18n="developedBy">Developed by Ndayikeze Apollinaire</p>
             <nav>
                 <ul>
-                    <li><button id="showFrontCoverBtn" onclick="showSection('front-cover', this)"><i class="fas fa-book-open"></i>Front Cover</button></li>
-                    <li><button id="showKirundiBtn" onclick="showSection('kirundi', this)"><i class="fas fa-file-alt"></i>Kirundi Section</button></li>
-                    <li><button id="showFrenchBtn" onclick="showSection('french', this)"><i class="fas fa-file-alt"></i>French Section</button></li>
-                    <li><button id="showEnglishBtn" onclick="showSection('english', this)"><i class="fas fa-file-alt"></i>English Section</button></li>
-                    <li><button id="showBackCoverBtn" onclick="showSection('back-cover', this)"><i class="fas fa-book"></i>Back Cover</button></li>
+                    <li><button id="showFrontCoverBtn" onclick="showSection('front-cover', this)" data-i18n="frontCoverBtn"><i class="fas fa-book-open"></i>Front Cover</button></li>
+                    <li><button id="showKirundiBtn" onclick="showSection('kirundi', this)" data-i18n="kirundiSectionBtn"><i class="fas fa-file-alt"></i>Kirundi Section</button></li>
+                    <li><button id="showFrenchBtn" onclick="showSection('french', this)" data-i18n="frenchSectionBtn"><i class="fas fa-file-alt"></i>French Section</button></li>
+                    <li><button id="showEnglishBtn" onclick="showSection('english', this)" data-i18n="englishSectionBtn"><i class="fas fa-file-alt"></i>English Section</button></li>
+                    <li><button id="showBackCoverBtn" onclick="showSection('back-cover', this)" data-i18n="backCoverBtn"><i class="fas fa-book"></i>Back Cover</button></li>
                     <li class="separator"></li>
-                    <li><button id="openProjectBtn" onclick="openProject()"><i class="fas fa-folder-open"></i> Open Project</button></li>
-                    <li><button id="saveProjectBtn" onclick="saveProject()"><i class="fas fa-save"></i> Save Project</button></li>
+                    <li><button id="openProjectBtn" onclick="openProject()" data-i18n="openProjectBtn"><i class="fas fa-folder-open"></i> Open Project</button></li>
+                    <li><button id="saveProjectBtn" onclick="saveProject()" data-i18n="saveProjectBtn"><i class="fas fa-save"></i> Save Project</button></li>
                     <li class="separator"></li>
-                    <li><button id="previewBookBtn" onclick="previewBook()"><i class="fas fa-eye"></i> Preview Book</button></li>
-                    <li><button id="exportPdf" onclick="exportToPdf()"><i class="fas fa-file-pdf"></i> Export to PDF</button></li>
-                    <li><button id="exportDocx" onclick="exportToDoc()"><i class="fas fa-file-word"></i> Export to Word</button></li>
+                    <li><button id="previewBookBtn" onclick="previewBook()" data-i18n="previewBookBtn"><i class="fas fa-eye"></i> Preview Book</button></li>
+                    <li><button id="exportPdf" onclick="exportToPdf()" data-i18n="exportPdf"><i class="fas fa-file-pdf"></i> Export to PDF</button></li>
+                    <li><button id="exportDocx" onclick="promptAndSaveAsDocx()" data-i18n="exportDocx"><i class="fas fa-file-word"></i> Save as Word (Docx)</button></li>
                 </ul>
             </nav>
+
+            <div class="menu-footer-info" data-i18n="footerInfo">
+                Ndayikeze Apollinaire is a relentless IT researcher whose work in automation bridges technical precision with visionary purpose. With a deep commitment to streamlining digital workflows and enhancing platform responsiveness, he continuously explores innovative solutions that empower editorial systems, multilingual interfaces, and institutional communication. His research is not confined to theory—it’s embedded in real-world applications across Africa, where automation becomes a tool for dignity, clarity, and societal transformation.
+            </div>
         </aside>
 
         <!-- Main Content Area -->
         <main class="main-content">
             <!-- Front Cover Section -->
             <section id="front-cover-section" class="book-section cover-page" style="display: none;">
-                <h2>Front Cover</h2>
+                <h2 data-i18n="frontCoverSectionTitle">Front Cover</h2>
                 <div class="cover-content">
-                    <label for="frontCoverImage">Upload Front Cover Image:</label>
+                    <label for="frontCoverImage" data-i18n="uploadFrontCoverImage">Upload Front Cover Image:</label>
                     <input type="file" id="frontCoverImage" accept="image/png, image/jpeg">
 
                     <div class="cover-design-area">
-                        <span id="coverPlaceholder" style="color: #aaa; font-style: italic;">Upload Front Cover Image</span>
+                        <span id="coverPlaceholder" style="color: #aaa; font-style: italic;" data-i18n="coverPlaceholder">Upload Front Cover Image</span>
                         <img id="frontCoverPreview" src="#" alt="Front Cover Preview" class="cover-preview" style="display:none;">
                         <div class="book-number-container">
-                            <label for="bookNumber">Book Number:</label>
-                            <input type="text" id="bookNumber" placeholder="Enter #">
+                            <label for="bookNumber" data-i18n="bookNumberLabel">Book Number:</label>
+                            <input type="text" id="bookNumber" data-i18n-placeholder="bookNumberPlaceholder" placeholder="Enter #">
                         </div>
                     </div>
                 </div>
@@ -845,83 +916,83 @@
             <!-- Kirundi Section -->
             <section id="kirundi-section" class="book-section" data-section-lang="kirundi" style="display: block;">
                 <div class="header-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2>Kirundi Section</h2>
+                    <h2 data-i18n="kirundiSectionTitle">Kirundi Section</h2>
                     <div class="page-numbering-controls">
-                        <label><b>Numbering:</b></label>
-                        <input type="radio" id="continue-kirundi" name="numbering-kirundi" value="continue"> <label for="continue-kirundi">Continue</label>
-                        <input type="radio" id="start-new-kirundi" name="numbering-kirundi" value="start_new" checked> <label for="start-new-kirundi">Start New</label>
-                        <input type="radio" id="start-from-kirundi" name="numbering-kirundi" value="start_from"> <label for="start-from-kirundi">Start at:</label>
+                        <label data-i18n="numberingLabel"><b>Numbering:</b></label>
+                        <input type="radio" id="continue-kirundi" name="numbering-kirundi" value="continue"> <label for="continue-kirundi" data-i18n="numberingContinue">Continue</label>
+                        <input type="radio" id="start-new-kirundi" name="numbering-kirundi" value="start_new" checked> <label for="start-new-kirundi" data-i18n="numberingStartNew">Start New</label>
+                        <input type="radio" id="start-from-kirundi" name="numbering-kirundi" value="start_from"> <label for="start-from-kirundi" data-i18n="numberingStartAt">Start at:</label>
                         <input type="number" class="page-start-input" id="start-input-kirundi" value="1" min="1">
                     </div>
                 </div>
                 <div class="page-header-footer">
-                     <input type="text" class="header-input" placeholder="Kirundi Header (applies to all pages in this section)">
-                     <input type="text" class="section-footer-input" placeholder="Kirundi Footer (applies to all pages in this section)">
+                     <input type="text" class="header-input" data-i18n-placeholder="kirundiHeaderPlaceholder" placeholder="Kirundi Header (applies to all pages in this section)">
+                     <input type="text" class="section-footer-input" data-i18n-placeholder="kirundiFooterPlaceholder" placeholder="Kirundi Footer (applies to all pages in this section)">
                 </div>
                 <div class="pages-container" id="pages-container-kirundi">
                 </div>
                 <div class="add-page-button-container">
-                    <button class="add-page-btn" onclick="addPage('kirundi', 'text')"><i class="fas fa-plus-circle"></i> Add New Page</button>
-                    <button class="add-page-btn design-page-btn" onclick="addPage('kirundi', 'design')"><i class="fas fa-image"></i> Add a Design</button>
+                    <button class="add-page-btn" onclick="addPage('kirundi', 'text')" data-i18n="addPage"><i class="fas fa-plus-circle"></i> Add New Page</button>
+                    <button class="add-page-btn design-page-btn" onclick="addPage('kirundi', 'design')" data-i18n="addDesign"><i class="fas fa-image"></i> Add a Design</button>
                 </div>
             </section>
 
             <!-- French Section -->
             <section id="french-section" class="book-section" data-section-lang="french" style="display: none;">
                 <div class="header-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2>French Section</h2>
+                    <h2 data-i18n="frenchSectionTitle">French Section</h2>
                      <div class="page-numbering-controls">
-                        <label><b>Numbering:</b></label>
-                        <input type="radio" id="continue-french" name="numbering-french" value="continue"> <label for="continue-french">Continue</label>
-                        <input type="radio" id="start-new-french" name="numbering-french" value="start_new" checked> <label for="start-new-french">Start New</label>
-                        <input type="radio" id="start-from-french" name="numbering-french" value="start_from"> <label for="start-from-french">Start at:</label>
+                        <label data-i18n="numberingLabel"><b>Numbering:</b></label>
+                        <input type="radio" id="continue-french" name="numbering-french" value="continue"> <label for="continue-french" data-i18n="numberingContinue">Continue</label>
+                        <input type="radio" id="start-new-french" name="numbering-french" value="start_new" checked> <label for="start-new-french" data-i18n="numberingStartNew">Start New</label>
+                        <input type="radio" id="start-from-french" name="numbering-french" value="start_from"> <label for="start-from-french" data-i18n="numberingStartAt">Start at:</label>
                         <input type="number" class="page-start-input" id="start-input-french" value="1" min="1">
                     </div>
                 </div>
                  <div class="page-header-footer">
-                     <input type="text" class="header-input" placeholder="French Header (applies to all pages in this section)">
-                     <input type="text" class="section-footer-input" placeholder="French Footer (applies to all pages in this section)">
+                     <input type="text" class="header-input" data-i18n-placeholder="frenchHeaderPlaceholder" placeholder="French Header (applies to all pages in this section)">
+                     <input type="text" class="section-footer-input" data-i18n-placeholder="frenchFooterPlaceholder" placeholder="French Footer (aplies to all pages in this section)">
                 </div>
                 <div class="pages-container" id="pages-container-french">
                 </div>
                  <div class="add-page-button-container">
-                    <button class="add-page-btn" onclick="addPage('french', 'text')"><i class="fas fa-plus-circle"></i> Add New Page</button>
-                    <button class="add-page-btn design-page-btn" onclick="addPage('french', 'design')"><i class="fas fa-image"></i> Add a Design</button>
+                    <button class="add-page-btn" onclick="addPage('french', 'text')" data-i18n="addPage"><i class="fas fa-plus-circle"></i> Add New Page</button>
+                    <button class="add-page-btn design-page-btn" onclick="addPage('french', 'design')" data-i18n="addDesign"><i class="fas fa-image"></i> Add a Design</button>
                 </div>
             </section>
 
             <!-- English Section -->
             <section id="english-section" class="book-section" data-section-lang="english" style="display: none;">
                  <div class="header-controls" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h2>English Section</h2>
+                    <h2 data-i18n="englishSectionTitle">English Section</h2>
                     <div class="page-numbering-controls">
-                        <label><b>Numbering:</b></label>
-                        <input type="radio" id="continue-english" name="numbering-english" value="continue"> <label for="continue-english">Continue</label>
-                        <input type="radio" id="start-new-english" name="numbering-english" value="start_new" checked> <label for="start-new-english">Start New</label>
-                        <input type="radio" id="start-from-english" name="numbering-english" value="start_from"> <label for="start-from-english">Start at:</label>
+                        <label data-i18n="numberingLabel"><b>Numbering:</b></label>
+                        <input type="radio" id="continue-english" name="numbering-english" value="continue"> <label for="continue-english" data-i18n="numberingContinue">Continue</label>
+                        <input type="radio" id="start-new-english" name="numbering-english" value="start_new" checked> <label for="start-new-english" data-i18n="numberingStartNew">Start New</label>
+                        <input type="radio" id="start-from-english" name="numbering-english" value="start_from"> <label for="start-from-english" data-i18n="numberingStartAt">Start at:</label>
                         <input type="number" class="page-start-input" id="start-input-english" value="1" min="1">
                     </div>
                 </div>
                  <div class="page-header-footer">
-                     <input type="text" class="header-input" placeholder="English Header (applies to all pages in this section)">
-                     <input type="text" class="section-footer-input" placeholder="English Footer (applies to all pages in this section)">
+                     <input type="text" class="header-input" data-i18n-placeholder="englishHeaderPlaceholder" placeholder="English Header (applies to all pages in this section)">
+                     <input type="text" class="section-footer-input" data-i18n-placeholder="englishFooterPlaceholder" placeholder="English Footer (applies to all pages in this section)">
                 </div>
                 <div class="pages-container" id="pages-container-english">
                 </div>
                  <div class="add-page-button-container">
-                    <button class="add-page-btn" onclick="addPage('english', 'text')"><i class="fas fa-plus-circle"></i> Add New Page</button>
-                    <button class="add-page-btn design-page-btn" onclick="addPage('english', 'design')"><i class="fas fa-image"></i> Add a Design</button>
+                    <button class="add-page-btn" onclick="addPage('english', 'text')" data-i18n="addPage"><i class="fas fa-plus-circle"></i> Add New Page</button>
+                    <button class="add-page-btn design-page-btn" onclick="addPage('english', 'design')" data-i18n="addDesign"><i class="fas fa-image"></i> Add a Design</button>
                 </div>
             </section>
 
             <!-- Back Cover Section -->
             <section id="back-cover-section" class="book-section cover-page" style="display: none;">
-                <h2>Back Cover</h2>
+                <h2 data-i18n="backCoverSectionTitle">Back Cover</h2>
                 <div class="cover-content">
-                    <label for="backCoverImage">Upload Back Cover Image:</label>
+                    <label for="backCoverImage" data-i18n="uploadBackCoverImage">Upload Back Cover Image:</label>
                     <input type="file" id="backCoverImage" accept="image/png, image/jpeg">
                     <div class="cover-design-area">
-                        <span id="backCoverPlaceholder" style="color: #aaa; font-style: italic;">Upload Back Cover Image</span>
+                        <span id="backCoverPlaceholder" style="color: #aaa; font-style: italic;" data-i18n="backCoverPlaceholder">Upload Back Cover Image</span>
                         <img id="backCoverPreview" src="#" alt="Back Cover Preview" class="cover-preview" style="display:none;">
                     </div>
                 </div>
@@ -936,23 +1007,434 @@
     <!-- Custom Context Menus -->
     <div id="text-context-menu" class="custom-context-menu">
         <ul>
-            <li id="insert-image-option"><i class="fas fa-image"></i> Insert Image</li>
+            <li id="insert-image-option" data-i18n="insertImage"><i class="fas fa-image"></i> Insert Image</li>
         </ul>
     </div>
     <div id="image-context-menu" class="custom-context-menu">
         <ul>
-            <li id="align-left-option"><i class="fas fa-align-left"></i> Align Left</li>
-            <li id="align-center-option"><i class="fas fa-align-center"></i> Align Center</li>
-            <li id="align-right-option"><i class="fas fa-align-right"></i> Align Right</li>
+            <li id="float-left-option" data-i18n="floatLeft"><i class="fas fa-align-left"></i> Float Left</li>
+            <li id="float-right-option" data-i18n="floatRight"><i class="fas fa-align-right"></i> Float Right</li>
+            <li id="no-float-option" data-i18n="noFloat"><i class="fas fa-grip-lines"></i> No Float</li>
             <li class="separator"></li>
-            <li id="replace-image-option"><i class="fas fa-sync-alt"></i> Replace Image</li>
-            <li id="remove-image-option"><i class="fas fa-trash-alt"></i> Remove Image</li>
+            <li id="align-left-option" data-i18n="alignLeftNoFloat"><i class="fas fa-align-left"></i> Align Left (no float)</li>
+            <li id="align-center-option" data-i18n="alignCenterNoFloat"><i class="fas fa-align-center"></i> Align Center (no float)</li>
+            <li id="align-right-option" data-i18n="alignRightNoFloat"><i class="fas fa-align-right"></i> Align Right (no float)</li>
+            <li class="separator"></li>
+            <li id="replace-image-option" data-i18n="replaceImage"><i class="fas fa-sync-alt"></i> Replace Image</li>
+            <li id="remove-image-option" data-i18n="removeImage"><i class="fas fa-trash-alt"></i> Remove Image</li>
         </ul>
     </div>
 
 
     <script>
         const SECTION_ORDER = ['kirundi', 'french', 'english'];
+        let currentLanguage = 'en'; // Default language
+        
+        const translations = {
+            en: {
+                // Menu
+                frontCoverBtn: "Front Cover",
+                kirundiSectionBtn: "Kirundi Section",
+                frenchSectionBtn: "French Section",
+                englishSectionBtn: "English Section",
+                backCoverBtn: "Back Cover",
+                openProjectBtn: "Open Project",
+                saveProjectBtn: "Save Project",
+                previewBookBtn: "Preview Book",
+                exportPdf: "Export to PDF",
+                exportDocx: "Save as Word (Docx)",
+                developedBy: "Developed by Ndayikeze Apollinaire",
+                footerInfo: "Ndayikeze Apollinaire is a relentless IT researcher whose work in automation bridges technical precision with visionary purpose. With a deep commitment to streamlining digital workflows and enhancing platform responsiveness, he continuously explores innovative solutions that empower editorial systems, multilingual interfaces, and institutional communication. His research is not confined to theory—it’s embedded in real-world applications across Africa, where automation becomes a tool for dignity, clarity, and societal transformation.",
+
+                // Section Titles
+                frontCoverSectionTitle: "Front Cover",
+                kirundiSectionTitle: "Kirundi Section",
+                frenchSectionTitle: "French Section",
+                englishSectionTitle: "English Section",
+                backCoverSectionTitle: "Back Cover",
+
+                // Placeholders and Labels
+                uploadFrontCoverImage: "Upload Front Cover Image:",
+                coverPlaceholder: "Upload Front Cover Image",
+                bookNumberLabel: "Book Number:",
+                bookNumberPlaceholder: "Enter #",
+                kirundiHeaderPlaceholder: "Kirundi Header (applies to all pages in this section)",
+                kirundiFooterPlaceholder: "Kirundi Footer (applies to all pages in this section)",
+                frenchHeaderPlaceholder: "French Header (applies to all pages in this section)",
+                frenchFooterPlaceholder: "French Footer (aplies to all pages in this section)",
+                englishHeaderPlaceholder: "English Header (applies to all pages in this section)",
+                englishFooterPlaceholder: "English Footer (applies to all pages in this section)",
+                mainTitlePlaceholder: (lang, pageNum) => `Main Title (${lang} - Page ${pageNum})`, // dynamic
+                subtitlePlaceholder: (lang, pageNum) => `Optional Subtitle (${lang} - Page ${pageNum})`, // dynamic
+                editorPlaceholder: (pageNum) => `Start typing on page ${pageNum}...`, // dynamic
+                captionPlaceholder: "Enter caption here...",
+                uploadDesignPrompt: "Click or drag file to this area to upload",
+                uploadBackCoverImage: "Upload Back Cover Image:",
+                backCoverPlaceholder: "Upload Back Cover Image",
+                
+                // Toolbar
+                undo: "Undo", redo: "Redo", quote: "Quote", bold: "Bold", italic: "Italic", underline: "Underline",
+                bulletList: "Bulleted List", numberedList: "Numbered List", indent: "Indent", outdent: "Outdent",
+                copy: "Copy", cut: "Cut", paste: "Paste", delete: "Delete", selectAll: "Select All",
+                fontSize: "Size", font: "Font", textColor: "Text Color",
+                alignLeft: "Align Left", alignCenter: "Align Center", alignRight: "Align Right", justify: "Justify",
+                twoColumns: "2 Columns", threeColumns: "3 Columns", oneColumn: "1 Column (Remove Columns)",
+
+                // Page Controls
+                addPage: "Add New Page",
+                addDesign: "Add a Design",
+                removePageTitle: "Remove this page",
+                hidePageNumberTitle: "Hide page number",
+
+                // System messages
+                alertSelectTextForColumns: "Please select the text you want to format into columns.",
+                alertAllowPopups: "Please allow pop-ups for this site to see the preview.",
+                alertCouldNotExportPdf: "Could not export to PDF. Please open the preview from the main editor.",
+                alertCouldNotExportWord: "Could not export to Word. Please open the preview from the main editor.",
+                alertMainEditorUrlCopied: "Main editor URL copied to clipboard! The preview content is dynamic and not directly addressable by a persistent URL.",
+                alertFailedToCopyUrl: "Failed to copy URL.",
+                confirmRemovePage: "Are you sure you want to remove this page and all its content?",
+                alertCannotDeleteLastTextPage: "You cannot delete the only text page in a section. Add another page first if you wish to replace it.",
+                alertErrorOpeningProject: "Error: Could not open or parse the project file.",
+                alertProjectLoaded: "Project loaded successfully!",
+                promptEnterFilenameJson: "Enter filename for project (e.g., my-project.json):",
+                promptEnterFilenameDoc: "Enter filename for Word document (e.g., my-book.doc):",
+                limitReached: "LIMIT REACHED",
+
+                // Page Numbering Controls
+                numberingLabel: "Numbering:",
+                numberingContinue: "Continue",
+                numberingStartNew: "Start New",
+                numberingStartAt: "Start at:",
+
+                // Context Menu
+                insertImage: "Insert Image",
+                floatLeft: "Float Left",
+                floatRight: "Float Right",
+                noFloat: "No Float",
+                alignLeftNoFloat: "Align Left (no float)",
+                alignCenterNoFloat: "Align Center (no float)",
+                alignRightNoFloat: "Align Right (no float)",
+                replaceImage: "Replace Image",
+                removeImage: "Remove Image",
+                saveAsPdf: "Save as PDF",
+                saveAsWord: "Save as Word",
+                copyUrl: "Copy URL"
+            },
+            fr: {
+                // Menu
+                frontCoverBtn: "Couverture Avant",
+                kirundiSectionBtn: "Section Kirundi",
+                frenchSectionBtn: "Section Française",
+                englishSectionBtn: "Section Anglaise",
+                backCoverBtn: "Couverture Arrière",
+                openProjectBtn: "Ouvrir Projet",
+                saveProjectBtn: "Enregistrer Projet",
+                previewBookBtn: "Aperçu du Livre",
+                exportPdf: "Exporter en PDF",
+                exportDocx: "Enregistrer au format Word (Docx)",
+                developedBy: "Développé par Ndayikeze Apollinaire",
+                footerInfo: "Ndayikeze Apollinaire est un chercheur en TI acharné dont le travail en automatisation allie la précision technique à un objectif visionnaire. Fort d'un engagement profond à rationaliser les flux de travail numériques et à améliorer la réactivité des plateformes, il explore continuellement des solutions innovantes qui renforcent les systèmes éditoriaux, les interfaces multilingues et la communication institutionnelle. Ses recherches ne se limitent pas à la théorie—elles sont ancrées dans des applications concrètes à travers l'Afrique, où l'automatisation devient un outil de dignité, de clarté et de transformation sociétale.",
+
+                // Section Titles
+                frontCoverSectionTitle: "Couverture Avant",
+                kirundiSectionTitle: "Section Kirundi",
+                frenchSectionTitle: "Section Française",
+                englishSectionTitle: "Section Anglaise",
+                backCoverSectionTitle: "Couverture Arrière",
+
+                // Placeholders and Labels
+                uploadFrontCoverImage: "Télécharger l'image de couverture avant :",
+                coverPlaceholder: "Télécharger l'image de couverture avant",
+                bookNumberLabel: "Numéro de livre :",
+                bookNumberPlaceholder: "Entrer #",
+                kirundiHeaderPlaceholder: "En-tête Kirundi (s'applique à toutes les pages de cette section)",
+                kirundiFooterPlaceholder: "Pied de page Kirundi (s'applique à toutes les pages de cette section)",
+                frenchHeaderPlaceholder: "En-tête Français (s'applique à toutes les pages de cette section)",
+                frenchFooterPlaceholder: "Pied de page Français (s'applique à toutes les pages de cette section)",
+                englishHeaderPlaceholder: "En-tête Anglais (s'applique à toutes les pages de cette section)",
+                englishFooterPlaceholder: "Pied de page Anglais (s'applique à toutes les pages de cette section)",
+                mainTitlePlaceholder: (lang, pageNum) => `Titre Principal (${lang} - Page ${pageNum})`, // dynamic
+                subtitlePlaceholder: (lang, pageNum) => `Sous-titre Optionnel (${lang} - Page ${pageNum})`, // dynamic
+                editorPlaceholder: (pageNum) => `Commencez à taper sur la page ${pageNum}...`, // dynamic
+                captionPlaceholder: "Entrez la légende ici...",
+                uploadDesignPrompt: "Cliquez ou glissez le fichier ici pour télécharger",
+                uploadBackCoverImage: "Télécharger l'image de couverture arrière :",
+                backCoverPlaceholder: "Télécharger l'image de couverture arrière",
+
+                // Toolbar
+                undo: "Annuler", redo: "Rétablir", quote: "Citation", bold: "Gras", italic: "Italique", underline: "Souligner",
+                bulletList: "Liste à puces", numberedList: "Liste numérotée", indent: "Indenter", outdent: "Désindenter",
+                copy: "Copier", cut: "Couper", paste: "Coller", delete: "Supprimer", selectAll: "Tout sélectionner",
+                fontSize: "Taille", font: "Police", textColor: "Couleur Texte",
+                alignLeft: "Aligner à gauche", alignCenter: "Centrer", alignRight: "Aligner à droite", justify: "Justifier",
+                twoColumns: "2 Colonnes", threeColumns: "3 Colonnes", oneColumn: "1 Colonne (Supprimer Colonnes)",
+
+                // Page Controls
+                addPage: "Ajouter Nouvelle Page",
+                addDesign: "Ajouter un Design",
+                removePageTitle: "Supprimer cette page",
+                hidePageNumberTitle: "Masquer le numéro de page",
+
+                // System messages
+                alertSelectTextForColumns: "Veuillez sélectionner le texte que vous souhaitez formater en colonnes.",
+                alertAllowPopups: "Veuillez autoriser les fenêtres contextuelles pour ce site pour voir l'aperçu.",
+                alertCouldNotExportPdf: "Impossible d'exporter en PDF. Veuillez ouvrir l'aperçu depuis l'éditeur principal.",
+                alertCouldNotExportWord: "Impossible d'exporter en Word. Veuillez ouvrir l'aperçu depuis l'éditeur principal.",
+                alertMainEditorUrlCopied: "L'URL de l'éditeur principal a été copiée dans le presse-papiers ! Le contenu de l'aperçu est dynamique et non directement adressable par une URL persistante.",
+                alertFailedToCopyUrl: "Échec de la copie de l'URL.",
+                confirmRemovePage: "Êtes-vous sûr de vouloir supprimer cette page et tout son contenu ?",
+                alertCannotDeleteLastTextPage: "Vous ne pouvez pas supprimer la seule page de texte d'une section. Ajoutez une autre page d'abord si vous souhaitez la remplacer.",
+                alertErrorOpeningProject: "Erreur : Impossible d'ouvrir ou d'analyser le fichier projet.",
+                alertProjectLoaded: "Projet chargé avec succès !",
+                promptEnterFilenameJson: "Entrez le nom du fichier projet (par exemple, mon-projet.json) :",
+                promptEnterFilenameDoc: "Entrez le nom du fichier Word (par exemple, mon-livre.doc) :",
+                limitReached: "LIMITE ATTEINTE",
+
+                // Page Numbering Controls
+                numberingLabel: "Numérotation :",
+                numberingContinue: "Continuer",
+                numberingStartNew: "Démarrer Nouveau",
+                numberingStartAt: "Commencer à :",
+
+                // Context Menu
+                insertImage: "Insérer Image",
+                floatLeft: "Flottant à gauche",
+                floatRight: "Flottant à droite",
+                noFloat: "Pas de flottement",
+                alignLeftNoFloat: "Aligner à gauche (sans flottement)",
+                alignCenterNoFloat: "Centrer (sans flottement)",
+                alignRightNoFloat: "Aligner à droite (sans flottement)",
+                replaceImage: "Remplacer Image",
+                removeImage: "Supprimer Image",
+                saveAsPdf: "Enregistrer en PDF",
+                saveAsWord: "Enregistrer en Word",
+                copyUrl: "Copier URL"
+            },
+            pt: {
+                // Menu
+                frontCoverBtn: "Capa Frontal",
+                kirundiSectionBtn: "Seção Kirundi",
+                frenchSectionBtn: "Seção Francesa",
+                englishSectionBtn: "Seção Inglesa",
+                backCoverBtn: "Capa Traseira",
+                openProjectBtn: "Abrir Projeto",
+                saveProjectBtn: "Salvar Projeto",
+                previewBookBtn: "Pré-visualizar Livro",
+                exportPdf: "Exportar para PDF",
+                exportDocx: "Salvar como Word (Docx)",
+                developedBy: "Desenvolvido por Ndayikeze Apollinaire",
+                footerInfo: "Ndayikeze Apollinaire é um pesquisador de TI incansável cujo trabalho em automação une precisão técnica a um propósito visionário. Com um profundo compromisso em otimizar fluxos de trabalho digitais e aprimorar a capacidade de resposta da plataforma, ele explora continuamente soluções inovadoras que capacitam sistemas editoriais, interfaces multilíngues e comunicação institucional. Sua pesquisa não se limita à teoria—ela está inserida em aplicações do mundo real em toda a África, onde a automação se torna uma ferramenta para dignidade, clareza e transformação social.",
+
+                // Section Titles
+                frontCoverSectionTitle: "Capa Frontal",
+                kirundiSectionTitle: "Seção Kirundi",
+                frenchSectionTitle: "Seção Francesa",
+                englishSectionTitle: "Seção Inglesa",
+                backCoverSectionTitle: "Capa Traseira",
+
+                // Placeholders and Labels
+                uploadFrontCoverImage: "Carregar imagem da capa frontal:",
+                coverPlaceholder: "Carregar imagem da capa frontal",
+                bookNumberLabel: "Número do Livro:",
+                bookNumberPlaceholder: "Inserir #",
+                kirundiHeaderPlaceholder: "Cabeçalho Kirundi (aplica-se a todas as páginas nesta seção)",
+                kirundiFooterPlaceholder: "Rodapé Kirundi (aplica-se a todas as páginas nesta seção)",
+                frenchHeaderPlaceholder: "Cabeçalho Francês (aplica-se a todas as páginas nesta seção)",
+                frenchFooterPlaceholder: "Rodapé Francês (aplica-se a todas as páginas nesta seção)",
+                englishHeaderPlaceholder: "Cabeçalho Inglês (aplica-se a todas as páginas nesta seção)",
+                englishFooterPlaceholder: "Rodapé Inglês (aplica-se a todas as páginas nesta seção)",
+                mainTitlePlaceholder: (lang, pageNum) => `Título Principal (${lang} - Página ${pageNum})`, // dynamic
+                subtitlePlaceholder: (lang, pageNum) => `Subtítulo Opcional (${lang} - Página ${pageNum})`, // dynamic
+                editorPlaceholder: (pageNum) => `Comece a digitar na página ${pageNum}...`, // dynamic
+                captionPlaceholder: "Inserir legenda aqui...",
+                uploadDesignPrompt: "Clique ou arraste o arquivo para esta área para carregar",
+                uploadBackCoverImage: "Carregar imagem da capa traseira:",
+                backCoverPlaceholder: "Carregar imagem da capa traseira",
+
+                // Toolbar
+                undo: "Desfazer", redo: "Refazer", quote: "Citação", bold: "Negrito", italic: "Itálico", underline: "Sublinhar",
+                bulletList: "Lista com marcadores", numberedList: "Lista numerada", indent: "Recuar", outdent: "Remover Recuo",
+                copy: "Copiar", cut: "Cortar", paste: "Colar", delete: "Excluir", selectAll: "Selecionar Tudo",
+                fontSize: "Tamanho", font: "Fonte", textColor: "Cor do Texto",
+                alignLeft: "Alinhar à Esquerda", alignCenter: "Centrar", alignRight: "Alinhar à Direita", justify: "Justificar",
+                twoColumns: "2 Colunas", threeColumns: "3 Colunas", oneColumn: "1 Coluna (Remover Colunas)",
+
+                // Page Controls
+                addPage: "Adicionar Nova Página",
+                addDesign: "Adicionar um Design",
+                removePageTitle: "Remover esta página",
+                hidePageNumberTitle: "Ocultar número da página",
+
+                // System messages
+                alertSelectTextForColumns: "Por favor, selecione o texto que deseja formatar em colunas.",
+                alertAllowPopups: "Por favor, permita pop-ups para este site para ver a pré-visualização.",
+                alertCouldNotExportPdf: "Não foi possível exportar para PDF. Por favor, abra a pré-visualização no editor principal.",
+                alertCouldNotExportWord: "Não foi possível exportar para Word. Por favor, abra a pré-visualização no editor principal.",
+                alertMainEditorUrlCopied: "URL do editor principal copiado para a área de transferência! O conteúdo da pré-visualização é dinâmico e não pode ser endereçado diretamente por um URL persistente.",
+                alertFailedToCopyUrl: "Falha ao copiar URL.",
+                confirmRemovePage: "Tem certeza de que deseja remover esta página e todo o seu conteúdo?",
+                alertCannotDeleteLastTextPage: "Você não pode excluir a única página de texto em uma seção. Adicione outra página primeiro, se desejar substituí-la.",
+                alertErrorOpeningProject: "Erro: Não foi possível abrir ou analisar o arquivo do projeto.",
+                alertProjectLoaded: "Projeto carregado com sucesso!",
+                promptEnterFilenameJson: "Insira o nome do arquivo do projeto (ex: meu-projeto.json):",
+                promptEnterFilenameDoc: "Insira o nome do arquivo Word (ex: meu-livro.doc):",
+                limitReached: "LIMITE ATINGIDO",
+
+                // Page Numbering Controls
+                numberingLabel: "Numeração:",
+                numberingContinue: "Continuar",
+                numberingStartNew: "Iniciar Novo",
+                numberingStartAt: "Iniciar em:",
+
+                // Context Menu
+                insertImage: "Inserir Imagem",
+                floatLeft: "Flutuar à Esquerda",
+                floatRight: "Flutuar à Direita",
+                noFloat: "Sem Flutuação",
+                alignLeftNoFloat: "Alinhar à Esquerda (sem flutuação)",
+                alignCenterNoFloat: "Centrar (sem flutuação)",
+                alignRightNoFloat: "Alinhar à Direita (sem flutuação)",
+                replaceImage: "Substituir Imagem",
+                removeImage: "Remover Imagem",
+                saveAsPdf: "Salvar como PDF",
+                saveAsWord: "Salvar como Word",
+                copyUrl: "Copiar URL"
+            }
+        };
+
+        function applyTranslations(lang) {
+            const currentTranslation = translations[lang];
+
+            // Update elements with data-i18n attribute (text content)
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (currentTranslation[key]) {
+                    element.textContent = currentTranslation[key];
+                }
+            });
+
+            // Update elements with data-i18n-placeholder attribute
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                if (currentTranslation[key]) {
+                    // Handle dynamic placeholders for titles and editor content
+                    if (key.includes('TitlePlaceholder') || key.includes('SubtitlePlaceholder') || key === 'editorPlaceholder') {
+                         const pageWrapper = element.closest('.page-wrapper');
+                         if (pageWrapper) {
+                             const sectionLang = pageWrapper.closest('.book-section').dataset.sectionLang;
+                             // This is a bit tricky as pageCount is dynamic. We'll update it during addPage/rebuildEditor
+                             // For existing elements, just use the generic placeholder for now, or re-calculate pageNum if needed.
+                             const pageNum = Array.from(pageWrapper.parentElement.querySelectorAll('.page-wrapper')).indexOf(pageWrapper) + 1;
+
+                             if (key.includes('TitlePlaceholder') || key.includes('SubtitlePlaceholder')) {
+                                element.placeholder = currentTranslation[key](translations[lang][`${sectionLang}SectionTitle`] || sectionLang, pageNum);
+                             } else if (key === 'editorPlaceholder') {
+                                 element.dataset.placeholder = currentTranslation[key](pageNum);
+                                 updatePlaceholder(element); // Re-trigger placeholder visibility check
+                             }
+                         } else { // Fallback for elements not inside page-wrappers (e.g., initial templates)
+                             element.placeholder = currentTranslation[key];
+                         }
+                    } else if (key === 'captionPlaceholder') {
+                        element.dataset.placeholder = currentTranslation[key];
+                    }
+                    else {
+                        element.placeholder = currentTranslation[key];
+                    }
+                }
+            });
+
+            // Update elements with data-i18n-title attribute (for tooltips)
+            document.querySelectorAll('[data-i18n-title]').forEach(element => {
+                const key = element.getAttribute('data-i18n-title');
+                if (currentTranslation[key]) {
+                    element.title = currentTranslation[key];
+                }
+            });
+
+            // Update specific button titles in the toolbar
+            document.querySelector('[onclick="formatText(\'undo\', event)"]').title = currentTranslation.undo;
+            document.querySelector('[onclick="formatText(\'redo\', event)"]').title = currentTranslation.redo;
+            document.querySelector('[onclick="toggleQuote(event)"]').title = currentTranslation.quote;
+            document.querySelector('[onclick="formatText(\'bold\', event)"]').title = currentTranslation.bold;
+            document.querySelector('[onclick="formatText(\'italic\', event)"]').title = currentTranslation.italic;
+            document.querySelector('[onclick="formatText(\'underline\', event)"]').title = currentTranslation.underline;
+            document.querySelector('[onclick="formatText(\'insertUnorderedList\', event)"]').title = currentTranslation.bulletList;
+            document.querySelector('[onclick="formatText(\'insertOrderedList\', event)"]').title = currentTranslation.numberedList;
+            document.querySelector('[onclick="formatText(\'indent\', event)"]').title = currentTranslation.indent;
+            document.querySelector('[onclick="formatText(\'outdent\', event)"]').title = currentTranslation.outdent;
+            document.querySelector('[onclick="formatText(\'copy\', event)"]').title = currentTranslation.copy;
+            document.querySelector('[onclick="formatText(\'cut\', event)"]').title = currentTranslation.cut;
+            document.querySelector('[onclick="handlePaste(event)"]').title = currentTranslation.paste;
+            document.querySelector('[onclick="formatText(\'delete\', event)"]').title = currentTranslation.delete;
+            document.querySelector('[onclick="selectAllText(event)"]').title = currentTranslation.selectAll;
+            document.querySelector('[onchange="setFontSize(this.value, event)"]').title = currentTranslation.fontSize;
+            document.querySelector('[onchange="setFontName(this.value, event)"]').title = currentTranslation.font;
+            document.querySelector('[oninput="setTextColor(this.value, event)"]').title = currentTranslation.textColor;
+            document.querySelector('[onclick="formatText(\'justifyLeft\', event)"]').title = currentTranslation.alignLeft;
+            document.querySelector('[onclick="formatText(\'justifyCenter\', event)"]').title = currentTranslation.alignCenter;
+            document.querySelector('[onclick="formatText(\'justifyRight\', event)"]').title = currentTranslation.alignRight;
+            document.querySelector('[onclick="formatText(\'justifyFull\', event)"]').title = currentTranslation.justify;
+            document.querySelector('[onclick="formatColumns(2, event)"]').title = currentTranslation.twoColumns;
+            document.querySelector('[onclick="formatColumns(3, event)"]').title = currentTranslation.threeColumns;
+            document.querySelector('[onclick="removeColumns(event)"]').title = currentTranslation.oneColumn;
+
+            // Update page numbering labels explicitly
+            document.querySelector('label[for="continue-kirundi"]').textContent = currentTranslation.numberingContinue;
+            document.querySelector('label[for="start-new-kirundi"]').textContent = currentTranslation.numberingStartNew;
+            document.querySelector('label[for="start-from-kirundi"]').textContent = currentTranslation.numberingStartAt;
+            document.querySelector('label[for="continue-french"]').textContent = currentTranslation.numberingContinue;
+            document.querySelector('label[for="start-new-french"]').textContent = currentTranslation.numberingStartNew;
+            document.querySelector('label[for="start-from-french"]').textContent = currentTranslation.numberingStartAt;
+            document.querySelector('label[for="continue-english"]').textContent = currentTranslation.numberingContinue;
+            document.querySelector('label[for="start-new-english"]').textContent = currentTranslation.numberingStartNew;
+            document.querySelector('label[for="start-from-english"]').textContent = currentTranslation.numberingStartAt;
+        }
+
+        function updateDynamicPlaceholders(lang) {
+            const currentTranslation = translations[lang];
+            SECTION_ORDER.forEach(sectionLang => {
+                const sectionEl = document.getElementById(`${sectionLang}-section`);
+                if (sectionEl) {
+                    sectionEl.querySelectorAll('.page-wrapper').forEach((pageWrapper, index) => {
+                        const pageNum = index + 1;
+                        if (pageWrapper.dataset.pageType === 'text') {
+                            const mainTitleInput = pageWrapper.querySelector('.main-title');
+                            const subtitleInput = pageWrapper.querySelector('.subtitle');
+                            const editorDiv = pageWrapper.querySelector('.master-text-editor');
+                            if (mainTitleInput) mainTitleInput.placeholder = currentTranslation.mainTitlePlaceholder(translations[lang][`${sectionLang}SectionTitle`] || sectionLang, pageNum);
+                            if (subtitleInput) subtitleInput.placeholder = currentTranslation.subtitlePlaceholder(translations[lang][`${sectionLang}SectionTitle`] || sectionLang, pageNum);
+                            if (editorDiv) {
+                                editorDiv.dataset.placeholder = currentTranslation.editorPlaceholder(pageNum);
+                                updatePlaceholder(editorDiv); // Re-trigger placeholder visibility check
+                            }
+                        } else if (pageWrapper.dataset.pageType === 'design') {
+                            const uploadPromptDiv = pageWrapper.querySelector('.upload-prompt div');
+                            if (uploadPromptDiv) uploadPromptDiv.textContent = currentTranslation.uploadDesignPrompt;
+                        }
+                    });
+                }
+            });
+            // Update caption placeholders for existing images
+            document.querySelectorAll('.image-with-caption figcaption').forEach(figcaption => {
+                figcaption.dataset.placeholder = currentTranslation.captionPlaceholder;
+            });
+        }
+
+        // Language switcher event listener
+        document.addEventListener('DOMContentLoaded', () => {
+            const langSwitcher = document.getElementById('language-switcher');
+            langSwitcher.value = currentLanguage; // Set default selection
+
+            langSwitcher.addEventListener('change', (event) => {
+                currentLanguage = event.target.value;
+                applyTranslations(currentLanguage);
+                updateDynamicPlaceholders(currentLanguage); // Update dynamic placeholders after language change
+            });
+        });
+
+        let draggedElement = null; // For drag and drop
 
         function updateAllPageNumbers() {
             let currentPageNumber = 1;
@@ -1021,7 +1503,12 @@
         function formatText(command, event) {
             const editor = getEditorFromEvent(event);
             editor.focus();
-            document.execCommand(command, false, null);
+            // Handle list commands with execCommand directly
+            if (command === 'insertUnorderedList' || command === 'insertOrderedList' || command === 'indent' || command === 'outdent') {
+                document.execCommand(command, false, null);
+            } else {
+                document.execCommand(command, false, null);
+            }
             updatePlaceholder(editor);
             checkContentLimit(editor);
         }
@@ -1049,7 +1536,7 @@
             editor.focus();
             const selection = window.getSelection();
             if (!selection.rangeCount || selection.isCollapsed) {
-                alert("Please select the text you want to format into columns.");
+                alert(translations[currentLanguage].alertSelectTextForColumns);
                 return;
             }
             const range = selection.getRangeAt(0);
@@ -1066,6 +1553,16 @@
             checkContentLimit(editor);
         }
         
+        function removeColumns(event) {
+            formatColumns(1, event); // Revert to 1 column
+        }
+
+        function selectAllText(event) {
+            const editor = getEditorFromEvent(event);
+            editor.focus();
+            document.execCommand('selectAll', false, null);
+        }
+
         function toggleQuote(event) {
             const editor = getEditorFromEvent(event);
             editor.focus();
@@ -1115,6 +1612,14 @@
                 if (imageFigure) {
                     rightClickedFigure = imageFigure;
                     showContextMenu(imageContextMenu, event.pageX, event.pageY);
+                    // Dynamically show/hide float/alignment options
+                    document.getElementById('float-left-option').style.display = 'list-item';
+                    document.getElementById('float-right-option').style.display = 'list-item';
+                    document.getElementById('no-float-option').style.display = 'list-item';
+                    const isFloated = rightClickedFigure.classList.contains('float-left') || rightClickedFigure.classList.contains('float-right');
+                    document.getElementById('align-left-option').style.display = isFloated ? 'none' : 'list-item';
+                    document.getElementById('align-center-option').style.display = isFloated ? 'none' : 'list-item';
+                    document.getElementById('align-right-option').style.display = isFloated ? 'none' : 'list-item';
                 } else {
                     const selection = window.getSelection();
                     if (selection.rangeCount > 0) {
@@ -1143,15 +1648,60 @@
         });
         document.getElementById('replace-image-option').addEventListener('click', () => { if (rightClickedFigure) { imageAction = 'replace'; imageInserter.click(); } });
         document.getElementById('remove-image-option').addEventListener('click', () => { if (rightClickedFigure) { rightClickedFigure.remove(); rightClickedFigure = null; } });
-        document.getElementById('align-left-option').addEventListener('click', () => alignImage('left'));
-        document.getElementById('align-center-option').addEventListener('click', () => alignImage('center'));
-        document.getElementById('align-right-option').addEventListener('click', () => alignImage('right'));
         
-        function alignImage(alignment) {
-            if (rightClickedFigure) {
-                rightClickedFigure.style.textAlign = alignment;
-            }
+        function clearImageClasses(figure) {
+            figure.classList.remove('float-left', 'float-right', 'align-left', 'align-center', 'align-right');
         }
+
+        document.getElementById('float-left-option').addEventListener('click', () => {
+            if (rightClickedFigure) {
+                clearImageClasses(rightClickedFigure);
+                rightClickedFigure.classList.add('float-left');
+                // Hide alignment options when floated
+                document.getElementById('align-left-option').style.display = 'none';
+                document.getElementById('align-center-option').style.display = 'none';
+                document.getElementById('align-right-option').style.display = 'none';
+            }
+        });
+        document.getElementById('float-right-option').addEventListener('click', () => {
+            if (rightClickedFigure) {
+                clearImageClasses(rightClickedFigure);
+                rightClickedFigure.classList.add('float-right');
+                // Hide alignment options when floated
+                document.getElementById('align-left-option').style.display = 'none';
+                document.getElementById('align-center-option').style.display = 'none';
+                document.getElementById('align-right-option').style.display = 'none';
+            }
+        });
+        document.getElementById('no-float-option').addEventListener('click', () => {
+            if (rightClickedFigure) {
+                clearImageClasses(rightClickedFigure);
+                rightClickedFigure.classList.add('align-center'); // Default to center if no float
+                // Show alignment options when not floated
+                document.getElementById('align-left-option').style.display = 'list-item';
+                document.getElementById('align-center-option').style.display = 'list-item';
+                document.getElementById('align-right-option').style.display = 'list-item';
+            }
+        });
+
+        document.getElementById('align-left-option').addEventListener('click', () => {
+            if (rightClickedFigure && !rightClickedFigure.classList.contains('float-left') && !rightClickedFigure.classList.contains('float-right')) {
+                clearImageClasses(rightClickedFigure);
+                rightClickedFigure.classList.add('align-left');
+            }
+        });
+        document.getElementById('align-center-option').addEventListener('click', () => {
+            if (rightClickedFigure && !rightClickedFigure.classList.contains('float-left') && !rightClickedFigure.classList.contains('float-right')) {
+                clearImageClasses(rightClickedFigure);
+                rightClickedFigure.classList.add('align-center');
+            }
+        });
+        document.getElementById('align-right-option').addEventListener('click', () => {
+            if (rightClickedFigure && !rightClickedFigure.classList.contains('float-left') && !rightClickedFigure.classList.contains('float-right')) {
+                clearImageClasses(rightClickedFigure);
+                rightClickedFigure.classList.add('align-right');
+            }
+        });
 
         imageInserter.addEventListener('change', (event) => {
             const file = event.target.files[0];
@@ -1167,30 +1717,33 @@
                         sel.addRange(lastSelectionRange);
 
                         const figure = document.createElement('figure');
-                        figure.className = 'image-with-caption';
+                        figure.className = 'image-with-caption'; // Inline block, no initial float/align class
                         figure.contentEditable = false;
+                        figure.draggable = false; // Not draggable as an inline object
+                        
                         const container = document.createElement('div');
                         container.className = 'resizable-image-container';
+                        // Set a default size for the resizable container to make it visible and resizable
+                        container.style.width = '150px'; 
+                        container.style.height = 'auto'; // Let height adjust naturally, maintaining aspect ratio
+
                         const img = document.createElement('img');
                         img.src = dataUrl;
                         const figcaption = document.createElement('figcaption');
                         figcaption.contentEditable = true;
-                        figcaption.dataset.placeholder = 'Enter caption here...';
+                        figcaption.dataset.placeholder = translations[currentLanguage].captionPlaceholder;
                         container.appendChild(img);
                         figure.appendChild(container);
                         figure.appendChild(figcaption);
                         
                         const range = sel.getRangeAt(0);
-                        range.deleteContents();
-                        range.insertNode(figure);
+                        range.deleteContents(); // Remove any selected content before inserting
+                        range.insertNode(figure); // Insert the figure at the cursor location
 
-                        const space = document.createTextNode('\u00A0');
+                        // Move caret immediately after the inserted image
                         range.setStartAfter(figure);
-                        range.insertNode(space);
-                        
-                        range.setStartAfter(space);
-                        sel.removeAllRanges();
-                        sel.addRange(range);
+                        selection.removeAllRanges();
+                        selection.addRange(range);
 
                         updatePlaceholder(activeEditor);
                         checkContentLimit(activeEditor);
@@ -1212,30 +1765,34 @@
             const newPageWrapper = document.createElement('div');
             newPageWrapper.className = 'page-wrapper';
             newPageWrapper.dataset.pageType = type;
-            const langCapitalized = lang.charAt(0).toUpperCase() + lang.slice(1);
-            
+            const pageNum = container.querySelectorAll('.page-wrapper').length + 1; // Count all page types for simple numbering
+
             if (type === 'text') {
-                 const pageCount = container.querySelectorAll('.page-wrapper[data-page-type="text"]').length + 1;
                  newPageWrapper.innerHTML = `
                     <div class="rich-text-editor-container">
                         <div class="title-section">
                             <div class="main-title-container">
-                                <input type="text" class="main-title" placeholder="Main Title (${langCapitalized} - Page ${pageCount})">
+                                <input type="text" class="main-title" data-i18n-placeholder="mainTitlePlaceholder" placeholder="${translations[currentLanguage].mainTitlePlaceholder(translations[currentLanguage][`${lang}SectionTitle`] || lang, pageNum)}">
                             </div>
-                            <div class="subtitle-container"><input type="text" class="subtitle" placeholder="Optional Subtitle (${langCapitalized} - Page ${pageCount})"></div>
+                            <div class="subtitle-container"><input type="text" class="subtitle" data-i18n-placeholder="subtitlePlaceholder" placeholder="${translations[currentLanguage].subtitlePlaceholder(translations[currentLanguage][`${lang}SectionTitle`] || lang, pageNum)}"></div>
                         </div>
                         <div class="editor-toolbar">
-                             <button onclick="formatText('undo', event)" title="Undo"><i class="fas fa-undo"></i></button><button onclick="formatText('redo', event)" title="Redo"><i class="fas fa-redo"></i></button><button onclick="toggleQuote(event)" title="Quote"><i class="fas fa-quote-left"></i></button><button onclick="formatText('bold', event)" title="Bold"><i class="fas fa-bold"></i></button><button onclick="formatText('italic', event)" title="Italic"><i class="fas fa-italic"></i></button><button onclick="formatText('underline', event)" title="Underline"><i class="fas fa-underline"></i></button><button onclick="formatText('copy', event)" title="Copy"><i class="fas fa-copy"></i></button><button onclick="formatText('cut', event)" title="Cut"><i class="fas fa-cut"></i></button><button onclick="formatText('paste', event)" title="Paste"><i class="fas fa-paste"></i></button><button onclick="formatText('delete', event)" title="Delete"><i class="fas fa-trash"></i></button><button onclick="formatText('selectAll', event)" title="Select All"><i class="fas fa-object-group"></i></button><select onchange="setFontSize(this.value, event)" title="Font Size"><option value="">Size</option><option value="1">Small</option><option value="2">Normal</option><option value="3">Medium</option><option value="4">Large</option><option value="5">X-Large</option><option value="6">XX-Large</option><option value="7">Huge</option></select><select onchange="setFontName(this.value, event)" title="Font Name"><option value="">Font</option><option value="Arial">Arial</option><option value="Verdana">Verdana</option><option value="Times New Roman">Times New Roman</option><option value="Georgia">Georgia</option><option value="Courier New">Courier New</option><option value="Lucida Console">Lucida Console</option></select><input type="color" oninput="setTextColor(this.value, event)" title="Text Color"><button onclick="formatText('justifyLeft', event)" title="Align Left"><i class="fas fa-align-left"></i></button><button onclick="formatText('justifyCenter', event)" title="Align Center"><i class="fas fa-align-center"></i></button><button onclick="formatText('justifyRight', event)" title="Align Right"><i class="fas fa-align-right"></i></button><button onclick="formatText('justifyFull', event)" title="Justify"><i class="fas fa-align-justify"></i></button><button onclick="formatColumns(2, event)" title="2 Columns"><i class="fas fa-columns"></i> 2</button><button onclick="formatColumns(3, event)" title="3 Columns"><i class="fas fa-columns"></i> 3</button>
+                             <button onclick="formatText('undo', event)" data-i18n-title="undo"><i class="fas fa-undo"></i></button><button onclick="formatText('redo', event)" data-i18n-title="redo"><i class="fas fa-redo"></i></button><button onclick="toggleQuote(event)" data-i18n-title="quote"><i class="fas fa-quote-left"></i></button><button onclick="formatText('bold', event)" data-i18n-title="bold"><i class="fas fa-bold"></i></button><button onclick="formatText('italic', event)" data-i18n-title="italic"><i class="fas fa-italic"></i></button><button onclick="formatText('underline', event)" data-i18n-title="underline"><i class="fas fa-underline"></i></button>
+                             <button onclick="formatText('insertUnorderedList', event)" data-i18n-title="bulletList"><i class="fas fa-list-ul"></i></button>
+                             <button onclick="formatText('insertOrderedList', event)" data-i18n-title="numberedList"><i class="fas fa-list-ol"></i></button>
+                             <button onclick="formatText('indent', event)" data-i18n-title="indent"><i class="fas fa-indent"></i></button>
+                             <button onclick="formatText('outdent', event)" data-i18n-title="outdent"><i class="fas fa-outdent"></i></button>
+                             <button onclick="formatText('copy', event)" data-i18n-title="copy"><i class="fas fa-copy"></i></button><button onclick="formatText('cut', event)" data-i18n-title="cut"><i class="fas fa-cut"></i></button><button onclick="handlePaste(event)" data-i18n-title="paste"><i class="fas fa-paste"></i></button><button onclick="formatText('delete', event)" data-i18n-title="delete"><i class="fas fa-trash"></i></button><button onclick="selectAllText(event)" data-i18n-title="selectAll"><i class="fas fa-object-group"></i> <span data-i18n="selectAll">Select All</span></button><select onchange="setFontSize(this.value, event)" data-i18n-title="fontSize"><option value="">Size</option><option value="1">Small</option><option value="2">Normal</option><option value="3">Medium</option><option value="4">Large</option><option value="5">X-Large</option><option value="6">XX-Large</option><option value="7">Huge</option></select><select onchange="setFontName(this.value, event)" data-i18n-title="font"><option value="">Font</option><option value="Arial">Arial</option><option value="Verdana">Verdana</option><option value="Times New Roman">Times New Roman</option><option value="Georgia">Georgia</option><option value="Courier New">Courier New</option><option value="Lucida Console">Lucida Console</option></select><input type="color" oninput="setTextColor(this.value, event)" data-i18n-title="textColor"><button onclick="formatText('justifyLeft', event)" data-i18n-title="alignLeft"><i class="fas fa-align-left"></i></button><button onclick="formatText('justifyCenter', event)" data-i18n-title="alignCenter"><i class="fas fa-align-center"></i></button><button onclick="formatText('justifyRight', event)" data-i18n-title="alignRight"><i class="fas fa-align-right"></i></button><button onclick="formatText('justifyFull', event)" data-i18n-title="justify"><i class="fas fa-align-justify"></i></button><button onclick="formatColumns(2, event)" data-i18n-title="twoColumns"><i class="fas fa-columns"></i> 2</button><button onclick="formatColumns(3, event)" data-i18n-title="threeColumns"><i class="fas fa-columns"></i> 3</button><button onclick="removeColumns(event)" data-i18n-title="oneColumn"><i class="fas fa-columns"></i> 1</button>
                         </div>
-                        <div class="master-text-editor" contenteditable="true" data-placeholder="Start typing on page ${pageCount}..."></div>
+                        <div class="master-text-editor" contenteditable="true" data-i18n-placeholder="editorPlaceholder" data-placeholder="${translations[currentLanguage].editorPlaceholder(pageNum)}"></div>
                     </div>
-                    <div class="limit-indicator">LIMIT REACHED</div>
+                    <div class="limit-indicator" data-i18n="limitReached">LIMIT REACHED</div>
                     <div class="page-footer-container">
                         <div class="page-controls-container">
-                            <button class="remove-page-btn" title="Remove this page"><i class="fas fa-trash-alt"></i></button>
+                            <button class="remove-page-btn" data-i18n-title="removePageTitle"><i class="fas fa-trash-alt"></i></button>
                             <div class="page-number-container">
                                 <span class="page-number">0</span>
-                                <span class="remove-page-number" title="Hide page number">&times;</span>
+                                <span class="remove-page-number" data-i18n-title="hidePageNumberTitle">&times;</span>
                             </div>
                         </div>
                     </div>`;
@@ -1244,17 +1801,17 @@
                     <div class="design-page-container">
                         <div class="upload-prompt">
                             <i class="fas fa-cloud-upload-alt"></i>
-                            <div>Click or drag file to this area to upload</div>
+                            <div data-i18n="uploadDesignPrompt">${translations[currentLanguage].uploadDesignPrompt}</div>
                         </div>
                         <img class="design-preview-img" src="#">
                         <input type="file" accept="image/*" style="display: none;">
                     </div>
                      <div class="page-footer-container">
                         <div class="page-controls-container">
-                            <button class="remove-page-btn" title="Remove this page"><i class="fas fa-trash-alt"></i></button>
+                            <button class="remove-page-btn" data-i18n-title="removePageTitle"><i class="fas fa-trash-alt"></i></button>
                             <div class="page-number-container">
                                 <span class="page-number">0</span>
-                                <span class="remove-page-number" title="Hide page number">&times;</span>
+                                <span class="remove-page-number" data-i18n-title="hidePageNumberTitle">&times;</span>
                             </div>
                         </div>
                     </div>`;
@@ -1320,12 +1877,19 @@
                     align-items: center; justify-content: center;
                 }
                 .content {
-                    padding: 0.5in 1in 1in 1in;
+                    padding: 0.5in 1in calc(1in + 22px) 1in; /* Lift footer by adding to bottom padding */
                     height: 100%;
-                    overflow: hidden;
+                    overflow: hidden; /* Hide overflow to protect footer area */
+                    font-family: 'Times New Roman', Times, serif; /* Default font for content */
+                    line-height: 1.5; /* Ensure line spacing is respected */
+                }
+                .content p {
+                    line-height: 1.5; /* Apply line-height to paragraphs */
+                    margin-top: 0;
+                    margin-bottom: 0.5em;
                 }
                 .footer {
-                    position: absolute; bottom: 0; left: 0; right: 0; height: 1in;
+                    position: absolute; bottom: 22px; /* Lift footer upward by 22px (approx 0.8cm) */ left: 0; right: 0; height: 1in;
                     padding: 0 1in 0.5in 1in;
                     display: flex; align-items: flex-end;
                     justify-content: space-between;
@@ -1339,6 +1903,7 @@
                     background-color: #27ae60; color: white; padding: 4px 10px;
                     border-radius: 5px; font-weight: bold; font-size: 14px;
                 }
+
                 .main-title-container-preview {
                     margin: 0 auto 0.25in auto; padding: 0.15in; padding-bottom: calc(0.15in + 8px);
                     text-align: center; background-color: #009E60; color: #ffffff;
@@ -1357,13 +1922,44 @@
                     display: inline-block; margin: 0; padding: 0 0 4pt 0; font-size: 14pt;
                     font-weight: bold; color: #c0392b; border-bottom: 2pt solid #c0392b;
                 }
-                .content p { margin-top: 0; margin-bottom: 0.5em; }
+                
                 .content div, .content blockquote { margin-top: 0; margin-bottom: 1em; }
-                .content figure { max-width: 100%; margin: 1em 0; page-break-inside: avoid; }
-                .content figure img { max-width: 100%; height: auto; }
+                
+                /* Preview styles for images */
+                .content figure {
+                    display: inline-block; /* Inline object */
+                    vertical-align: middle; /* Align with text baseline */
+                    margin: 0 0.5em; /* Small horizontal margin to separate from text */
+                    max-width: 100%; /* Ensure it doesn't exceed editor width */
+                    width: auto; /* Allow auto width or specific inline width */
+                    resize: none; /* Disable resizing in print output */
+                    overflow: hidden; /* Hide resize handles in print output */
+                }
+                /* Remove float/align specific classes for preview */
+                .content figure.float-left, .content figure.float-right,
+                .content figure.align-left, .content figure.align-center, .content figure.align-right {
+                    float: none;
+                    margin: 0 0.5em;
+                    clear: none;
+                    text-align: initial;
+                }
+
+                .content figure .resizable-image-container {
+                    /* Inherit dimensions or set explicit for print */
+                    width: inherit; /* Should take width from figure inline style */
+                    height: inherit; /* Should take height from figure inline style */
+                    resize: none; /* Disable resizing in print output */
+                    overflow: hidden;
+                    border: none;
+                    cursor: default;
+                }
+
+                .content figure img { max-width: 100%; height: auto; display: block; }
                 .content figcaption {
-                    font-size: 10pt; font-style: italic; color: #555;
-                    padding-top: 4pt; text-align: center;
+                    font-size: 10pt; font-style: italic; color: #000; /* Set to black for readability */
+                    padding-top: 8pt; /* Increased padding for clear separation */
+                    text-align: center;
+                    display: block;
                 }
                 .content div[style*="column-count"] { margin-top: 1em; margin-bottom: 1em; }
                 .content .custom-quote {
@@ -1381,6 +1977,10 @@
                 .content div[style*="text-align: center"] { text-align: center; }
                 .content div[style*="text-align: right"] { text-align: right; }
                 .content div[style*="text-align: justify"] { text-align: justify; }
+                /* List formatting */
+                .content ul, .content ol { margin-left: 1.5em; margin-bottom: 1em; line-height: 1.5; }
+                .content ul ul, .content ol ol { margin-left: 1.5em; } /* For nested lists */
+                .content li { margin-bottom: 0.5em; }
                 .content font[color] { color: inherit; } .content font[face] { font-family: inherit; }
                 .content font[size="1"] { font-size: x-small; } .content font[size="2"] { font-size: small; }
                 .content font[size="3"] { font-size: medium; } .content font[size="4"] { font-size: large; }
@@ -1420,25 +2020,59 @@
                     const pageNumContainer = page.querySelector('.page-number-container');
                     const isPageNumVisible = pageNumSpan && !pageNumContainer.classList.contains('hidden');
                     
+                    let pageContentPresent = false; // Flag to track if the page has any content
+                    let currentEditorContent = ''; // To hold modified editor HTML for text pages
+
                     if (pageType === 'design') {
                         const imgSrc = page.querySelector('.design-preview-img')?.src;
                         if (imgSrc && !imgSrc.endsWith('#')) {
-                             body += `<div class="page design-page-preview"><img src="${imgSrc}" alt="Design Page"></div>`;
+                            pageContentPresent = true;
                         }
-                    } else {
+                    } else { // type === 'text'
                         const title = page.querySelector('.main-title').value;
                         const subtitle = page.querySelector('.subtitle').value;
                         const editor = page.querySelector('.master-text-editor');
-                        const editorContent = editor.innerHTML.trim();
-                        const hasText = editor.textContent.trim() !== '' || editor.querySelector('img, figure, blockquote, div');
+                        let editorRawContent = editor.innerHTML.trim();
 
-                        if (title || subtitle || hasText || header || footerText || isPageNumVisible) {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = editorRawContent;
+                        tempDiv.querySelectorAll('.image-with-caption').forEach(figure => {
+                            const resizableContainer = figure.querySelector('.resizable-image-container');
+                            if (resizableContainer) {
+                                figure.style.width = resizableContainer.style.width || 'auto';
+                                figure.style.height = resizableContainer.style.height || 'auto';
+                                resizableContainer.style.resize = 'none';
+                                resizableContainer.style.overflow = 'hidden';
+                                resizableContainer.style.border = 'none';
+                                resizableContainer.style.cursor = 'default';
+                            }
+                        });
+                        currentEditorContent = tempDiv.innerHTML;
+
+                        // Check for meaningful text content (not just empty tags or whitespace)
+                        const hasMeaningfulEditorContent = currentEditorContent.replace(/<[^>]+>/g, '').trim().length > 0 || tempDiv.querySelector('img, figure, blockquote, div');
+                        
+                        // A page is considered "not blank" if it has a title, subtitle, editor content,
+                        // a header, a footer, or a visible page number.
+                        if (title.trim() !== '' || subtitle.trim() !== '' || hasMeaningfulEditorContent || header.trim() !== '' || footerText.trim() !== '' || isPageNumVisible) {
+                            pageContentPresent = true;
+                        }
+                    }
+
+                    if (pageContentPresent) { // Only add page to preview if content is present
+                        if (pageType === 'design') {
+                            const imgSrc = page.querySelector('.design-preview-img')?.src;
+                            body += `<div class="page design-page-preview"><img src="${imgSrc}" alt="Design Page"></div>`;
+                        } else { // type === 'text'
+                            const title = page.querySelector('.main-title').value;
+                            const subtitle = page.querySelector('.subtitle').value;
+
                             body += `<div class="page">`;
                             body += `<div class="header">${header || ''}</div>`;
                             body += `<div class="content">`;
                             if (title) body += `<div class="main-title-container-preview"><h1>${title}</h1></div>`;
                             if (subtitle) body += `<div class="subtitle-wrapper"><h2>${subtitle}</h2></div>`;
-                            body += editorContent;
+                            body += currentEditorContent;
                             body += `</div>`;
                             body += `<div class="footer">`;
                             if (footerText) {
@@ -1466,11 +2100,14 @@
                     <ul>
                         <li id="save-pdf-option">
                             <svg fill="#c0392b" viewBox="0 0 384 512"><path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM112 256H272c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64H272c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64H272c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16z"/></svg>
-                            Save as PDF
+                            <span data-i18n="saveAsPdf">${translations[currentLanguage].saveAsPdf}</span>
                         </li>
                         <li id="save-word-option">
                              <svg fill="#2980b9" viewBox="0 0 384 512"><path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM128 256h32.1c2.1 0 4.1 1 5.4 2.6l44.2 53.1 44.2-53.1c1.4-1.6 3.3-2.6 5.4-2.6H256c8.8 0 16 7.2 16 16s-7.2 16-16 16h-4.3L192 332.1 132.3 288H128c-8.8 0-16-7.2-16-16s7.2-16 16-16z"/></svg>
-                            Save as Word
+                             <span data-i18n="saveAsWord">${translations[currentLanguage].saveAsWord}</span>
+                        </li>
+                        <li id="copy-preview-url-option">
+                            <i class="fas fa-link"></i> <span data-i18n="copyUrl">${translations[currentLanguage].copyUrl}</span>
                         </li>
                     </ul>
                 </div>
@@ -1488,14 +2125,29 @@
                             contextMenu.style.display = 'none';
                         });
                         document.getElementById('save-pdf-option').addEventListener('click', () => {
+                            // Ensure the opener window exists and has the exportToPdf function
                             if (window.opener && typeof window.opener.exportToPdf === 'function') {
                                 window.opener.exportToPdf();
+                            } else {
+                                console.error('Opener window or exportToPdf function not found.');
+                                alert('${translations[currentLanguage].alertCouldNotExportPdf}');
                             }
                         });
                         document.getElementById('save-word-option').addEventListener('click', () => {
-                            if (window.opener && typeof window.opener.exportToDoc === 'function') {
-                                window.opener.exportToDoc();
+                            // Ensure the opener window exists and has the promptAndSaveAsDocx function
+                            if (window.opener && typeof window.opener.promptAndSaveAsDocx === 'function') {
+                                window.opener.promptAndSaveAsDocx();
+                            } else {
+                                console.error('Opener window or promptAndSaveAsDocx function not found.');
+                                alert('${translations[currentLanguage].alertCouldNotExportWord}');
                             }
+                        });
+                        document.getElementById('copy-preview-url-option').addEventListener('click', () => {
+                            // The URL in the preview window is 'about:blank' so we copy the main window's URL
+                            // If the user expects the *content* as a data URL, that's a different implementation.
+                            navigator.clipboard.writeText(window.location.href)
+                                .then(() => { alert('${translations[currentLanguage].alertMainEditorUrlCopied}'); })
+                                .catch(err => { console.error('Failed to copy URL:', err); alert('${translations[currentLanguage].alertFailedToCopyUrl}'); });
                         });
                     });
                 <\/script>
@@ -1517,7 +2169,7 @@
             const previewHtml = previewElement.innerHTML;
             const previewWindow = window.open('', '_blank');
             if (!previewWindow) {
-                alert('Please allow pop-ups for this site to see the preview.');
+                alert(translations[currentLanguage].alertAllowPopups);
                 return;
             }
             previewWindow.document.open();
@@ -1527,10 +2179,43 @@
 
         function handlePaste(event) {
             event.preventDefault();
-            const text = (event.clipboardData || window.clipboardData).getData('text/plain');
+            const clipboardData = event.clipboardData || window.clipboardData;
+            const plainText = clipboardData.getData('text/plain');
             const editor = event.target;
-            
-            document.execCommand('insertText', false, text);
+            editor.focus();
+
+            // Split plain text by double newlines to identify paragraphs
+            const paragraphs = plainText.split(/\n\s*\n/).filter(block => block.trim() !== '');
+
+            let htmlToInsert = '';
+            if (paragraphs.length > 0) {
+                // Wrap each paragraph in <p> tags, converting single newlines within paragraphs to <br>
+                htmlToInsert = paragraphs.map(p => `<p>${p.replace(/\n/g, '<br>').trim()}</p>`).join('');
+            } else {
+                // If no double newlines, just convert single newlines to <br> for a single block
+                // Ensure it's wrapped in a <p> if it's not empty, to maintain paragraph structure
+                if (plainText.trim() !== '') {
+                    htmlToInsert = `<p>${plainText.replace(/\n/g, '<br>').trim()}</p>`;
+                }
+            }
+
+            // Insert the generated HTML at the current caret position
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0) {
+                const range = selection.getRangeAt(0);
+                range.deleteContents(); // Remove any selected content before inserting
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = htmlToInsert;
+                
+                // Insert nodes from the temporary div into the range
+                while (tempDiv.firstChild) {
+                    range.insertNode(tempDiv.firstChild);
+                }
+                selection.collapseToEnd(); // Move caret to the end of the inserted content
+            } else {
+                // Fallback if no selection/range, append to end of editor
+                editor.innerHTML += htmlToInsert;
+            }
 
             setTimeout(() => {
                 updatePlaceholder(editor);
@@ -1566,12 +2251,19 @@
             const wrapper = editor.closest('.page-wrapper');
             if (!wrapper) return;
             const indicator = wrapper.querySelector('.limit-indicator');
-            const threshold = 48; // Approx 0.5 inch
-            if (editor.scrollHeight >= editor.clientHeight - threshold) {
+            const footerReservedHeight = 96; // Approximate height for footer area (1in padding + 22px lift)
+            const availableEditorContentHeight = editor.clientHeight - footerReservedHeight;
+
+            // Check if the scrollHeight (actual content height) exceeds the available space.
+            // A small threshold can be added for minor discrepancies or line height issues.
+            const threshold = 5; 
+            if (editor.scrollHeight > availableEditorContentHeight + threshold) {
                 indicator.style.display = 'block';
             } else {
                 indicator.style.display = 'none';
             }
+            // Ensure content does not overflow visually into the footer area
+            editor.style.maxHeight = `${availableEditorContentHeight}px`;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1582,10 +2274,17 @@
             initializeNumberingControls();
             updateAllPageNumbers();
 
+            // Apply initial translations after all elements are potentially created
+            applyTranslations(currentLanguage);
+            updateDynamicPlaceholders(currentLanguage); // Ensure dynamic placeholders are set correctly initially
+
             document.querySelectorAll('.header-input, .main-title, .subtitle, .section-footer-input').forEach(updateLayoutForEmptyInputs);
             document.querySelectorAll('.master-text-editor').forEach(editor => {
                 updatePlaceholder(editor);
                 checkContentLimit(editor);
+                editor.querySelectorAll('.image-with-caption').forEach(figure => {
+                    figure.draggable = true;
+                });
             });
             
             document.querySelector('.main-content').addEventListener('click', function(event) {
@@ -1595,15 +2294,20 @@
                 }
                 const removePageBtn = event.target.closest('.remove-page-btn');
                 if (removePageBtn) {
-                     if (confirm('Are you sure you want to remove this page and all its content?')) {
+                     if (confirm(translations[currentLanguage].confirmRemovePage)) {
                         const pageWrapper = removePageBtn.closest('.page-wrapper');
                         const pagesContainer = pageWrapper.parentElement;
-                        if (pagesContainer.children.length > 1) {
-                            pageWrapper.remove();
-                            updateAllPageNumbers();
-                        } else {
-                            alert("You cannot delete the only page in a section.");
+                        // Allow removal only if there's more than one page in the section, or if it's not a text section
+                        // For text sections, always keep at least one page. For design sections, it's fine to have 0 pages if all are removed.
+                        const sectionLang = pageWrapper.closest('.book-section').dataset.sectionLang;
+                        const textPagesInThisSection = pagesContainer.querySelectorAll('.page-wrapper[data-page-type="text"]').length;
+                        
+                        if (pageWrapper.dataset.pageType === 'text' && textPagesInThisSection === 1) {
+                            alert(translations[currentLanguage].alertCannotDeleteLastTextPage);
+                            return;
                         }
+                        pageWrapper.remove();
+                        updateAllPageNumbers();
                     }
                 }
             });
@@ -1663,7 +2367,7 @@
                 },
                 jsPDF:        { 
                     unit: 'mm', 
-                    format: [210, 287], 
+                    format: [210, 287], // Corrected format array
                     orientation: 'portrait' 
                 },
                 pagebreak:    { mode: 'legacy', before: '.page' }
@@ -1671,24 +2375,44 @@
             html2pdf().from(element.querySelector('.preview-container')).set(opt).save();
         }
 
-        function exportToDoc() {
-            const htmlContent = generatePreviewHtml(true);
+        function exportToDoc(filename = 'ikiyago-book.doc') {
+            const htmlContent = generatePreviewHtml(true); // Pass true to generate Word-specific HTML (without context menu)
             const blob = new Blob(['\ufeff', htmlContent], {
                 type: 'application/msword'
             });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'ikiyago-book.doc';
+            link.download = filename;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function promptAndSaveAsDocx() {
+            let filename = prompt(translations[currentLanguage].promptEnterFilenameDoc, "ikiyago-book.doc");
+            if (!filename) {
+                return; // User cancelled
+            }
+            if (!filename.toLowerCase().endsWith('.doc') && !filename.toLowerCase().endsWith('.docx')) {
+                filename += '.doc'; // Default to .doc if no valid extension provided
+            }
+            exportToDoc(filename);
         }
 
         // --- SAVE/OPEN PROJECT ---
         const projectOpener = document.getElementById('project-opener');
 
         function saveProject() {
+            let filename = prompt(translations[currentLanguage].promptEnterFilenameJson, "ikiyago-project.json");
+            if (!filename) {
+                return; // User cancelled
+            }
+            if (!filename.toLowerCase().endsWith('.json')) {
+                filename += '.json'; // Ensure .json extension
+            }
+
             const projectData = {
                 frontCover: {
                     imageSrc: document.getElementById('frontCoverPreview').src,
@@ -1712,14 +2436,32 @@
                 
                 sectionEl.querySelectorAll('.page-wrapper').forEach(page => {
                     const pageType = page.dataset.pageType;
-                    const pageContent = (pageType === 'text') ? 
-                        {
+                    let pageContent;
+
+                    if (pageType === 'text') {
+                        const editor = page.querySelector('.master-text-editor');
+                        // Clone editor content to avoid modifying live DOM during data collection
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = editor.innerHTML;
+                        tempDiv.querySelectorAll('.image-with-caption').forEach(figure => {
+                            const resizableContainer = figure.querySelector('.resizable-image-container');
+                            if (resizableContainer) {
+                                // Save current inline style for width and height
+                                figure.setAttribute('data-original-width', resizableContainer.style.width || 'auto');
+                                figure.setAttribute('data-original-height', resizableContainer.style.height || 'auto');
+                            }
+                        });
+                        
+                        pageContent = {
                             title: page.querySelector('.main-title').value,
                             subtitle: page.querySelector('.subtitle').value,
-                            content: page.querySelector('.master-text-editor').innerHTML
-                        } : {
+                            content: tempDiv.innerHTML // Save modified innerHTML
+                        };
+                    } else if (pageType === 'design') {
+                        pageContent = {
                             designSrc: page.querySelector('.design-preview-img').src
                         };
+                    }
 
                     sectionData.pages.push({
                         type: pageType,
@@ -1733,7 +2475,7 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'ikiyago-project.json';
+            link.download = filename;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -1754,7 +2496,7 @@
                     const projectData = JSON.parse(e.target.result);
                     rebuildEditor(projectData);
                 } catch (error) {
-                    alert('Error: Could not open or parse the project file.');
+                    alert(translations[currentLanguage].alertErrorOpeningProject);
                     console.error("Error parsing project file:", error);
                 }
             };
@@ -1788,7 +2530,7 @@
                     
                     sectionEl.querySelector('.header-input').value = sectionData.header || '';
                     sectionEl.querySelector('.section-footer-input').value = sectionData.footer || '';
-                    sectionEl.querySelector(`input[value="${sectionData.numberingOption}"]`).checked = true;
+                    sectionEl.querySelector(`input[name="numbering-${lang}"][value="${sectionData.numberingOption}"]`).checked = true;
                     const startInput = sectionEl.querySelector(`#start-input-${lang}`);
                     startInput.value = sectionData.startAt || '1';
                     
@@ -1802,7 +2544,18 @@
                         if (pageData.type === 'text') {
                             newPage.querySelector('.main-title').value = pageData.title || '';
                             newPage.querySelector('.subtitle').value = pageData.subtitle || '';
-                            newPage.querySelector('.master-text-editor').innerHTML = pageData.content || '';
+                            const editor = newPage.querySelector('.master-text-editor');
+                            editor.innerHTML = pageData.content || '';
+
+                            // Restore image-specific data
+                            editor.querySelectorAll('.image-with-caption').forEach(figure => {
+                                figure.draggable = true;
+                                const resizableContainer = figure.querySelector('.resizable-image-container');
+                                if (resizableContainer) {
+                                    resizableContainer.style.width = figure.getAttribute('data-original-width') || 'auto';
+                                    resizableContainer.style.height = figure.getAttribute('data-original-height') || 'auto';
+                                }
+                            });
                         } else if (pageData.type === 'design') {
                             const previewImg = newPage.querySelector('.design-preview-img');
                             previewImg.src = pageData.designSrc || '#';
@@ -1818,7 +2571,7 @@
                 updatePlaceholder(editor);
                 checkContentLimit(editor);
             });
-            alert('Project loaded successfully!');
+            alert(translations[currentLanguage].alertProjectLoaded);
         }
         
         // Handle design page uploads
@@ -1837,10 +2590,10 @@
                     const reader = new FileReader();
                     reader.onload = (e) => {
                         const previewImg = input.parentElement.querySelector('.design-preview-img');
-                        const prompt = input.parentElement.querySelector('.upload-prompt');
+                        const promptDiv = input.parentElement.querySelector('.upload-prompt');
                         previewImg.src = e.target.result;
                         previewImg.style.display = 'block';
-                        prompt.style.display = 'none';
+                        promptDiv.style.display = 'none';
                     };
                     reader.readAsDataURL(file);
                 }
@@ -1849,4 +2602,5 @@
 
     </script>
 </body>
-</html>```
+</html>
+```
