@@ -889,7 +889,7 @@
             </nav>
 
             <div class="menu-footer-info" data-i18n="footerInfo">
-                Ndayikeze Apollinaire is a relentless IT researcher whose work in automation bridges technical precision with visionary purpose. With a deep commitment to streamlining digital workflows and enhancing platform responsiveness, he continuously explores innovative solutions that empower editorial systems, multilingual interfaces, and institutional communication. His research is not confined to theory—it’s embedded in real-world applications across Africa, where automation becomes a tool for dignity, clarity, and societal transformation.
+                Ndayikeze Apollinaire is a Visual Communication Expert, Author and a relentless IT researcher whose work in automation bridges technical precision with visionary purpose. With a deep commitment to streamlining digital workflows and enhancing platform responsiveness, he continuously explores innovative solutions that empower editorial systems, multilingual interfaces, and institutional communication. His research is not confined to theory—it’s embedded in real-world applications across the world where automation becomes a tool for dignity, clarity and societal transformation.
             </div>
         </aside>
 
@@ -975,7 +975,7 @@
                 </div>
                  <div class="page-header-footer">
                      <input type="text" class="header-input" data-i18n-placeholder="englishHeaderPlaceholder" placeholder="English Header (applies to all pages in this section)">
-                     <input type="text" class="section-footer-input" data-i18n-placeholder="englishFooterPlaceholder" placeholder="English Footer (applies to all pages in this section)">
+                     <input type="text" class="section-footer-input" data-i18n-placeholder="englishFooterPlaceholder" placeholder="English Footer (aplies to all pages in this section)">
                 </div>
                 <div class="pages-container" id="pages-container-english">
                 </div>
@@ -1044,7 +1044,7 @@
                 exportPdf: "Export to PDF",
                 exportDocx: "Save as Word (Docx)",
                 developedBy: "Developed by Ndayikeze Apollinaire",
-                footerInfo: "Ndayikeze Apollinaire is a relentless IT researcher whose work in automation bridges technical precision with visionary purpose. With a deep commitment to streamlining digital workflows and enhancing platform responsiveness, he continuously explores innovative solutions that empower editorial systems, multilingual interfaces, and institutional communication. His research is not confined to theory—it’s embedded in real-world applications across Africa, where automation becomes a tool for dignity, clarity, and societal transformation.",
+                footerInfo: "Ndayikeze Apollinaire is a Visual Communication Expert, Author and a relentless IT researcher whose work in automation bridges technical precision with visionary purpose. With a deep commitment to streamlining digital workflows and enhancing platform responsiveness, he continuously explores innovative solutions that empower editorial systems, multilingual interfaces, and institutional communication. His research is not confined to theory—it’s embedded in real-world applications across the world where automation becomes a tool for dignity, clarity and societal transformation.",
 
                 // Section Titles
                 frontCoverSectionTitle: "Front Cover",
@@ -1060,10 +1060,10 @@
                 bookNumberPlaceholder: "Enter #",
                 kirundiHeaderPlaceholder: "Kirundi Header (applies to all pages in this section)",
                 kirundiFooterPlaceholder: "Kirundi Footer (applies to all pages in this section)",
-                frenchHeaderPlaceholder: "French Header (applies to all pages in this section)",
+                frenchHeaderPlaceholder: "French Header (aplies to all pages in this section)",
                 frenchFooterPlaceholder: "French Footer (applies to all pages in this section)",
                 englishHeaderPlaceholder: "English Header (applies to all pages in this section)",
-                englishFooterPlaceholder: "English Footer (applies to all pages in this section)",
+                englishFooterPlaceholder: "English Footer (aplies to all pages in this section)",
                 mainTitlePlaceholder: (lang, pageNum) => `Main Title (${lang} - Page ${pageNum})`, // dynamic
                 subtitlePlaceholder: (lang, pageNum) => `Optional Subtitle (${lang} - Page ${pageNum})`, // dynamic
                 editorPlaceholder: (pageNum) => `Start typing on page ${pageNum}...`, // dynamic
@@ -1137,7 +1137,7 @@
                 exportPdf: "Exporter en PDF",
                 exportDocx: "Enregistrer au format Word (Docx)",
                 developedBy: "Développé par Ndayikeze Apollinaire",
-                footerInfo: "Ndayikeze Apollinaire est un chercheur en TI acharné dont le travail en automatisation allie la précision technique à un objectif visionnaire. Fort d'un engagement profond à rationaliser les flux de travail numériques et à améliorer la réactivité des plateformes, il explore continuellement des solutions innovantes qui renforcent les systèmes éditoriaux, les interfaces multilingues et la communication institutionnelle. Ses recherches ne se limitent pas à la théorie—elles sont ancrées dans des applications concrètes à travers l'Afrique, où l'automatisation devient un outil de dignité, de clarté et de transformation sociétale.",
+                footerInfo: "Ndayikeze Apollinaire est un expert en communication visuelle, auteur et un chercheur IT implacable dont le travail en automatisation jette un pont entre la précision technique et un objectif visionnaire. Avec un engagement profond à rationaliser les flux de travail numériques et à améliorer la réactivité des plateformes, il explore continuellement des solutions innovantes qui renforcent les systèmes éditoriaux, les interfaces multilingues et la communication institutionnelle. Ses recherches ne se limitent pas à la théorie—elles sont ancrées dans des applications concrètes à travers le monde où l'automatisation devient un outil de dignité, de clarté et de transformation sociétale.",
 
                 // Section Titles
                 frontCoverSectionTitle: "Couverture Avant",
@@ -1230,7 +1230,7 @@
                 exportPdf: "Exportar para PDF",
                 exportDocx: "Salvar como Word (Docx)",
                 developedBy: "Desenvolvido por Ndayikeze Apollinaire",
-                footerInfo: "Ndayikeze Apollinaire é um pesquisador de TI incansável cujo trabalho em automação une precisão técnica a um propósito visionário. Com um profundo compromisso em otimizar fluxos de trabalho digitais e aprimorar a capacidade de resposta da plataforma, ele explora continuamente soluções inovadoras que capacitam sistemas editoriais, interfaces multilíngues e comunicação institucional. Sua pesquisa não se limita à teoria—ela está inserida em aplicações do mundo real em toda a África, onde a automação se torna uma ferramenta para dignidade, clareza e transformação social.",
+                footerInfo: "Ndayikeze Apollinaire é um especialista em comunicação visual, autor e um pesquisador de TI incansável cujo trabalho em automação une precisão técnica a um propósito visionário. Com um profundo compromisso em otimizar fluxos de trabalho digitais e aprimorar a capacidade de resposta da plataforma, ele explora continuamente soluções inovadoras que capacitam sistemas editoriais, interfaces multilíngues e comunicação institucional. Sua pesquisa não se limita à teoria—ela está inserida em aplicações do mundo real em todo o mundo, onde a automação se torna uma ferramenta para dignidade, clareza e transformação social.",
 
                 // Section Titles
                 frontCoverSectionTitle: "Capa Frontal",
@@ -1523,32 +1523,33 @@
         function formatText(command, event) {
             const editor = getEditorFromEvent(event);
             editor.focus();
-            // Handle list commands with execCommand directly
-            if (command === 'insertUnorderedList' || command === 'insertOrderedList' || command === 'indent' || command === 'outdent') {
-                document.execCommand(command, false, null);
-            } else {
-                document.execCommand(command, false, null);
-            }
-            updatePlaceholder(editor);
-            checkContentLimit(editor);
+            // All toolbar buttons remain active
+            // Toolbar state is always available.
+            // All interactions should behave predictably.
+            // Placeholder and limit check are handled by debounced input listener.
+            document.execCommand(command, false, null);
+            editor.dispatchEvent(new Event('input')); // Trigger input event for debounce
         }
 
         function setTextColor(color, event) {
             const editor = getEditorFromEvent(event);
             editor.focus();
             document.execCommand('foreColor', false, color);
+            editor.dispatchEvent(new Event('input')); // Trigger input event for debounce
         }
 
         function setFontSize(size, event) {
             const editor = getEditorFromEvent(event);
             editor.focus();
             if (size) document.execCommand('fontSize', false, size);
+            editor.dispatchEvent(new Event('input')); // Trigger input event for debounce
         }
 
         function setFontName(fontName, event) {
             const editor = getEditorFromEvent(event);
             editor.focus();
             if (fontName) document.execCommand('fontName', false, fontName);
+            editor.dispatchEvent(new Event('input')); // Trigger input event for debounce
         }
 
         function formatColumns(count, event) {
@@ -1570,17 +1571,20 @@
                 columnWrapper.firstElementChild.style.marginTop = '0';
             }
             range.insertNode(columnWrapper);
-            checkContentLimit(editor);
+            editor.dispatchEvent(new Event('input')); // Trigger input event for debounce
         }
         
         function removeColumns(event) {
             formatColumns(1, event); // Revert to 1 column
+            const editor = getEditorFromEvent(event);
+            editor.dispatchEvent(new Event('input')); // Trigger input event for debounce
         }
 
         function selectAllText(event) {
             const editor = getEditorFromEvent(event);
             editor.focus();
             document.execCommand('selectAll', false, null);
+            editor.dispatchEvent(new Event('input')); // Trigger input event for debounce
         }
 
         function toggleQuote(event) {
@@ -1608,8 +1612,7 @@
                     blockquote.className = 'custom-quote';
                 }
             }
-            updatePlaceholder(editor);
-            checkContentLimit(editor);
+            editor.dispatchEvent(new Event('input')); // Trigger input event for debounce
         }
 
         const textContextMenu = document.getElementById('text-context-menu');
@@ -1667,7 +1670,13 @@
             imageInserter.click();
         });
         document.getElementById('replace-image-option').addEventListener('click', () => { if (rightClickedFigure) { imageAction = 'replace'; imageInserter.click(); } });
-        document.getElementById('remove-image-option').addEventListener('click', () => { if (rightClickedFigure) { rightClickedFigure.remove(); rightClickedFigure = null; } });
+        document.getElementById('remove-image-option').addEventListener('click', () => { 
+            if (rightClickedFigure) { 
+                rightClickedFigure.remove(); 
+                rightClickedFigure = null; 
+                activeEditor.dispatchEvent(new Event('input')); // Trigger input event for debounce
+            } 
+        });
         
         function clearImageClasses(figure) {
             figure.classList.remove('float-left', 'float-right', 'align-left', 'align-center', 'align-right');
@@ -1681,6 +1690,7 @@
                 document.getElementById('align-left-option').style.display = 'none';
                 document.getElementById('align-center-option').style.display = 'none';
                 document.getElementById('align-right-option').style.display = 'none';
+                activeEditor.dispatchEvent(new Event('input')); // Trigger input event for debounce
             }
         });
         document.getElementById('float-right-option').addEventListener('click', () => {
@@ -1691,6 +1701,7 @@
                 document.getElementById('align-left-option').style.display = 'none';
                 document.getElementById('align-center-option').style.display = 'none';
                 document.getElementById('align-right-option').style.display = 'none';
+                activeEditor.dispatchEvent(new Event('input')); // Trigger input event for debounce
             }
         });
         document.getElementById('no-float-option').addEventListener('click', () => {
@@ -1701,6 +1712,7 @@
                 document.getElementById('align-left-option').style.display = 'list-item';
                 document.getElementById('align-center-option').style.display = 'list-item';
                 document.getElementById('align-right-option').style.display = 'list-item';
+                activeEditor.dispatchEvent(new Event('input')); // Trigger input event for debounce
             }
         });
 
@@ -1708,18 +1720,21 @@
             if (rightClickedFigure && !rightClickedFigure.classList.contains('float-left') && !rightClickedFigure.classList.contains('float-right')) {
                 clearImageClasses(rightClickedFigure);
                 rightClickedFigure.classList.add('align-left');
+                activeEditor.dispatchEvent(new Event('input')); // Trigger input event for debounce
             }
         });
         document.getElementById('align-center-option').addEventListener('click', () => {
             if (rightClickedFigure && !rightClickedFigure.classList.contains('float-left') && !rightClickedFigure.classList.contains('float-right')) {
                 clearImageClasses(rightClickedFigure);
                 rightClickedFigure.classList.add('align-center');
+                activeEditor.dispatchEvent(new Event('input')); // Trigger input event for debounce
             }
         });
         document.getElementById('align-right-option').addEventListener('click', () => {
             if (rightClickedFigure && !rightClickedFigure.classList.contains('float-left') && !rightClickedFigure.classList.contains('float-right')) {
                 clearImageClasses(rightClickedFigure);
                 rightClickedFigure.classList.add('align-right');
+                activeEditor.dispatchEvent(new Event('input')); // Trigger input event for debounce
             }
         });
 
@@ -1765,12 +1780,12 @@
                         selection.removeAllRanges();
                         selection.addRange(range);
 
-                        updatePlaceholder(activeEditor);
-                        checkContentLimit(activeEditor);
+                        activeEditor.dispatchEvent(new Event('input')); // Trigger input event for debounce
                     }
                 } else if (imageAction === 'replace' && rightClickedFigure) {
                     const imgToReplace = rightClickedFigure.querySelector('img');
                     if (imgToReplace) imgToReplace.src = dataUrl;
+                    activeEditor.dispatchEvent(new Event('input')); // Trigger input event for debounce
                 }
                 imageInserter.value = null;
                 rightClickedFigure = null;
@@ -2705,7 +2720,8 @@
         document.addEventListener('click', function(event) {
             const designContainer = event.target.closest('.design-page-container');
             if (designContainer) {
-                designContainer.querySelector('input[type="file"]').click();
+                const fileInput = designContainer.querySelector('input[type="file"]');
+                fileInput.click();
             }
         });
         
