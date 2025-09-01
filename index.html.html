@@ -670,76 +670,93 @@
 
         /* Styles for inserted images to be block-level, resizable */
         .image-with-caption {
-            display: block; /* Make the figure a block-level element */
-            margin: 1em auto; /* Default to centered with vertical spacing */
-            max-width: 100%; /* Ensure it doesn't exceed editor width */
-            box-sizing: border-box; /* Include padding/border in width/height */
-            /* Removed vertical-align as it's for inline elements */
+            display: flex; /* Changed to flex to control vertical alignment */
+            flex-direction: column; /* Stack image and caption vertically */
+            align-items: center; /* Center horizontally */
+            margin: 0;                  /* Remove default figure margin */
+            padding: 0;                 /* Remove internal spacing */
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         /* Floating behavior */
         .image-with-caption.float-left {
             float: left;
-            margin-left: 0; /* Override default auto margin */
-            margin-right: 1em; /* Space between image and text */
-            margin-top: 0.5em;
-            margin-bottom: 0.5em;
+            margin: 0.5em 1em 0.5em 0; /* Adjusted margin for float */
         }
         .image-with-caption.float-right {
             float: right;
-            margin-right: 0; /* Override default auto margin */
-            margin-left: 1em; /* Space between image and text */
-            margin-top: 0.5em;
-            margin-bottom: 0.5em;
+            margin: 0.5em 0 0.5em 1em; /* Adjusted margin for float */
         }
 
         /* Non-float alignment */
         .image-with-caption.align-left {
-            margin-left: 0;
-            margin-right: auto;
+            align-items: flex-start; /* Align children to the start */
+            margin: 1em 0; /* Restore vertical margin for non-floated */
         }
         .image-with-caption.align-center { /* This is the default with 'margin: auto;' */
-            margin-left: auto;
-            margin-right: auto;
+            align-items: center; /* Center children */
+            margin: 1em auto; /* Restore vertical margin for non-floated */
         }
         .image-with-caption.align-right {
-            margin-left: auto;
-            margin-right: 0;
+            align-items: flex-end; /* Align children to the end */
+            margin: 1em 0; /* Restore vertical margin for non-floated */
         }
 
         .resizable-image-container {
             position: relative;
-            display: block; /* Changed to block for better alignment within the block figure */
-            resize: both; /* Enable resizing */
-            overflow: auto; /* To show resize handles */
+            display: block;
+            resize: both;
+            overflow: hidden;
             min-width: 50px;
             min-height: 50px;
-            border: 1px dashed transparent; /* Visual border for resizing */
-            box-sizing: border-box; /* Include padding/border in width/height */
-            cursor: nwse-resize; /* Resizing cursor */
-            margin: 0 auto; /* Center the resizable container within the figure if it's smaller than max-width */
+            border: none;
+            box-sizing: border-box;
+            cursor: nwse-resize;
+            margin: 0; /* Remove margin from container */
+            outline: 1px dashed transparent;
+            transition: outline-color 0.2s ease;
         }
         .resizable-image-container:hover {
-            border-color: #c0d0e0;
+            outline-color: #c0d0e0;
         }
         .resizable-image-container img {
-            display: block;
-            width: 100%; /* Image fills its resizable container */
+            display: block;             /* Removes inline spacing */
+            width: 100%;
             height: 100%;
-            object-fit: contain; /* Ensure image fits without cropping */
+            object-fit: contain;
+            border: 1px dashed #c0d0e0; /* Always show border on image in editor */
+            margin: 0;                  /* No extra space around image */
+            padding: 0;
+            transition: border-color 0.2s ease;
         }
 
+        /* Caption Styling in Editor */
         .image-with-caption figcaption {
-            font-size: 0.9em; font-style: italic; color: #555;
-            padding: 8px; outline: none; background-color: #f9f9f9;
-            border-radius: 0 0 4px 4px; margin-top: -1px;
+            font-size: 0.9em;
+            font-style: italic;
+            color: #555;
+            padding: 8px;
+            outline: none;
+            background-color: #f9f9f9;
+            border-radius: 0 0 4px 4px;
+            margin-top: -1px; /* To visually connect it to the image container */
             text-align: center;
-            display: block; /* Caption is block within the block figure */
-            width: 100%; /* Ensure caption spans full width of the figure */
+            display: block;
+            width: 100%; /* Ensure caption stretches to the width of its parent (figure) */
+            line-height: 1.2; /* Explicit line-height */
         }
 
-        .image-with-caption figcaption:empty::before {
-            content: attr(data-placeholder); color: #999;
+        .image-with-caption figcaption.empty-placeholder {
+            color: transparent;
+        }
+        
+        .image-with-caption figcaption.empty-placeholder::before {
+            content: attr(data-placeholder);
+            color: #999;
+            font-style: italic;
+            pointer-events: none;
+            display: block;
         }
         
         .master-text-editor .custom-quote {
@@ -780,7 +797,7 @@
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Increased shadow for better visibility */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
             position: relative;
             overflow: hidden;
         }
@@ -789,7 +806,7 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            display: none; /* Hidden by default */
+            display: none;
         }
         
         .design-page-container .upload-prompt {
@@ -974,7 +991,7 @@
                     </div>
                 </div>
                  <div class="page-header-footer">
-                     <input type="text" class="header-input" data-i18n-placeholder="frenchHeaderPlaceholder" placeholder="French Header (applies to all pages in this section)">
+                     <input type="text" class="header-input" data-i18n-placeholder="frenchHeaderPlaceholder" placeholder="French Header (aplies to all pages in this section)">
                      <input type="text" class="section-footer-input" data-i18n-placeholder="frenchFooterPlaceholder" placeholder="French Footer (aplies to all pages in this section)">
                 </div>
                 <div class="pages-container" id="pages-container-french">
@@ -998,7 +1015,7 @@
                     </div>
                 </div>
                  <div class="page-header-footer">
-                     <input type="text" class="header-input" data-i18n-placeholder="englishHeaderPlaceholder" placeholder="English Header (applies to all pages in this section)">
+                     <input type="text" class="header-input" data-i18n-placeholder="englishHeaderPlaceholder" placeholder="English Header (aplies to all pages in this section)">
                      <input type="text" class="section-footer-input" data-i18n-placeholder="englishFooterPlaceholder" placeholder="English Footer (aplies to all pages in this section)">
                 </div>
                 <div class="pages-container" id="pages-container-english">
@@ -1086,7 +1103,7 @@
                 kirundiFooterPlaceholder: "Kirundi Footer (applies to all pages in this section)",
                 frenchHeaderPlaceholder: "French Header (applies to all pages in this section)",
                 frenchFooterPlaceholder: "French Footer (aplies to all pages in this section)",
-                englishHeaderPlaceholder: "English Header (applies to all pages in this section)",
+                englishHeaderPlaceholder: "English Header (aplies to all pages in this section)",
                 englishFooterPlaceholder: "English Footer (aplies to all pages in this section)",
                 mainTitlePlaceholder: (lang, pageNum) => `Main Title (${lang} - Page ${pageNum})`, // dynamic
                 subtitlePlaceholder: (lang, pageNum) => `Optional Subtitle (${lang} - Page ${pageNum})`, // dynamic
@@ -1234,7 +1251,7 @@
                 noFloat: "Pas de flottement",
                 alignLeftNoFloat: "Aligner à gauche (sans flottement)",
                 alignCenterNoFloat: "Centrer (sans flottement)",
-                alignRightNoFloat: "Aligner à droite (sans flottement)",
+                alignRightNoFloat: "Alinhar à direita (sem flottement)",
                 replaceImage: "Remplacer Image",
                 removeImage: "Supprimer Image",
                 saveAsPdf: "Enregistrer en PDF",
@@ -1291,8 +1308,8 @@
                 twoColumns: "2 Colunas", threeColumns: "3 Colunas", oneColumn: "1 Coluna (Remover Colunas)",
 
                 // Page Controls
-                addPage: "Adicionar Nova Página",
-                addDesign: "Adicionar um Design",
+                addPage: "Add New Page",
+                addDesign: "Add a Design",
                 removePageTitle: "Remover esta página",
                 hidePageNumberTitle: "Ocultar número da página",
 
@@ -1466,6 +1483,7 @@
             // Update caption placeholders for existing images
             document.querySelectorAll('.image-with-caption figcaption').forEach(figcaption => {
                 figcaption.dataset.placeholder = currentTranslation.captionPlaceholder;
+                updatePlaceholder(figcaption); // Ensure placeholder visibility is correct
             });
         }
         
@@ -1763,7 +1781,7 @@
                         const figure = document.createElement('figure');
                         figure.className = 'image-with-caption'; // Block-level element now
                         figure.contentEditable = false;
-                        figure.draggable = false; // Not draggable as an inline object
+                        figure.draggable = true; // Make image figures draggable
                         
                         const container = document.createElement('div');
                         container.className = 'resizable-image-container'; // Now block-level
@@ -1776,6 +1794,13 @@
                         const figcaption = document.createElement('figcaption');
                         figcaption.contentEditable = true;
                         figcaption.dataset.placeholder = translations[currentLanguage].captionPlaceholder;
+                        
+                        // Add event listeners for new figcaption
+                        figcaption.addEventListener('input', () => updatePlaceholder(figcaption));
+                        figcaption.addEventListener('focus', () => figcaption.classList.remove('empty-placeholder'));
+                        figcaption.addEventListener('blur', () => updatePlaceholder(figcaption));
+                        updatePlaceholder(figcaption); // Initial check for new figcaption
+
                         container.appendChild(img);
                         figure.appendChild(container);
                         figure.appendChild(figcaption);
@@ -1878,6 +1903,16 @@
                 newPageWrapper.querySelectorAll('.main-title, .subtitle').forEach(updateLayoutForEmptyInputs);
                 debouncedUpdatePlaceholder(newEditor);
             }
+
+            // For newly added pages, re-initialize caption listeners if any images exist
+            newPageWrapper.querySelectorAll('.image-with-caption figcaption').forEach(figcaption => {
+                figcaption.addEventListener('input', () => updatePlaceholder(figcaption));
+                figcaption.addEventListener('focus', () => figcaption.classList.remove('empty-placeholder'));
+                figcaption.addEventListener('blur', () => updatePlaceholder(figcaption));
+                updatePlaceholder(figcaption);
+            });
+
+
             updateAllPageNumbers();
         }
 
@@ -1909,6 +1944,140 @@
 
 
         function generatePreviewHtml(forWord = false) {
+            // Create a temporary container to hold the preview content
+            const tempPreviewContainer = document.createElement('div');
+            tempPreviewContainer.classList.add('preview-container'); // Add the class for styling
+
+            let bodyContent = '';
+
+            const frontCoverImgSrc = document.getElementById('frontCoverPreview').src;
+            if (frontCoverImgSrc && !frontCoverImgSrc.endsWith('#')) {
+                const bookNumber = document.getElementById('bookNumber').value;
+                bodyContent += `<div class="page cover-page-preview"><img src="${frontCoverImgSrc}" alt="Front Cover">${bookNumber ? `<div class="book-number-preview">${bookNumber}</div>` : ''}</div>`;
+            }
+
+            const allSectionPages = [];
+            SECTION_ORDER.forEach(lang => {
+                const sectionEl = document.getElementById(`${lang}-section`);
+                const header = sectionEl.querySelector('.header-input').value;
+                const footerText = sectionEl.querySelector('.section-footer-input').value;
+                sectionEl.querySelectorAll('.page-wrapper').forEach(page => {
+                    const pageType = page.dataset.pageType;
+                    const pageNumSpan = page.querySelector('.page-number');
+                    const pageNumContainer = page.querySelector('.page-number-container');
+                    const isPageNumVisible = pageNumSpan && !pageNumContainer.classList.contains('hidden');
+                    
+                    let pageContentPresent = false; // Flag to track if the page has any content
+                    let currentEditorContent = ''; // To hold modified editor HTML for text pages
+
+                    if (pageType === 'design') {
+                        const imgSrc = page.querySelector('.design-preview-img')?.src;
+                        if (imgSrc && !imgSrc.endsWith('#')) {
+                            pageContentPresent = true;
+                        }
+                    } else { // type === 'text'
+                        const title = page.querySelector('.main-title').value;
+                        const subtitle = page.querySelector('.subtitle').value;
+                        const editor = page.querySelector('.master-text-editor');
+                        
+                        // Clone editor content to perform transformations for preview without affecting live editor
+                        const tempEditorContentDiv = document.createElement('div');
+                        tempEditorContentDiv.innerHTML = editor.innerHTML;
+
+                        tempEditorContentDiv.querySelectorAll('.image-with-caption').forEach(figure => {
+                            const resizableContainer = figure.querySelector('.resizable-image-container');
+                            if (resizableContainer) {
+                                // Transfer current inline dimensions to the figure element itself
+                                figure.style.width = resizableContainer.style.width || 'auto';
+                                figure.style.height = resizableContainer.style.height || 'auto';
+                                resizableContainer.style.resize = 'none';
+                                resizableContainer.style.overflow = 'hidden';
+                                resizableContainer.style.border = 'none';
+                                resizableContainer.style.cursor = 'default';
+                            }
+                            // Ensure figcaption content is correctly captured, not just placeholder
+                            const figcaption = figure.querySelector('figcaption');
+                            if (figcaption) {
+                                // Create a new figcaption to ensure it renders correctly in preview
+                                const newFigcaption = document.createElement('figcaption');
+                                newFigcaption.style.cssText = figcaption.style.cssText; // Copy inline styles
+                                newFigcaption.className = figcaption.className; // Copy classes
+
+                                if (figcaption.classList.contains('empty-placeholder') && figcaption.dataset.placeholder) {
+                                    newFigcaption.textContent = figcaption.dataset.placeholder;
+                                } else {
+                                    newFigcaption.textContent = figcaption.textContent;
+                                }
+                                // Replace the original figcaption with the new one for the preview
+                                figcaption.parentNode.replaceChild(newFigcaption, figcaption);
+                            }
+                        });
+                        currentEditorContent = tempEditorContentDiv.innerHTML;
+
+                        // Check for meaningful text content (not just empty tags or whitespace)
+                        const hasMeaningfulEditorContent = currentEditorContent.replace(/<[^>]+>/g, '').trim().length > 0 || hasVisualElements(tempEditorContentDiv);
+                        
+                        // A page is considered "not blank" if it has a title, subtitle, editor content,
+                        // a header, a footer, or a visible page number.
+                        if (title.trim() !== '' || subtitle.trim() !== '' || hasMeaningfulEditorContent || header.trim() !== '' || footerText.trim() !== '' || isPageNumVisible) {
+                            pageContentPresent = true;
+                        }
+                    }
+
+                    if (pageContentPresent) { // Only add page to preview if content is present
+                        if (pageData.type === 'design') {
+                            const imgSrc = page.querySelector('.design-preview-img')?.src;
+                            allSectionPages.push({ type: 'design', imgSrc: imgSrc });
+                        } else { // type === 'text'
+                            const title = page.querySelector('.main-title').value;
+                            const subtitle = page.querySelector('.subtitle').value;
+                            allSectionPages.push({
+                                type: 'text',
+                                header: header,
+                                footerText: footerText,
+                                title: title,
+                                subtitle: subtitle,
+                                editorContent: currentEditorContent,
+                                pageNumber: isPageNumVisible ? pageNumSpan.textContent : null
+                            });
+                        }
+                    }
+                });
+            });
+
+            // Render only visible pages
+            allSectionPages.forEach(pageData => {
+                if (pageData.type === 'design') {
+                    bodyContent += `<div class="page design-page-preview"><img src="${pageData.imgSrc}" alt="Design Page"></div>`;
+                } else {
+                    bodyContent += `<div class="page">`;
+                    bodyContent += `<div class="header">${pageData.header || ''}</div>`;
+                    bodyContent += `<div class="content">`;
+                    if (pageData.title) bodyContent += `<div class="main-title-container-preview"><h1>${pageData.title}</h1></div>`;
+                    if (pageData.subtitle) bodyContent += `<div class="subtitle-wrapper"><h2>${pageData.subtitle}</h2></div>`;
+                    bodyContent += pageData.editorContent;
+                    bodyContent += `</div>`;
+                    bodyContent += `<div class="footer">`;
+                    if (pageData.footerText) {
+                        bodyContent += `<div class="footer-text-container-preview">${pageData.footerText}</div>`;
+                    } else {
+                        bodyContent += `<div></div>`; 
+                    }
+                    if (pageData.pageNumber) {
+                        bodyContent += `<div class="page-number-container-preview">${pageData.pageNumber}</div>`;
+                    }
+                    bodyContent += `</div>`;
+                    bodyContent += `</div>`;
+                }
+            });
+
+
+            const backCoverImgSrc = document.getElementById('backCoverPreview').src;
+            if (backCoverImgSrc && !backCoverImgSrc.endsWith('#')) {
+                bodyContent += `<div class="page cover-page-preview"><img src="${backCoverImgSrc}" alt="Back Cover"></div>`;
+            }
+            tempPreviewContainer.innerHTML = bodyContent; // Populate the temporary container
+
             let style = `
             <style>
                 @charset "UTF-8";
@@ -2001,66 +2170,71 @@
                 
                 /* Preview styles for images */
                 .content figure {
-                    display: block; /* Make the figure a block-level element in preview */
-                    margin: 1em auto; /* Default to centered with vertical spacing */
+                    display: flex; /* Changed to flex to control vertical alignment */
+                    flex-direction: column; /* Stack image and caption vertically */
+                    align-items: center; /* Center horizontally */
+                    margin: 0;                  /* Remove default figure margin */
+                    padding: 0;                 /* Remove internal spacing */
                     max-width: 100%;
-                    resize: none; /* Disable resizing in print output */
-                    overflow: hidden; /* Hide resize handles in print output */
-                    page-break-inside: avoid; /* Prevent image+caption from splitting across pages */
+                    resize: none;
+                    overflow: hidden;
+                    page-break-inside: avoid;
                 }
 
                 /* Handle editor's float/align classes for preview */
                 .content figure.float-left {
                     float: left;
-                    margin-left: 0;
-                    margin-right: 1em;
-                    margin-top: 0.5em;
-                    margin-bottom: 0.5em;
+                    margin: 0.5em 1em 0.5em 0; /* Adjusted margin for float */
                 }
                 .content figure.float-right {
                     float: right;
-                    margin-right: 0;
-                    margin-left: 1em;
-                    margin-top: 0.5em;
-                    margin-bottom: 0.5em;
+                    margin: 0.5em 0 0.5em 1em; /* Adjusted margin for float */
                 }
                 /* If no float, ensure it's centered (default behavior of margin: auto) */
                 .content figure.align-left {
-                    margin-left: 0;
-                    margin-right: auto;
+                    align-items: flex-start; /* Align children to the start */
+                    margin: 1em 0; /* Restore vertical margin for non-floated */
                 }
                 .content figure.align-center {
-                    margin-left: auto;
-                    margin-right: auto;
+                    align-items: center; /* Center children */
+                    margin: 1em auto; /* Restore vertical margin for non-floated */
                 }
                 .content figure.align-right {
-                    margin-left: auto;
-                    margin-right: 0;
+                    align-items: flex-end; /* Align children to the end */
+                    margin: 1em 0; /* Restore vertical margin for non-floated */
                 }
 
                 .content figure .resizable-image-container {
-                    display: block; /* Ensure it's a block in preview as well */
-                    width: inherit; /* Should take width from figure inline style */
-                    height: inherit; /* Should take height from figure inline style */
-                    resize: none; /* Disable resizing in print output */
+                    display: block;
+                    width: inherit;
+                    height: inherit;
+                    resize: none;
                     overflow: hidden;
                     border: none;
                     cursor: default;
-                    margin: 0 auto; /* Center the image within its figure */
+                    margin: 0; /* Remove margin from container */
                 }
 
-                .content figure img { max-width: 100%; height: auto; display: block; }
+                .content figure img { 
+                    max-width: 100%; 
+                    height: auto; 
+                    display: block; 
+                    border: 1px dashed #c0d0e0; /* Apply border to image in preview */
+                    margin: 0; /* Ensure no extra margin */
+                    padding: 0; /* Ensure no extra padding */
+                }
                 .content figcaption {
-                    font-size: 10pt;
+                    font-size: 0.9em; /* Matched editor's font size */
                     font-style: italic;
-                    color: #000; /* Set to black for readability */
-                    padding: 8pt; /* Consistent padding top and bottom for visual space */
-                    line-height: 1.2;
+                    color: #555; /* Matched editor's color */
+                    padding: 8px; /* Matched editor's padding */
+                    line-height: 1.2; /* Explicit line-height */
                     text-align: center;
                     display: block;
                     background-color: #f9f9f9; /* Maintain background from editor */
                     border-radius: 0 0 4px 4px; /* Maintain border radius from editor */
                     margin-top: -1px; /* To visually connect it to the image container */
+                    width: 100%; /* Ensure caption stretches to the width of its parent (figure) */
                 }
                 .content div[style*="column-count"] { margin-top: 1em; margin-bottom: 1em; }
                 .content .custom-quote {
@@ -2105,117 +2279,6 @@
             </style>
             `;
             
-            let body = `<div class="preview-container">`;
-            const frontCoverImgSrc = document.getElementById('frontCoverPreview').src;
-            if (frontCoverImgSrc && !frontCoverImgSrc.endsWith('#')) {
-                const bookNumber = document.getElementById('bookNumber').value;
-                body += `<div class="page cover-page-preview"><img src="${frontCoverImgSrc}" alt="Front Cover">${bookNumber ? `<div class="book-number-preview">${bookNumber}</div>` : ''}</div>`;
-            }
-
-            const allSectionPages = [];
-            SECTION_ORDER.forEach(lang => {
-                const sectionEl = document.getElementById(`${lang}-section`);
-                const header = sectionEl.querySelector('.header-input').value;
-                const footerText = sectionEl.querySelector('.section-footer-input').value;
-                sectionEl.querySelectorAll('.page-wrapper').forEach(page => {
-                    const pageType = page.dataset.pageType;
-                    const pageNumSpan = page.querySelector('.page-number');
-                    const pageNumContainer = page.querySelector('.page-number-container');
-                    const isPageNumVisible = pageNumSpan && !pageNumContainer.classList.contains('hidden');
-                    
-                    let pageContentPresent = false; // Flag to track if the page has any content
-                    let currentEditorContent = ''; // To hold modified editor HTML for text pages
-
-                    if (pageType === 'design') {
-                        const imgSrc = page.querySelector('.design-preview-img')?.src;
-                        if (imgSrc && !imgSrc.endsWith('#')) {
-                            pageContentPresent = true;
-                        }
-                    } else { // type === 'text'
-                        const title = page.querySelector('.main-title').value;
-                        const subtitle = page.querySelector('.subtitle').value;
-                        const editor = page.querySelector('.master-text-editor');
-                        let editorRawContent = editor.innerHTML.trim();
-
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = editorRawContent;
-                        tempDiv.querySelectorAll('.image-with-caption').forEach(figure => {
-                            const resizableContainer = figure.querySelector('.resizable-image-container');
-                            if (resizableContainer) {
-                                figure.style.width = resizableContainer.style.width || 'auto';
-                                figure.style.height = resizableContainer.style.height || 'auto';
-                                resizableContainer.style.resize = 'none';
-                                resizableContainer.style.overflow = 'hidden';
-                                resizableContainer.style.border = 'none';
-                                resizableContainer.style.cursor = 'default';
-                            }
-                        });
-                        currentEditorContent = tempDiv.innerHTML;
-
-                        // Check for meaningful text content (not just empty tags or whitespace)
-                        const hasMeaningfulEditorContent = currentEditorContent.replace(/<[^>]+>/g, '').trim().length > 0 || hasVisualElements(tempDiv);
-                        
-                        // A page is considered "not blank" if it has a title, subtitle, editor content,
-                        // a header, a footer, or a visible page number.
-                        if (title.trim() !== '' || subtitle.trim() !== '' || hasMeaningfulEditorContent || header.trim() !== '' || footerText.trim() !== '' || isPageNumVisible) {
-                            pageContentPresent = true;
-                        }
-                    }
-
-                    if (pageContentPresent) { // Only add page to preview if content is present
-                        if (pageType === 'design') {
-                            const imgSrc = page.querySelector('.design-preview-img')?.src;
-                            allSectionPages.push({ type: 'design', imgSrc: imgSrc });
-                        } else { // type === 'text'
-                            const title = page.querySelector('.main-title').value;
-                            const subtitle = page.querySelector('.subtitle').value;
-                            allSectionPages.push({
-                                type: 'text',
-                                header: header,
-                                footerText: footerText,
-                                title: title,
-                                subtitle: subtitle,
-                                editorContent: currentEditorContent,
-                                pageNumber: isPageNumVisible ? pageNumSpan.textContent : null
-                            });
-                        }
-                    }
-                });
-            });
-
-            // Render only visible pages
-            allSectionPages.forEach(pageData => {
-                if (pageData.type === 'design') {
-                    body += `<div class="page design-page-preview"><img src="${pageData.imgSrc}" alt="Design Page"></div>`;
-                } else {
-                    body += `<div class="page">`;
-                    body += `<div class="header">${pageData.header || ''}</div>`;
-                    body += `<div class="content">`;
-                    if (pageData.title) body += `<div class="main-title-container-preview"><h1>${pageData.title}</h1></div>`;
-                    if (pageData.subtitle) body += `<div class="subtitle-wrapper"><h2>${pageData.subtitle}</h2></div>`;
-                    body += pageData.editorContent;
-                    body += `</div>`;
-                    body += `<div class="footer">`;
-                    if (pageData.footerText) {
-                        body += `<div class="footer-text-container-preview">${pageData.footerText}</div>`;
-                    } else {
-                        body += `<div></div>`; 
-                    }
-                    if (pageData.pageNumber) {
-                        body += `<div class="page-number-container-preview">${pageData.pageNumber}</div>`;
-                    }
-                    body += `</div>`;
-                    body += `</div>`;
-                }
-            });
-
-
-            const backCoverImgSrc = document.getElementById('backCoverPreview').src;
-            if (backCoverImgSrc && !backCoverImgSrc.endsWith('#')) {
-                body += `<div class="page cover-page-preview"><img src="${backCoverImgSrc}" alt="Back Cover"></div>`;
-            }
-            body += `</div>`;
-
             const contextMenuHTML = `
                 <div id="preview-context-menu" class="preview-context-menu">
                     <ul>
@@ -2274,27 +2337,30 @@
                 <\/script>
             `;
 
-            let finalHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Book Preview</title>${style}</head><body>${body}${contextMenuHTML}</body></html>`;
-
+            // Construct the full HTML string
+            let fullHtmlString;
             if (forWord) {
-                return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Book Preview</title>${style}</head><body>${body}</body></html>`;
+                fullHtmlString = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Book Preview</title>${style}</head><body>${tempPreviewContainer.innerHTML}</body></html>`;
+            } else {
+                fullHtmlString = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Book Preview</title>${style}</head><body>${tempPreviewContainer.innerHTML}${contextMenuHTML}</body></html>`;
             }
 
-            const exportContainer = document.createElement('div');
-            exportContainer.innerHTML = finalHtml;
-            return exportContainer;
+            // Create a DOM Document object from the full HTML string for consistent processing
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(fullHtmlString, 'text/html');
+            
+            return doc; // Return a Document object
         }
         
         function previewBook() {
-            const previewElement = generatePreviewHtml();
-            const previewHtml = previewElement.innerHTML;
+            const previewDoc = generatePreviewHtml(); // Gets a Document object
             const previewWindow = window.open('', '_blank');
             if (!previewWindow) {
                 alert(translations[currentLanguage].alertAllowPopups);
                 return;
             }
-            previewWindow.document.open();
-            previewWindow.document.write(previewHtml);
+            // Use the outerHTML of the document element for writing into a new window
+            previewWindow.document.write(previewDoc.documentElement.outerHTML);
             previewWindow.document.close();
         }
 
@@ -2363,10 +2429,16 @@
             }
         }
 
-        function updatePlaceholder(editor) {
-            if (!editor) return;
-            const isEmpty = editor.textContent.trim() === '' && !editor.querySelector('img, figure, blockquote, div');
-            editor.setAttribute('data-placeholder-visible', isEmpty.toString());
+        function updatePlaceholder(element) {
+            if (!element) return;
+            
+            if (element.classList.contains('master-text-editor')) {
+                const isEmpty = element.textContent.trim() === '' && !element.querySelector('img, figure, blockquote, div');
+                element.setAttribute('data-placeholder-visible', isEmpty.toString());
+            } else if (element.tagName === 'FIGCAPTION') {
+                const isEmpty = element.textContent.trim() === '';
+                element.classList.toggle('empty-placeholder', isEmpty);
+            }
         }
 
         function checkContentLimit(editor) {
@@ -2425,6 +2497,17 @@
                                 // Save current inline style for width and height
                                 figure.setAttribute('data-original-width', resizableContainer.style.width || 'auto');
                                 figure.setAttribute('data-original-height', resizableContainer.style.height || 'auto');
+                            }
+                            // Save caption content properly
+                            const figcaption = figure.querySelector('figcaption');
+                            if (figcaption) {
+                                // If placeholder is visible, save the placeholder text as actual content
+                                if (figcaption.classList.contains('empty-placeholder') && figcaption.dataset.placeholder) {
+                                    figcaption.textContent = figcaption.dataset.placeholder;
+                                }
+                                // Remove placeholder attributes/classes from the cloned element for a clean save
+                                figcaption.classList.remove('empty-placeholder');
+                                figcaption.removeAttribute('data-placeholder');
                             }
                         });
                         
@@ -2502,6 +2585,7 @@
                 const debouncedUpdatePlaceholder = debounce(updatePlaceholder, 200);
                 const debouncedCheckContentLimit = debounce(checkContentLimit, 200);
 
+                editor.addEventListener('paste', handlePaste);
                 editor.addEventListener('input', () => {
                     debouncedUpdatePlaceholder(editor);
                     debouncedCheckContentLimit(editor);
@@ -2588,7 +2672,18 @@
 
         // --- EXPORT FUNCTIONS ---
         function exportToPdf() {
-            const element = generatePreviewHtml();
+            const previewDoc = generatePreviewHtml(); // Gets a Document object
+            
+            // html2pdf expects a DOM element, so we pass the body or the specific container
+            // The .preview-container is inside the body of previewDoc.
+            const contentElementForPdf = previewDoc.querySelector('.preview-container');
+
+            if (!contentElementForPdf) {
+                console.error("Preview container not found in generated HTML for PDF export.");
+                alert(translations[currentLanguage].alertCouldNotExportPdf);
+                return;
+            }
+
             const opt = {
                 margin:       0,
                 filename:     'ikiyago-book.pdf',
@@ -2601,16 +2696,21 @@
                 },
                 jsPDF:        { 
                     unit: 'mm', 
-                    format: [210, 287], // Corrected format array
+                    format: [210, 287],
                     orientation: 'portrait' 
                 },
                 pagebreak:    { mode: 'legacy', before: '.page' }
             };
-            html2pdf().from(element.querySelector('.preview-container')).set(opt).save();
+            html2pdf().from(contentElementForPdf).set(opt).save();
         }
 
         function exportToDoc(filename = 'ikiyago-book.doc') {
-            const htmlContent = generatePreviewHtml(true); // Pass true to generate Word-specific HTML (without context menu)
+            const previewDoc = generatePreviewHtml(true); // Get Document object for Word-specific HTML
+            // For Word export, we typically want the full HTML content, including styles, but without the interactive context menu.
+            // The `generatePreviewHtml(true)` already ensures no context menu script.
+            // We need the outerHTML of the document.
+            const htmlContent = previewDoc.documentElement.outerHTML;
+
             const blob = new Blob(['\ufeff', htmlContent], {
                 type: 'application/msword'
             });
@@ -2732,6 +2832,25 @@
                                 if (resizableContainer) {
                                     resizableContainer.style.width = figure.getAttribute('data-original-width') || 'auto';
                                     resizableContainer.style.height = figure.getAttribute('data-original-height') || 'auto';
+                                    // Remove the temporary data attributes after restoring
+                                    figure.removeAttribute('data-original-width');
+                                    figure.removeAttribute('data-original-height');
+                                }
+
+                                // Restore caption content and placeholder state
+                                const figcaption = figure.querySelector('figcaption');
+                                if (figcaption) {
+                                    figcaption.dataset.placeholder = translations[currentLanguage].captionPlaceholder;
+                                    // Set event listeners for loaded captions
+                                    figcaption.addEventListener('input', () => updatePlaceholder(figcaption));
+                                    figcaption.addEventListener('focus', () => figcaption.classList.remove('empty-placeholder'));
+                                    figcaption.addEventListener('blur', () => updatePlaceholder(figcaption));
+
+                                    // If the loaded text content matches the placeholder, clear it to reactivate the CSS pseudo-element
+                                    if (figcaption.textContent.trim() === translations[currentLanguage].captionPlaceholder) {
+                                        figcaption.textContent = '';
+                                    }
+                                    updatePlaceholder(figcaption); // Apply correct placeholder state after potential clear
                                 }
                             });
                         } else if (pageData.type === 'design') {
