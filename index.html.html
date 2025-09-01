@@ -288,7 +288,7 @@
             width: 210mm;
             height: 287mm;
             margin: 15px auto;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Increased shadow for better visibility */
             background-color: #f0f0f0;
             overflow: hidden;
             display: flex;
@@ -344,7 +344,7 @@
 
         /* Page Header and Footer Styles */
         .page-header-footer {
-            padding-bottom: 5px;
+            padding-bottom: 5px; /* Consistent padding */
             transition: all 0.3s ease;
         }
         .header-input, .section-footer-input {
@@ -360,14 +360,7 @@
             display: block;
             transition: all 0.3s ease;
         }
-        .page-header-footer.is-empty {
-            padding-bottom: 0;
-        }
-        .page-header-footer.is-empty .header-input,
-        .page-header-footer.is-empty .section-footer-input {
-            margin-bottom: 0;
-            border-color: transparent;
-        }
+        /* No specific styling for .is-empty here, as padding and margin are kept constant */
         
         .page-wrapper .page-footer-container {
             display: flex;
@@ -468,7 +461,7 @@
             background-color: #009E60;
             padding: 15px 20px;
             padding-bottom: 25px;
-            margin-bottom: 15px;
+            margin-bottom: 15px; /* Consistent margin */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -481,10 +474,11 @@
             transition: all 0.3s ease;
         }
         .main-title-container.is-empty {
-            padding-top: 5px;
-            padding-bottom: 10px;
-            margin-bottom: 5px;
-            min-height: 25px;
+            /* Keep padding and margin consistent even when empty */
+            padding-top: 15px;
+            padding-bottom: 25px;
+            margin-bottom: 15px; 
+            min-height: 25px; /* Keep a minimum height if needed for visual consistency */
         }
 
         .main-title-container::before,
@@ -521,11 +515,11 @@
         }
         
         .subtitle-container {
-            padding: 10px 0;
+            padding: 10px 0; /* Consistent padding */
             transition: padding 0.3s ease;
         }
         .subtitle-container.is-empty {
-            padding: 0;
+            padding: 10px 0; /* Keep padding consistent even when empty */
         }
 
         .title-section .subtitle {
@@ -611,7 +605,7 @@
             outline: none;
             overflow-y: hidden;
             margin: 15px auto;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Increased shadow for better visibility */
             position: relative;
             font-family: 'Times New Roman', Times, serif; /* Default font */
         }
@@ -756,7 +750,7 @@
             align-items: center;
             justify-content: center;
             flex-direction: column;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Increased shadow for better visibility */
             position: relative;
             overflow: hidden;
         }
