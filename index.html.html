@@ -360,7 +360,7 @@
             display: block;
             transition: all 0.3s ease;
         }
-        /* No specific styling for .is-empty here, as padding and margin are kept constant */
+        /* No specific styling for .is-empty here, as padding and margin are kept consistent */
         
         .page-wrapper .page-footer-container {
             display: flex;
@@ -598,12 +598,10 @@
 
         .master-text-editor {
             width: 210mm;
-            height: 287mm;
+            height: 287mm; /* Fixed height */
             padding: 1in;
             box-sizing: border-box;
-            background-color: #fff;
-            outline: none;
-            overflow-y: hidden;
+            overflow-y: auto; /* Enable scrolling if content exceeds height */
             margin: 15px auto;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1); /* Increased shadow for better visibility */
             position: relative;
@@ -670,18 +668,48 @@
             background-color: #2980b9;
         }
 
-        /* Styles for inserted images to be inline, resizable */
+        /* Styles for inserted images to be block-level, resizable */
         .image-with-caption {
-            display: inline-block; /* Inline object */
-            vertical-align: middle; /* Align with text baseline */
-            margin: 0 0.5em; /* Small horizontal margin to separate from text */
+            display: block; /* Make the figure a block-level element */
+            margin: 1em auto; /* Default to centered with vertical spacing */
             max-width: 100%; /* Ensure it doesn't exceed editor width */
-            width: auto; /* Allow auto width or specific inline width from resizable container */
+            box-sizing: border-box; /* Include padding/border in width/height */
+            /* Removed vertical-align as it's for inline elements */
+        }
+
+        /* Floating behavior */
+        .image-with-caption.float-left {
+            float: left;
+            margin-left: 0; /* Override default auto margin */
+            margin-right: 1em; /* Space between image and text */
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+        .image-with-caption.float-right {
+            float: right;
+            margin-right: 0; /* Override default auto margin */
+            margin-left: 1em; /* Space between image and text */
+            margin-top: 0.5em;
+            margin-bottom: 0.5em;
+        }
+
+        /* Non-float alignment */
+        .image-with-caption.align-left {
+            margin-left: 0;
+            margin-right: auto;
+        }
+        .image-with-caption.align-center { /* This is the default with 'margin: auto;' */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .image-with-caption.align-right {
+            margin-left: auto;
+            margin-right: 0;
         }
 
         .resizable-image-container {
             position: relative;
-            display: inline-block; /* Essential for text-align: center on parent and for float behavior */
+            display: block; /* Changed to block for better alignment within the block figure */
             resize: both; /* Enable resizing */
             overflow: auto; /* To show resize handles */
             min-width: 50px;
@@ -689,6 +717,7 @@
             border: 1px dashed transparent; /* Visual border for resizing */
             box-sizing: border-box; /* Include padding/border in width/height */
             cursor: nwse-resize; /* Resizing cursor */
+            margin: 0 auto; /* Center the resizable container within the figure if it's smaller than max-width */
         }
         .resizable-image-container:hover {
             border-color: #c0d0e0;
@@ -705,7 +734,8 @@
             padding: 8px; outline: none; background-color: #f9f9f9;
             border-radius: 0 0 4px 4px; margin-top: -1px;
             text-align: center;
-            display: block; /* Caption is block within the inline-block figure */
+            display: block; /* Caption is block within the block figure */
+            width: 100%; /* Ensure caption spans full width of the figure */
         }
 
         .image-with-caption figcaption:empty::before {
@@ -969,7 +999,7 @@
                 </div>
                  <div class="page-header-footer">
                      <input type="text" class="header-input" data-i18n-placeholder="englishHeaderPlaceholder" placeholder="English Header (applies to all pages in this section)">
-                     <input type="text" class="section-footer-input" data-i18n-placeholder="englishFooterPlaceholder" placeholder="English Footer (applies to all pages in this section)">
+                     <input type="text" class="section-footer-input" data-i18n-placeholder="englishFooterPlaceholder" placeholder="English Footer (aplies to all pages in this section)">
                 </div>
                 <div class="pages-container" id="pages-container-english">
                 </div>
@@ -1055,9 +1085,9 @@
                 kirundiHeaderPlaceholder: "Kirundi Header (applies to all pages in this section)",
                 kirundiFooterPlaceholder: "Kirundi Footer (applies to all pages in this section)",
                 frenchHeaderPlaceholder: "French Header (applies to all pages in this section)",
-                frenchFooterPlaceholder: "French Footer (applies to all pages in this section)",
+                frenchFooterPlaceholder: "French Footer (aplies to all pages in this section)",
                 englishHeaderPlaceholder: "English Header (applies to all pages in this section)",
-                englishFooterPlaceholder: "English Footer (applies to all pages in this section)",
+                englishFooterPlaceholder: "English Footer (aplies to all pages in this section)",
                 mainTitlePlaceholder: (lang, pageNum) => `Main Title (${lang} - Page ${pageNum})`, // dynamic
                 subtitlePlaceholder: (lang, pageNum) => `Optional Subtitle (${lang} - Page ${pageNum})`, // dynamic
                 editorPlaceholder: (pageNum) => `Start typing on page ${pageNum}...`, // dynamic
@@ -1731,12 +1761,12 @@
                         sel.addRange(lastSelectionRange);
 
                         const figure = document.createElement('figure');
-                        figure.className = 'image-with-caption'; // Inline block, no initial float/align class
+                        figure.className = 'image-with-caption'; // Block-level element now
                         figure.contentEditable = false;
                         figure.draggable = false; // Not draggable as an inline object
                         
                         const container = document.createElement('div');
-                        container.className = 'resizable-image-container';
+                        container.className = 'resizable-image-container'; // Now block-level
                         // Set a default size for the resizable container to make it visible and resizable
                         container.style.width = '150px'; 
                         container.style.height = 'auto'; // Let height adjust naturally, maintaining aspect ratio
@@ -1963,7 +1993,7 @@
                 }
                 .subtitle-wrapper { text-align: center; margin-bottom: 0.25in; }
                 .subtitle-wrapper h2 {
-                    display: inline-block; margin: 0; padding: 0 0 4pt 0; font-size: 14pt;
+                    display: inline-block; margin: 0; padding: 0 0 4pt 0; font-size: 12pt; /* Changed to 12pt for medium */
                     font-weight: bold; color: #c0392b; border-bottom: 2pt solid #c0392b;
                 }
                 
@@ -1971,39 +2001,66 @@
                 
                 /* Preview styles for images */
                 .content figure {
-                    display: inline-block; /* Inline object */
-                    vertical-align: middle; /* Align with text baseline */
-                    margin: 0 0.5em; /* Small horizontal margin to separate from text */
-                    max-width: 100%; /* Ensure it doesn't exceed editor width */
-                    width: auto; /* Allow auto width or specific inline width */
+                    display: block; /* Make the figure a block-level element in preview */
+                    margin: 1em auto; /* Default to centered with vertical spacing */
+                    max-width: 100%;
                     resize: none; /* Disable resizing in print output */
                     overflow: hidden; /* Hide resize handles in print output */
+                    page-break-inside: avoid; /* Prevent image+caption from splitting across pages */
                 }
-                /* Remove float/align specific classes for preview */
-                .content figure.float-left, .content figure.float-right,
-                .content figure.align-left, .content figure.align-center, .content figure.align-right {
-                    float: none;
-                    margin: 0 0.5em;
-                    clear: none;
-                    text-align: initial;
+
+                /* Handle editor's float/align classes for preview */
+                .content figure.float-left {
+                    float: left;
+                    margin-left: 0;
+                    margin-right: 1em;
+                    margin-top: 0.5em;
+                    margin-bottom: 0.5em;
+                }
+                .content figure.float-right {
+                    float: right;
+                    margin-right: 0;
+                    margin-left: 1em;
+                    margin-top: 0.5em;
+                    margin-bottom: 0.5em;
+                }
+                /* If no float, ensure it's centered (default behavior of margin: auto) */
+                .content figure.align-left {
+                    margin-left: 0;
+                    margin-right: auto;
+                }
+                .content figure.align-center {
+                    margin-left: auto;
+                    margin-right: auto;
+                }
+                .content figure.align-right {
+                    margin-left: auto;
+                    margin-right: 0;
                 }
 
                 .content figure .resizable-image-container {
-                    /* Inherit dimensions or set explicit for print */
+                    display: block; /* Ensure it's a block in preview as well */
                     width: inherit; /* Should take width from figure inline style */
                     height: inherit; /* Should take height from figure inline style */
                     resize: none; /* Disable resizing in print output */
                     overflow: hidden;
                     border: none;
                     cursor: default;
+                    margin: 0 auto; /* Center the image within its figure */
                 }
 
                 .content figure img { max-width: 100%; height: auto; display: block; }
                 .content figcaption {
-                    font-size: 10pt; font-style: italic; color: #000; /* Set to black for readability */
-                    padding-top: 8pt; /* Increased padding for clear separation */
+                    font-size: 10pt;
+                    font-style: italic;
+                    color: #000; /* Set to black for readability */
+                    padding: 8pt; /* Consistent padding top and bottom for visual space */
+                    line-height: 1.2;
                     text-align: center;
                     display: block;
+                    background-color: #f9f9f9; /* Maintain background from editor */
+                    border-radius: 0 0 4px 4px; /* Maintain border radius from editor */
+                    margin-top: -1px; /* To visually connect it to the image container */
                 }
                 .content div[style*="column-count"] { margin-top: 1em; margin-bottom: 1em; }
                 .content .custom-quote {
@@ -2316,19 +2373,19 @@
             const wrapper = editor.closest('.page-wrapper');
             if (!wrapper) return;
             const indicator = wrapper.querySelector('.limit-indicator');
-            const footerReservedHeight = 96; // Approximate height for footer area (1in padding + 22px lift)
-            const availableEditorContentHeight = editor.clientHeight - footerReservedHeight;
 
-            // Check if the scrollHeight (actual content height) exceeds the available space.
-            // A small threshold can be added for minor discrepancies or line height issues.
-            const threshold = 5; 
-            if (editor.scrollHeight > availableEditorContentHeight + threshold) {
+            // The editor has a fixed height defined in CSS (287mm, including padding due to box-sizing: border-box).
+            // We want to indicate when the actual content height (scrollHeight) exceeds this visible area.
+            // A small threshold can prevent the indicator from flickering due to minor layout variations.
+            const threshold = 5; // pixels
+
+            if (editor.scrollHeight > editor.clientHeight + threshold) {
                 indicator.style.display = 'block';
             } else {
                 indicator.style.display = 'none';
             }
-            // Ensure content does not overflow visually into the footer area
-            editor.style.maxHeight = `${availableEditorContentHeight}px`;
+            // IMPORTANT: The line `editor.style.maxHeight = `${availableEditorContentHeight}px`;` has been removed.
+            // The editor's height is now controlled purely by CSS (`height: 287mm`) and allows scrolling (`overflow-y: auto`).
         }
         
         function getProjectDataForSave() {
