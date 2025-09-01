@@ -1061,7 +1061,7 @@
                 kirundiHeaderPlaceholder: "Kirundi Header (applies to all pages in this section)",
                 kirundiFooterPlaceholder: "Kirundi Footer (applies to all pages in this section)",
                 frenchHeaderPlaceholder: "French Header (applies to all pages in this section)",
-                frenchFooterPlaceholder: "French Footer (aplies to all pages in this section)",
+                frenchFooterPlaceholder: "French Footer (applies to all pages in this section)",
                 englishHeaderPlaceholder: "English Header (applies to all pages in this section)",
                 englishFooterPlaceholder: "English Footer (applies to all pages in this section)",
                 mainTitlePlaceholder: (lang, pageNum) => `Main Title (${lang} - Page ${pageNum})`, // dynamic
@@ -1100,6 +1100,9 @@
                 promptEnterFilenameJson: "Enter filename for project (e.g., my-project.json):",
                 promptEnterFilenameDoc: "Enter filename for Word document (e.g., my-book.doc):",
                 limitReached: "LIMIT REACHED",
+                autoSaveMessage: "Project auto-saved!",
+                loadAutoSavePrompt: "An auto-saved project was found. Do you want to load it?",
+
 
                 // Page Numbering Controls
                 numberingLabel: "Numbering:",
@@ -1190,6 +1193,9 @@
                 promptEnterFilenameJson: "Entrez le nom du fichier projet (par exemple, mon-projet.json) :",
                 promptEnterFilenameDoc: "Entrez le nom du fichier Word (par exemple, mon-livre.doc) :",
                 limitReached: "LIMITE ATTEINTE",
+                autoSaveMessage: "Projet enregistré automatiquement !",
+                loadAutoSavePrompt: "Un projet enregistré automatiquement a été trouvé. Voulez-vous le charger ?",
+
 
                 // Page Numbering Controls
                 numberingLabel: "Numérotation :",
@@ -1280,6 +1286,9 @@
                 promptEnterFilenameJson: "Insira o nome do arquivo do projeto (ex: meu-projeto.json):",
                 promptEnterFilenameDoc: "Insira o nome do arquivo Word (ex: meu-livro.doc):",
                 limitReached: "LIMITE ATINGIDO",
+                autoSaveMessage: "Projeto salvo automaticamente!",
+                loadAutoSavePrompt: "Um projeto salvo automaticamente foi encontrado. Deseja carregá-lo?",
+
 
                 // Page Numbering Controls
                 numberingLabel: "Numeração:",
@@ -1322,13 +1331,13 @@
                     if (key.includes('TitlePlaceholder') || key.includes('SubtitlePlaceholder') || key === 'editorPlaceholder') {
                          const pageWrapper = element.closest('.page-wrapper');
                          if (pageWrapper) {
-                             const sectionLang = pageWrapper.closest('.book-section').dataset.sectionLang;
-                             // This is a bit tricky as pageCount is dynamic. We'll update it during addPage/rebuildEditor
-                             // For existing elements, just use the generic placeholder for now, or re-calculate pageNum if needed.
+                             const sectionEl = pageWrapper.closest('.book-section');
+                             const sectionLangKey = sectionEl ? sectionEl.dataset.sectionLang : null;
+                             const sectionTitleTranslation = sectionLangKey ? translations[lang][`${sectionLangKey}SectionTitle`] || sectionLangKey : '';
                              const pageNum = Array.from(pageWrapper.parentElement.querySelectorAll('.page-wrapper')).indexOf(pageWrapper) + 1;
 
                              if (key.includes('TitlePlaceholder') || key.includes('SubtitlePlaceholder')) {
-                                element.placeholder = currentTranslation[key](translations[lang][`${sectionLang}SectionTitle`] || sectionLang, pageNum);
+                                element.placeholder = currentTranslation[key](sectionTitleTranslation, pageNum);
                              } else if (key === 'editorPlaceholder') {
                                  element.dataset.placeholder = currentTranslation[key](pageNum);
                                  updatePlaceholder(element); // Re-trigger placeholder visibility check
@@ -1353,7 +1362,7 @@
                 }
             });
 
-            // Update specific button titles in the toolbar
+            // Update toolbar button titles explicitly (they don't always have data-i18n-title)
             document.querySelector('[onclick="formatText(\'undo\', event)"]').title = currentTranslation.undo;
             document.querySelector('[onclick="formatText(\'redo\', event)"]').title = currentTranslation.redo;
             document.querySelector('[onclick="toggleQuote(event)"]').title = currentTranslation.quote;
@@ -1369,9 +1378,9 @@
             document.querySelector('[onclick="handlePaste(event)"]').title = currentTranslation.paste;
             document.querySelector('[onclick="formatText(\'delete\', event)"]').title = currentTranslation.delete;
             document.querySelector('[onclick="selectAllText(event)"]').title = currentTranslation.selectAll;
-            document.querySelector('[onchange="setFontSize(this.value, event)"]').title = currentTranslation.fontSize;
-            document.querySelector('[onchange="setFontName(this.value, event)"]').title = currentTranslation.font;
-            document.querySelector('[oninput="setTextColor(this.value, event)"]').title = currentTranslation.textColor;
+            document.querySelector('select[onchange="setFontSize(this.value, event)"]').title = currentTranslation.fontSize;
+            document.querySelector('select[onchange="setFontName(this.value, event)"]').title = currentTranslation.font;
+            document.querySelector('input[type="color"][oninput="setTextColor(this.value, event)"]').title = currentTranslation.textColor;
             document.querySelector('[onclick="formatText(\'justifyLeft\', event)"]').title = currentTranslation.alignLeft;
             document.querySelector('[onclick="formatText(\'justifyCenter\', event)"]').title = currentTranslation.alignCenter;
             document.querySelector('[onclick="formatText(\'justifyRight\', event)"]').title = currentTranslation.alignRight;
@@ -1379,6 +1388,7 @@
             document.querySelector('[onclick="formatColumns(2, event)"]').title = currentTranslation.twoColumns;
             document.querySelector('[onclick="formatColumns(3, event)"]').title = currentTranslation.threeColumns;
             document.querySelector('[onclick="removeColumns(event)"]').title = currentTranslation.oneColumn;
+
 
             // Update page numbering labels explicitly
             document.querySelector('label[for="continue-kirundi"]').textContent = currentTranslation.numberingContinue;
@@ -1390,6 +1400,17 @@
             document.querySelector('label[for="continue-english"]').textContent = currentTranslation.numberingContinue;
             document.querySelector('label[for="start-new-english"]').textContent = currentTranslation.numberingStartNew;
             document.querySelector('label[for="start-from-english"]').textContent = currentTranslation.numberingStartAt;
+
+            // Update context menu items
+            document.getElementById('insert-image-option').querySelector('span') ? document.getElementById('insert-image-option').querySelector('span').textContent = currentTranslation.insertImage : document.getElementById('insert-image-option').innerHTML = `<i class="fas fa-image"></i> ${currentTranslation.insertImage}`;
+            document.getElementById('float-left-option').querySelector('span') ? document.getElementById('float-left-option').querySelector('span').textContent = currentTranslation.floatLeft : document.getElementById('float-left-option').innerHTML = `<i class="fas fa-align-left"></i> ${currentTranslation.floatLeft}`;
+            document.getElementById('float-right-option').querySelector('span') ? document.getElementById('float-right-option').querySelector('span').textContent = currentTranslation.floatRight : document.getElementById('float-right-option').innerHTML = `<i class="fas fa-align-right"></i> ${currentTranslation.floatRight}`;
+            document.getElementById('no-float-option').querySelector('span') ? document.getElementById('no-float-option').querySelector('span').textContent = currentTranslation.noFloat : document.getElementById('no-float-option').innerHTML = `<i class="fas fa-grip-lines"></i> ${currentTranslation.noFloat}`;
+            document.getElementById('align-left-option').querySelector('span') ? document.getElementById('align-left-option').querySelector('span').textContent = currentTranslation.alignLeftNoFloat : document.getElementById('align-left-option').innerHTML = `<i class="fas fa-align-left"></i> ${currentTranslation.alignLeftNoFloat}`;
+            document.getElementById('align-center-option').querySelector('span') ? document.getElementById('align-center-option').querySelector('span').textContent = currentTranslation.alignCenterNoFloat : document.getElementById('align-center-option').innerHTML = `<i class="fas fa-align-center"></i> ${currentTranslation.alignCenterNoFloat}`;
+            document.getElementById('align-right-option').querySelector('span') ? document.getElementById('align-right-option').querySelector('span').textContent = currentTranslation.alignRightNoFloat : document.getElementById('align-right-option').innerHTML = `<i class="fas fa-align-right"></i> ${currentTranslation.alignRightNoFloat}`;
+            document.getElementById('replace-image-option').querySelector('span') ? document.getElementById('replace-image-option').querySelector('span').textContent = currentTranslation.replaceImage : document.getElementById('replace-image-option').innerHTML = `<i class="fas fa-sync-alt"></i> ${currentTranslation.replaceImage}`;
+            document.getElementById('remove-image-option').querySelector('span') ? document.getElementById('remove-image-option').querySelector('span').textContent = currentTranslation.removeImage : document.getElementById('remove-image-option').innerHTML = `<i class="fas fa-trash-alt"></i> ${currentTranslation.removeImage}`;
         }
 
         function updateDynamicPlaceholders(lang) {
@@ -1403,8 +1424,10 @@
                             const mainTitleInput = pageWrapper.querySelector('.main-title');
                             const subtitleInput = pageWrapper.querySelector('.subtitle');
                             const editorDiv = pageWrapper.querySelector('.master-text-editor');
-                            if (mainTitleInput) mainTitleInput.placeholder = currentTranslation.mainTitlePlaceholder(translations[lang][`${sectionLang}SectionTitle`] || sectionLang, pageNum);
-                            if (subtitleInput) subtitleInput.placeholder = currentTranslation.subtitlePlaceholder(translations[lang][`${sectionLang}SectionTitle`] || sectionLang, pageNum);
+                            const sectionTitleTranslation = translations[lang][`${sectionLang}SectionTitle`] || sectionLang;
+
+                            if (mainTitleInput) mainTitleInput.placeholder = currentTranslation.mainTitlePlaceholder(sectionTitleTranslation, pageNum);
+                            if (subtitleInput) subtitleInput.placeholder = currentTranslation.subtitlePlaceholder(sectionTitleTranslation, pageNum);
                             if (editorDiv) {
                                 editorDiv.dataset.placeholder = currentTranslation.editorPlaceholder(pageNum);
                                 updatePlaceholder(editorDiv); // Re-trigger placeholder visibility check
@@ -1421,18 +1444,15 @@
                 figcaption.dataset.placeholder = currentTranslation.captionPlaceholder;
             });
         }
-
-        // Language switcher event listener
-        document.addEventListener('DOMContentLoaded', () => {
-            const langSwitcher = document.getElementById('language-switcher');
-            langSwitcher.value = currentLanguage; // Set default selection
-
-            langSwitcher.addEventListener('change', (event) => {
-                currentLanguage = event.target.value;
-                applyTranslations(currentLanguage);
-                updateDynamicPlaceholders(currentLanguage); // Update dynamic placeholders after language change
-            });
-        });
+        
+        function debounce(func, delay) {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), delay);
+            };
+        }
 
         let draggedElement = null; // For drag and drop
 
@@ -1820,19 +1840,49 @@
             container.appendChild(newPageWrapper);
             const newEditor = newPageWrapper.querySelector('.master-text-editor');
             if (newEditor) {
+                const debouncedUpdatePlaceholder = debounce(updatePlaceholder, 200);
+                const debouncedCheckContentLimit = debounce(checkContentLimit, 200);
+
                 newEditor.addEventListener('paste', handlePaste);
                 newEditor.addEventListener('input', () => {
-                    updatePlaceholder(newEditor);
-                    checkContentLimit(newEditor);
+                    debouncedUpdatePlaceholder(newEditor);
+                    debouncedCheckContentLimit(newEditor);
                 });
-                newEditor.addEventListener('scroll', () => checkContentLimit(newEditor)); // For good measure
-                checkContentLimit(newEditor); // Initial check
+                newEditor.addEventListener('scroll', () => debouncedCheckContentLimit(newEditor)); // For good measure
+                debouncedCheckContentLimit(newEditor); // Initial check
                 
                 newPageWrapper.querySelectorAll('.main-title, .subtitle').forEach(updateLayoutForEmptyInputs);
-                updatePlaceholder(newEditor);
+                debouncedUpdatePlaceholder(newEditor);
             }
             updateAllPageNumbers();
         }
+
+        // Helper function to determine if a page has visual elements
+        function hasVisualElements(pageElement) {
+            // Check for images
+            if (pageElement.querySelector('img')) return true;
+            // Check for figures (which can contain images or other media)
+            if (pageElement.querySelector('figure')) return true;
+            // Check for custom quotes (styled blocks)
+            if (pageElement.querySelector('blockquote.custom-quote')) return true;
+            // Check for column wrappers
+            if (pageElement.querySelector('div[style*="column-count"]')) return true;
+            // Check for any non-empty div/p that is not just whitespace
+            if (pageElement.querySelectorAll('div, p, ul, ol, li').length > 0) {
+                let hasMeaningfulText = false;
+                pageElement.querySelectorAll('div, p, ul, ol, li').forEach(el => {
+                    // Ignore empty containers if they only contain whitespace or no visible content
+                    const innerText = el.textContent.trim();
+                    const innerHtml = el.innerHTML.trim();
+                    if (innerText.length > 0 || innerHtml.includes('<img') || innerHtml.includes('<figure')) {
+                        hasMeaningfulText = true;
+                    }
+                });
+                if (hasMeaningfulText) return true;
+            }
+            return false;
+        }
+
 
         function generatePreviewHtml(forWord = false) {
             let style = `
@@ -2010,6 +2060,8 @@
                 const bookNumber = document.getElementById('bookNumber').value;
                 body += `<div class="page cover-page-preview"><img src="${frontCoverImgSrc}" alt="Front Cover">${bookNumber ? `<div class="book-number-preview">${bookNumber}</div>` : ''}</div>`;
             }
+
+            const allSectionPages = [];
             SECTION_ORDER.forEach(lang => {
                 const sectionEl = document.getElementById(`${lang}-section`);
                 const header = sectionEl.querySelector('.header-input').value;
@@ -2050,7 +2102,7 @@
                         currentEditorContent = tempDiv.innerHTML;
 
                         // Check for meaningful text content (not just empty tags or whitespace)
-                        const hasMeaningfulEditorContent = currentEditorContent.replace(/<[^>]+>/g, '').trim().length > 0 || tempDiv.querySelector('img, figure, blockquote, div');
+                        const hasMeaningfulEditorContent = currentEditorContent.replace(/<[^>]+>/g, '').trim().length > 0 || hasVisualElements(tempDiv);
                         
                         // A page is considered "not blank" if it has a title, subtitle, editor content,
                         // a header, a footer, or a visible page number.
@@ -2062,33 +2114,51 @@
                     if (pageContentPresent) { // Only add page to preview if content is present
                         if (pageType === 'design') {
                             const imgSrc = page.querySelector('.design-preview-img')?.src;
-                            body += `<div class="page design-page-preview"><img src="${imgSrc}" alt="Design Page"></div>`;
+                            allSectionPages.push({ type: 'design', imgSrc: imgSrc });
                         } else { // type === 'text'
                             const title = page.querySelector('.main-title').value;
                             const subtitle = page.querySelector('.subtitle').value;
-
-                            body += `<div class="page">`;
-                            body += `<div class="header">${header || ''}</div>`;
-                            body += `<div class="content">`;
-                            if (title) body += `<div class="main-title-container-preview"><h1>${title}</h1></div>`;
-                            if (subtitle) body += `<div class="subtitle-wrapper"><h2>${subtitle}</h2></div>`;
-                            body += currentEditorContent;
-                            body += `</div>`;
-                            body += `<div class="footer">`;
-                            if (footerText) {
-                                body += `<div class="footer-text-container-preview">${footerText}</div>`;
-                            } else {
-                                body += `<div></div>`; 
-                            }
-                            if (isPageNumVisible) {
-                                body += `<div class="page-number-container-preview">${pageNumSpan.textContent}</div>`;
-                            }
-                            body += `</div>`;
-                            body += `</div>`;
+                            allSectionPages.push({
+                                type: 'text',
+                                header: header,
+                                footerText: footerText,
+                                title: title,
+                                subtitle: subtitle,
+                                editorContent: currentEditorContent,
+                                pageNumber: isPageNumVisible ? pageNumSpan.textContent : null
+                            });
                         }
                     }
                 });
             });
+
+            // Render only visible pages
+            allSectionPages.forEach(pageData => {
+                if (pageData.type === 'design') {
+                    body += `<div class="page design-page-preview"><img src="${pageData.imgSrc}" alt="Design Page"></div>`;
+                } else {
+                    body += `<div class="page">`;
+                    body += `<div class="header">${pageData.header || ''}</div>`;
+                    body += `<div class="content">`;
+                    if (pageData.title) body += `<div class="main-title-container-preview"><h1>${pageData.title}</h1></div>`;
+                    if (pageData.subtitle) body += `<div class="subtitle-wrapper"><h2>${pageData.subtitle}</h2></div>`;
+                    body += pageData.editorContent;
+                    body += `</div>`;
+                    body += `<div class="footer">`;
+                    if (pageData.footerText) {
+                        body += `<div class="footer-text-container-preview">${pageData.footerText}</div>`;
+                    } else {
+                        body += `<div></div>`; 
+                    }
+                    if (pageData.pageNumber) {
+                        body += `<div class="page-number-container-preview">${pageData.pageNumber}</div>`;
+                    }
+                    body += `</div>`;
+                    body += `</div>`;
+                }
+            });
+
+
             const backCoverImgSrc = document.getElementById('backCoverPreview').src;
             if (backCoverImgSrc && !backCoverImgSrc.endsWith('#')) {
                 body += `<div class="page cover-page-preview"><img src="${backCoverImgSrc}" alt="Back Cover"></div>`;
@@ -2217,10 +2287,11 @@
                 editor.innerHTML += htmlToInsert;
             }
 
-            setTimeout(() => {
-                updatePlaceholder(editor);
-                checkContentLimit(editor);
-            }, 100);
+            // Debounced update calls
+            const debouncedUpdatePlaceholder = debounce(updatePlaceholder, 200);
+            const debouncedCheckContentLimit = debounce(checkContentLimit, 200);
+            debouncedUpdatePlaceholder(editor);
+            debouncedCheckContentLimit(editor);
         }
 
         function updateLayoutForEmptyInputs(input) {
@@ -2265,8 +2336,105 @@
             // Ensure content does not overflow visually into the footer area
             editor.style.maxHeight = `${availableEditorContentHeight}px`;
         }
+        
+        function getProjectDataForSave() {
+             const projectData = {
+                frontCover: {
+                    imageSrc: document.getElementById('frontCoverPreview').src,
+                    bookNumber: document.getElementById('bookNumber').value,
+                },
+                backCover: {
+                    imageSrc: document.getElementById('backCoverPreview').src
+                },
+                sections: {}
+            };
+
+            for (const lang of SECTION_ORDER) {
+                const sectionEl = document.getElementById(`${lang}-section`);
+                const sectionData = {
+                    header: sectionEl.querySelector('.header-input').value,
+                    footer: sectionEl.querySelector('.section-footer-input').value,
+                    numberingOption: sectionEl.querySelector(`input[name="numbering-${lang}"]:checked`).value,
+                    startAt: sectionEl.querySelector(`#start-input-${lang}`).value,
+                    pages: []
+                };
+                
+                sectionEl.querySelectorAll('.page-wrapper').forEach(page => {
+                    const pageType = page.dataset.pageType;
+                    let pageContent;
+
+                    if (pageType === 'text') {
+                        const editor = page.querySelector('.master-text-editor');
+                        // Clone editor content to avoid modifying live DOM during data collection
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = editor.innerHTML;
+                        tempDiv.querySelectorAll('.image-with-caption').forEach(figure => {
+                            const resizableContainer = figure.querySelector('.resizable-image-container');
+                            if (resizableContainer) {
+                                // Save current inline style for width and height
+                                figure.setAttribute('data-original-width', resizableContainer.style.width || 'auto');
+                                figure.setAttribute('data-original-height', resizableContainer.style.height || 'auto');
+                            }
+                        });
+                        
+                        pageContent = {
+                            title: page.querySelector('.main-title').value,
+                            subtitle: page.querySelector('.subtitle').value,
+                            content: tempDiv.innerHTML // Save modified innerHTML
+                        };
+                    } else if (pageType === 'design') {
+                        pageContent = {
+                            designSrc: page.querySelector('.design-preview-img').src
+                        };
+                    }
+
+                    sectionData.pages.push({
+                        type: pageType,
+                        ...pageContent
+                    });
+                });
+                projectData.sections[lang] = sectionData;
+            }
+            return projectData;
+        }
+
+        // Auto-save functionality
+        const AUTO_SAVE_KEY = 'ikiyagoAutoSave';
+        const AUTO_SAVE_INTERVAL = 5 * 60 * 1000; // 5 minutes
+
+        function saveProjectToLocalStorage() {
+            const projectData = getProjectDataForSave();
+            localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(projectData));
+            console.log(translations[currentLanguage].autoSaveMessage);
+        }
+
+        function loadProjectFromLocalStorage() {
+            const savedData = localStorage.getItem(AUTO_SAVE_KEY);
+            if (savedData) {
+                if (confirm(translations[currentLanguage].loadAutoSavePrompt)) {
+                    try {
+                        const projectData = JSON.parse(savedData);
+                        rebuildEditor(projectData);
+                    } catch (error) {
+                        alert(translations[currentLanguage].alertErrorOpeningProject);
+                        console.error("Error parsing auto-saved project:", error);
+                    }
+                }
+            }
+        }
+
 
         document.addEventListener('DOMContentLoaded', () => {
+            const langSwitcher = document.getElementById('language-switcher');
+            langSwitcher.value = currentLanguage; // Set default selection
+
+            langSwitcher.addEventListener('change', (event) => {
+                currentLanguage = event.target.value;
+                applyTranslations(currentLanguage);
+                updateDynamicPlaceholders(currentLanguage); // Update dynamic placeholders after language change
+            });
+
+
             SECTION_ORDER.forEach(lang => addPage(lang, 'text')); 
             
             const kirundiButton = document.getElementById('showKirundiBtn');
@@ -2280,8 +2448,18 @@
 
             document.querySelectorAll('.header-input, .main-title, .subtitle, .section-footer-input').forEach(updateLayoutForEmptyInputs);
             document.querySelectorAll('.master-text-editor').forEach(editor => {
-                updatePlaceholder(editor);
-                checkContentLimit(editor);
+                const debouncedUpdatePlaceholder = debounce(updatePlaceholder, 200);
+                const debouncedCheckContentLimit = debounce(checkContentLimit, 200);
+
+                editor.addEventListener('input', () => {
+                    debouncedUpdatePlaceholder(editor);
+                    debouncedCheckContentLimit(editor);
+                });
+                editor.addEventListener('scroll', () => debouncedCheckContentLimit(editor)); // For good measure
+                
+                debouncedUpdatePlaceholder(editor);
+                debouncedCheckContentLimit(editor);
+
                 editor.querySelectorAll('.image-with-caption').forEach(figure => {
                     figure.draggable = true;
                 });
@@ -2317,10 +2495,15 @@
                     updateLayoutForEmptyInputs(event.target);
                 }
                  if (event.target.matches('.master-text-editor')) {
-                    updatePlaceholder(event.target);
-                    checkContentLimit(event.target);
+                    // Handled by debounced event listener directly on editor
                 }
             });
+
+            // Start auto-save
+            setInterval(saveProjectToLocalStorage, AUTO_SAVE_INTERVAL);
+
+            // Check for auto-saved project on load
+            loadProjectFromLocalStorage();
         });
 
         document.addEventListener('change', (event) => {
@@ -2413,63 +2596,7 @@
                 filename += '.json'; // Ensure .json extension
             }
 
-            const projectData = {
-                frontCover: {
-                    imageSrc: document.getElementById('frontCoverPreview').src,
-                    bookNumber: document.getElementById('bookNumber').value,
-                },
-                backCover: {
-                    imageSrc: document.getElementById('backCoverPreview').src
-                },
-                sections: {}
-            };
-
-            for (const lang of SECTION_ORDER) {
-                const sectionEl = document.getElementById(`${lang}-section`);
-                const sectionData = {
-                    header: sectionEl.querySelector('.header-input').value,
-                    footer: sectionEl.querySelector('.section-footer-input').value,
-                    numberingOption: sectionEl.querySelector(`input[name="numbering-${lang}"]:checked`).value,
-                    startAt: sectionEl.querySelector(`#start-input-${lang}`).value,
-                    pages: []
-                };
-                
-                sectionEl.querySelectorAll('.page-wrapper').forEach(page => {
-                    const pageType = page.dataset.pageType;
-                    let pageContent;
-
-                    if (pageType === 'text') {
-                        const editor = page.querySelector('.master-text-editor');
-                        // Clone editor content to avoid modifying live DOM during data collection
-                        const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = editor.innerHTML;
-                        tempDiv.querySelectorAll('.image-with-caption').forEach(figure => {
-                            const resizableContainer = figure.querySelector('.resizable-image-container');
-                            if (resizableContainer) {
-                                // Save current inline style for width and height
-                                figure.setAttribute('data-original-width', resizableContainer.style.width || 'auto');
-                                figure.setAttribute('data-original-height', resizableContainer.style.height || 'auto');
-                            }
-                        });
-                        
-                        pageContent = {
-                            title: page.querySelector('.main-title').value,
-                            subtitle: page.querySelector('.subtitle').value,
-                            content: tempDiv.innerHTML // Save modified innerHTML
-                        };
-                    } else if (pageType === 'design') {
-                        pageContent = {
-                            designSrc: page.querySelector('.design-preview-img').src
-                        };
-                    }
-
-                    sectionData.pages.push({
-                        type: pageType,
-                        ...pageContent
-                    });
-                });
-                projectData.sections[lang] = sectionData;
-            }
+            const projectData = getProjectDataForSave();
 
             const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
