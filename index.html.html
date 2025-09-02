@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2025,7 +2026,7 @@
                     }
 
                     if (pageContentPresent) { // Only add page to preview if content is present
-                        if (pageData.type === 'design') {
+                        if (pageType === 'design') {
                             const imgSrc = page.querySelector('.design-preview-img')?.src;
                             allSectionPages.push({ type: 'design', imgSrc: imgSrc });
                         } else { // type === 'text'
