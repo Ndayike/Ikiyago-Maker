@@ -364,13 +364,13 @@
         
         .page-wrapper .page-footer-container {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: flex-end; /* Pushes content to the right */
+            flex-wrap: wrap; /* Allow elements to wrap */
+            justify-content: space-between; /* Space out controls and add buttons */
             align-items: center;
             border-top: 1px solid #e0e6ed;
             padding-top: 10px;
             margin-top: 20px;
-            gap: 15px;
+            gap: 15px; /* Gap for wrapping items */
         }
         
         .page-number-container {
@@ -668,6 +668,20 @@
             background-color: #2980b9;
         }
 
+        /* Styles for new inline add page buttons */
+        .add-page-inline-controls {
+            display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap to next line if space is tight */
+            gap: 8px; /* Space between buttons */
+            margin-top: 10px; /* Space above the inline controls */
+            justify-content: flex-end; /* Align to the right */
+        }
+
+        .add-page-inline-controls .add-page-btn.small-btn {
+            padding: 8px 12px;
+            font-size: 0.85em;
+        }
+
         /* Styles for inserted images to be block-level, resizable */
         .image-with-caption {
             display: flex; /* Changed to flex to control vertical alignment */
@@ -850,6 +864,7 @@
             .book-number-container { padding: 8px 12px; bottom: 10px; right: 10px; min-width: 100px; }
             .editor-toolbar button, .editor-toolbar select { font-size: 0.8em; padding: 5px 8px; }
             .editor-toolbar input[type="color"] { width: 25px; height: 25px; }
+            .add-page-inline-controls { justify-content: flex-start; } /* Adjust for smaller screens */
         }
 
         @media (max-width: 768px) {
@@ -870,6 +885,16 @@
             .editor-toolbar { flex-direction: row; justify-content: center; gap: 3px; }
             .editor-toolbar button, .editor-toolbar select { font-size: 0.7em; padding: 4px 6px; min-width: unset; flex-grow: 1; }
             .editor-toolbar input[type="color"] { width: 20px; height: 20px; margin-left: 5px; }
+
+            .page-wrapper .page-footer-container {
+                flex-direction: column; /* Stack controls vertically */
+                align-items: center;
+                gap: 10px;
+            }
+            .add-page-inline-controls {
+                justify-content: center; /* Center buttons on small screens */
+                width: 100%; /* Take full width */
+            }
         }
 
         @media print {
@@ -973,8 +998,8 @@
                 <div class="pages-container" id="pages-container-kirundi">
                 </div>
                 <div class="add-page-button-container">
-                    <button class="add-page-btn" onclick="addPage('kirundi', 'text')" data-i18n="addPage"><i class="fas fa-plus-circle"></i> Add New Page</button>
-                    <button class="add-page-btn design-page-btn" onclick="addPage('kirundi', 'design')" data-i18n="addDesign"><i class="fas fa-image"></i> Add a Design</button>
+                    <button class="add-page-btn" onclick="addPage('kirundi', 'text', null, 'append')" data-i18n="addPage"><i class="fas fa-plus-circle"></i> Add New Page</button>
+                    <button class="add-page-btn design-page-btn" onclick="addPage('kirundi', 'design', null, 'append')" data-i18n="addDesign"><i class="fas fa-image"></i> Add a Design</button>
                 </div>
             </section>
 
@@ -997,8 +1022,8 @@
                 <div class="pages-container" id="pages-container-french">
                 </div>
                  <div class="add-page-button-container">
-                    <button class="add-page-btn" onclick="addPage('french', 'text')" data-i18n="addPage"><i class="fas fa-plus-circle"></i> Add New Page</button>
-                    <button class="add-page-btn design-page-btn" onclick="addPage('french', 'design')" data-i18n="addDesign"><i class="fas fa-image"></i> Add a Design</button>
+                    <button class="add-page-btn" onclick="addPage('french', 'text', null, 'append')" data-i18n="addPage"><i class="fas fa-plus-circle"></i> Add New Page</button>
+                    <button class="add-page-btn design-page-btn" onclick="addPage('french', 'design', null, 'append')" data-i18n="addDesign"><i class="fas fa-image"></i> Add a Design</button>
                 </div>
             </section>
 
@@ -1021,8 +1046,8 @@
                 <div class="pages-container" id="pages-container-english">
                 </div>
                  <div class="add-page-button-container">
-                    <button class="add-page-btn" onclick="addPage('english', 'text')" data-i18n="addPage"><i class="fas fa-plus-circle"></i> Add New Page</button>
-                    <button class="add-page-btn design-page-btn" onclick="addPage('english', 'design')" data-i18n="addDesign"><i class="fas fa-image"></i> Add a Design</button>
+                    <button class="add-page-btn" onclick="addPage('english', 'text', null, 'append')" data-i18n="addPage"><i class="fas fa-plus-circle"></i> Add New Page</button>
+                    <button class="add-page-btn design-page-btn" onclick="addPage('english', 'design', null, 'append')" data-i18n="addDesign"><i class="fas fa-image"></i> Add a Design</button>
                 </div>
             </section>
 
@@ -1122,8 +1147,12 @@
                 twoColumns: "2 Columns", threeColumns: "3 Columns", oneColumn: "1 Column (Remove Columns)",
 
                 // Page Controls
-                addPage: "Add New Page",
-                addDesign: "Add a Design",
+                addPage: "Add New Page", // For section-level append
+                addDesign: "Add a Design", // For section-level append
+                addTextBefore: "Text Page Before", // NEW
+                addDesignBefore: "Design Page Before", // NEW
+                addTextAfter: "Text Page After", // NEW
+                addDesignAfter: "Design Page After", // NEW
                 removePageTitle: "Remove this page",
                 hidePageNumberTitle: "Hide page number",
 
@@ -1217,6 +1246,10 @@
                 // Page Controls
                 addPage: "Ajouter Nouvelle Page",
                 addDesign: "Ajouter un Design",
+                addTextBefore: "Page Texte Avant", // NEW
+                addDesignBefore: "Page Design Avant", // NEW
+                addTextAfter: "Page Texte Après", // NEW
+                addDesignAfter: "Page Design Après", // NEW
                 removePageTitle: "Supprimer cette page",
                 hidePageNumberTitle: "Masquer le numéro de page",
 
@@ -1310,6 +1343,10 @@
                 // Page Controls
                 addPage: "Add New Page",
                 addDesign: "Add a Design",
+                addTextBefore: "Página Texto Antes", // NEW
+                addDesignBefore: "Página Design Antes", // NEW
+                addTextAfter: "Página Texto Depois", // NEW
+                addDesignAfter: "Página Design Depois", // NEW
                 removePageTitle: "Remover esta página",
                 hidePageNumberTitle: "Ocultar número da página",
 
@@ -1829,12 +1866,14 @@
             reader.readAsDataURL(file);
         });
 
-        function addPage(lang, type = 'text') {
+        // Modified addPage function
+        function addPage(lang, type = 'text', referencePageElement = null, position = 'append') {
             const container = document.getElementById(`pages-container-${lang}`);
             const newPageWrapper = document.createElement('div');
             newPageWrapper.className = 'page-wrapper';
             newPageWrapper.dataset.pageType = type;
-            const pageNum = container.querySelectorAll('.page-wrapper').length + 1; // Count all page types for simple numbering
+            // pageNum is an initial guess, updateAllPageNumbers will correct it
+            const pageNum = container.querySelectorAll('.page-wrapper').length + 1;
 
             if (type === 'text') {
                  newPageWrapper.innerHTML = `
@@ -1864,6 +1903,12 @@
                                 <span class="remove-page-number" data-i18n-title="hidePageNumberTitle">&times;</span>
                             </div>
                         </div>
+                        <div class="add-page-inline-controls">
+                            <button class="add-page-btn small-btn" onclick="addPage('${lang}', 'text', this.closest('.page-wrapper'), 'before')" data-i18n="addTextBefore"><i class="fas fa-plus-circle"></i> Text Before</button>
+                            <button class="add-page-btn small-btn design-page-btn" onclick="addPage('${lang}', 'design', this.closest('.page-wrapper'), 'before')" data-i18n="addDesignBefore"><i class="fas fa-image"></i> Design Before</button>
+                            <button class="add-page-btn small-btn" onclick="addPage('${lang}', 'text', this.closest('.page-wrapper'), 'after')" data-i18n="addTextAfter"><i class="fas fa-plus-circle"></i> Text After</button>
+                            <button class="add-page-btn small-btn design-page-btn" onclick="addPage('${lang}', 'design', this.closest('.page-wrapper'), 'after')" data-i18n="addDesignAfter"><i class="fas fa-image"></i> Design After</button>
+                        </div>
                     </div>`;
             } else if (type === 'design') {
                 newPageWrapper.innerHTML = `
@@ -1883,10 +1928,23 @@
                                 <span class="remove-page-number" data-i18n-title="hidePageNumberTitle">&times;</span>
                             </div>
                         </div>
+                        <div class="add-page-inline-controls">
+                            <button class="add-page-btn small-btn" onclick="addPage('${lang}', 'text', this.closest('.page-wrapper'), 'before')" data-i18n="addTextBefore"><i class="fas fa-plus-circle"></i> Text Before</button>
+                            <button class="add-page-btn small-btn design-page-btn" onclick="addPage('${lang}', 'design', this.closest('.page-wrapper'), 'before')" data-i18n="addDesignBefore"><i class="fas fa-image"></i> Design Before</button>
+                            <button class="add-page-btn small-btn" onclick="addPage('${lang}', 'text', this.closest('.page-wrapper'), 'after')" data-i18n="addTextAfter"><i class="fas fa-plus-circle"></i> Text After</button>
+                            <button class="add-page-btn small-btn design-page-btn" onclick="addPage('${lang}', 'design', this.closest('.page-wrapper'), 'after')" data-i18n="addDesignAfter"><i class="fas fa-image"></i> Design After</button>
+                        </div>
                     </div>`;
             }
 
-            container.appendChild(newPageWrapper);
+            if (referencePageElement && position === 'before') {
+                referencePageElement.parentNode.insertBefore(newPageWrapper, referencePageElement);
+            } else if (referencePageElement && position === 'after') {
+                referencePageElement.parentNode.insertBefore(newPageWrapper, referencePageElement.nextSibling);
+            } else { // 'append' or no reference element
+                container.appendChild(newPageWrapper);
+            }
+
             const newEditor = newPageWrapper.querySelector('.master-text-editor');
             if (newEditor) {
                 const debouncedUpdatePlaceholder = debounce(updatePlaceholder, 200);
@@ -2569,7 +2627,7 @@
             });
 
 
-            SECTION_ORDER.forEach(lang => addPage(lang, 'text')); 
+            SECTION_ORDER.forEach(lang => addPage(lang, 'text', null, 'append')); 
             
             const kirundiButton = document.getElementById('showKirundiBtn');
             showSection('kirundi', kirundiButton);
@@ -2816,7 +2874,7 @@
                     pagesContainer.innerHTML = ''; // Clear all existing pages
 
                     sectionData.pages.forEach((pageData) => {
-                        addPage(lang, pageData.type);
+                        addPage(lang, pageData.type, null, 'append'); // Always append during rebuild, then numbers update
                         const newPage = pagesContainer.lastElementChild;
                         
                         if (pageData.type === 'text') {
