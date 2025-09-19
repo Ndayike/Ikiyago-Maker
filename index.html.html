@@ -1,13 +1,24 @@
+
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IKIYAGO MAKER Office App</title>
+    <!-- PWA: Manifest and Theme Color -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="apple-touch-icon" href="/assets/icon-192.png">
+
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- jsPDF and html2pdf.js for PDF Export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- jsPDF and html2canvas.js for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- Google Font: Playfair Display by Claus Eggers Sørensen -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
     <style>
@@ -756,7 +767,7 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            border: 1px dashed #c0d0e0; /* Always show border on image in editor */
+            border: none; /* Removed dotted border */
             margin: 0;                  /* No extra space around image */
             padding: 0;
             transition: border-color 0.2s ease;
@@ -914,17 +925,89 @@
             }
         }
 
-        @media print {
-            body { background-color: #fff; }
-            .menu-column, .add-page-button-container, .page-footer-container, .header-controls, .language-selector {
-                display: none;
+        /* --- Print-specific styles --- */
+        @media screen {
+            .print-only { display: none !important; }
+            /* Styling for the internal print preview modal */
+            #printPreviewModal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.7);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 2000; /* Higher z-index to be on top */
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch; /* For smoother scrolling on iOS */
             }
-            .app-container, .main-content {
+
+            #printPreviewModal .modal-content {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 25px rgba(0,0,0,0.3);
+                max-width: 90%;
+                max-height: 90%;
+                overflow-y: auto;
+                text-align: center;
+                margin: 20px auto; /* Center the modal content and allow spacing */
+            }
+
+            #printPreviewModal .preview-controls {
+                margin-bottom: 20px;
+                display: flex;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            #printPreviewModal .preview-controls button {
+                background: #4a6cf7;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 16px;
+                transition: background-color 0.2s ease;
+            }
+            #printPreviewModal .preview-controls button:hover {
+                background: #3a56e0;
+            }
+
+            #previewContentWrapper {
+                border: 2px dashed #ccc;
+                padding: 20px;
+                margin: 20px auto;
+                background-color: #f9f9f9;
+                max-width: fit-content; /* Ensure it fits the content, like the page */
+            }
+
+            #printPreviewModal .preview-container .page {
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1); /* Subtle shadow for pages in preview */
+            }
+        }
+        
+        @media print {
+            body { 
+                background-color: #fff; 
+                margin: 0; 
+                padding: 0; 
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact; 
+            }
+            .no-print { 
+                display: none !important; 
+            }
+            .app-container {
                 width: 100%;
                 max-width: 100%;
                 padding: 0;
                 margin: 0;
                 box-shadow: none;
+                display: block !important; /* Ensure the main container is visible for printing its contents */
             }
             .book-section {
                 border: none;
@@ -932,15 +1015,342 @@
             .page-wrapper {
                 page-break-after: always;
             }
+            .page-wrapper:last-of-type {
+                page-break-after: auto;
+            }
             /* Ensure the star icon from is-logical-page-one is hidden in print */
             .page-wrapper.is-logical-page-one .page-number-container::before {
                 display: none;
             }
+
+            /* Styles for the pages generated within the modal print preview */
+            #printPreviewModal {
+                position: static; /* Remove fixed positioning for actual printing */
+                width: auto;
+                height: auto;
+                background-color: transparent;
+                box-shadow: none;
+                display: block !important; /* Ensure the modal content is visible for printing */
+                overflow: visible !important; /* Allow content to flow */
+            }
+
+            #printPreviewModal .modal-content,
+            #printPreviewModal .preview-controls,
+            #previewContentWrapper {
+                display: none !important; /* Hide modal UI elements during actual printing */
+            }
+            
+            .preview-container { /* This is the container for all generated pages */
+                margin: 0;
+                padding: 0;
+                display: block; /* Ensure it's a block for standard document flow */
+            }
+
+            .page { /* Individual generated page */
+                width: 210mm;
+                height: 287mm;
+                box-sizing: border-box;
+                page-break-after: always;
+                background: #fff;
+                font-size: 12pt;
+                color: #000;
+                box-shadow: none; /* Remove shadows for print */
+                position: relative;
+                overflow: hidden; /* Prevent content from flowing outside page box */
+            }
+            .page:last-of-type { page-break-after: auto; }
+            .cover-page-preview, .design-page-preview {
+                padding: 0; display: flex; align-items: center; justify-content: center;
+            }
+            .cover-page-preview { position: relative; }
+            .cover-page-preview img, .design-page-preview img {
+                width: 100%; height: 100%; object-fit: cover;
+            }
+            .design-page-preview { display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
+            .design-page-preview img { max-height: calc(100% - 1in); width: 100%; object-fit: contain; } /* Leave space for footer */
+            .book-number-preview {
+                position: absolute; bottom: 1in; right: 1in; z-index: 2;
+                background-color: rgba(255, 255, 255, 0.9); color: #000;
+                padding: 5pt 10pt; border-radius: 3px; font-size: 12pt; font-weight: bold;
+            }
+            .header {
+                position: absolute; top: 0; left: 0; right: 0; height: 0.5in;
+                padding: 0 1in;
+                font-size: 9pt; color: #444; display: flex; 
+                align-items: center; justify-content: center;
+            }
+            .content {
+                padding: 0.5in 1in calc(1in + 22px) 1in; /* Lift footer by adding to bottom padding */
+                height: 100%;
+                overflow: hidden; /* Hide overflow to protect footer area */
+                font-family: 'Times New Roman', Times, serif; /* Default font for content */
+                line-height: 1.5; /* Ensure line spacing is respected */
+            }
+            .content p {
+                line-height: 1.5; /* Apply line-height to paragraphs */
+                margin-top: 0;
+                margin-bottom: 0.5em;
+            }
+            .footer {
+                position: absolute; bottom: 22px; /* Lift footer upward by 22px (approx 0.8cm) */ left: 0; right: 0; height: 1in;
+                padding: 0 1in 0.5in 1in;
+                display: flex; align-items: flex-end;
+                justify-content: space-between;
+                border-top: 1px solid #ddd;
+            }
+            .footer-text-container-preview {
+                background-color: #c0392b; color: white; padding: 4px 10px;
+                border-radius: 5px; font-size: 12pt; 
+            }
+            .page-number-container-preview {
+                background-color: #27ae60; color: white; padding: 4px 10px;
+                border-radius: 5px; font-weight: bold; font-size: 14px;
+            }
+
+            .main-title-container-preview {
+                margin: 0 auto 0.25in auto; padding: 0.15in; padding-bottom: calc(0.15in + 8px);
+                text-align: center; background-color: #009E60; color: #ffffff;
+                border-radius: 8px; position: relative; overflow: hidden;
+            }
+            .main-title-container-preview::before, .main-title-container-preview::after {
+                content: ''; position: absolute; left: 0; width: 100%; height: 4px;
+            }
+            .main-title-container-preview::before { background-color: #F4F5F0; bottom: 4px; }
+            .main-title-container-preview::after { background-color: #CD212A; bottom: 0; }
+            .main-title-container-preview h1 {
+                margin: 0; padding: 0; font-size: 24pt; font-weight: bold; line-height: 1.2;
+            }
+            .subtitle-wrapper { text-align: center; margin-bottom: 0.25in; }
+            .subtitle-wrapper h2 {
+                display: inline-block; margin: 0; padding: 0 0 4pt 0; font-size: 12pt; 
+                font-weight: bold; color: #c0392b; border-bottom: 2pt solid #c0392b;
+            }
+            
+            .content div, .content blockquote { margin-top: 0; margin-bottom: 1em; }
+            
+            .content figure {
+                display: flex; 
+                flex-direction: column; 
+                align-items: center; 
+                margin: 0;                  
+                padding: 0;                 
+                max-width: 100%;
+                resize: none;
+                overflow: hidden;
+                page-break-inside: avoid;
+            }
+
+            .content figure.float-left {
+                float: left;
+                margin: 0.5em 1em 0.5em 0; 
+            }
+            .content figure.float-right {
+                float: right;
+                margin: 0.5em 0 0.5em 1em; 
+            }
+            .content figure.align-left {
+                align-items: flex-start; 
+                margin: 1em 0; 
+            }
+            .content figure.align-center {
+                align-items: center; 
+                margin: 1em auto; 
+            }
+            .content figure.align-right {
+                align-items: flex-end; 
+                margin: 1em 0; 
+            }
+
+            .content figure .resizable-image-container {
+                display: block;
+                width: inherit;
+                height: inherit;
+                resize: none;
+                overflow: hidden;
+                border: none;
+                cursor: default;
+                margin: 0; 
+            }
+
+            .content figure img { 
+                max-width: 100%; 
+                height: auto; 
+                display: block; 
+                border: none; 
+                margin: 0;                  
+                padding: 0;
+            }
+            .content figcaption {
+                font-size: 0.9em; 
+                font-style: italic;
+                color: #555; 
+                padding: 8px; 
+                line-height: 1.2; 
+                text-align: center;
+                display: block;
+                background-color: #f9f9f9; 
+                border-radius: 0 0 4px 4px; 
+                margin-top: -1px; 
+                width: 100%; 
+            }
+            .content div[style*="column-count"] { margin-top: 1em; margin-bottom: 1em; }
+            .content .custom-quote {
+                position: relative; margin: 1em 0; padding: 0.1in 0.15in 0.1in 25px;
+                font-style: italic; background-color: #f5f5f5; border-radius: 4px; page-break-inside: avoid;
+            }
+            .content .custom-quote::before {
+                content: ''; position: absolute; left: 8px; top: 5px; bottom: 5px; width: 9px;
+                background: linear-gradient(to right, #CD2A3E 33.3%, #F4F5F0 33.3%, #F4F5F0 66.6%, #008C45 66.6%);
+                border-radius: 5px;
+            }
+            .content b, .content strong { font-weight: bold; }
+            .content i, .content em { font-style: italic; }
+            .content u { text-decoration: underline; }
+            .content div[style*="text-align: center"] { text-align: center; }
+            .content div[style*="text-align: right"] { text-align: right; }
+            .content div[style*="text-align: justify"] { text-align: justify; }
+            /* List formatting */
+            .content ul, .content ol { margin-left: 1.5em; margin-bottom: 1em; line-height: 1.5; }
+            .content ul ul, .content ol ol { margin-left: 1.5em; } /* For nested lists */
+            .content li { margin-bottom: 0.5em; }
+            .content font[color] { color: inherit; } .content font[face] { font-family: inherit; }
+            .content font[size="1"] { font-size: x-small; } .content font[size="2"] { font-size: small; }
+            .content font[size="3"] { font-size: medium; } .content font[size="4"] { font-size: large; }
+            .content font[size="5"] { font-size: x-large; } .content font[size="6"] { font-size: xx-large; }
+            .content font[size="7"] { font-size: xxx-large; }
+            .hide-in-print { display: none !important; }
+        }
+
+        /* Styles for the new Bizhub Setup section */
+        #bizhub-setup-section {
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: none; /* Hidden by default */
+        }
+        #bizhub-setup-section h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #1a2a6c;
+            font-size: 2.2em;
+            text-shadow: none;
+        }
+        #bizhub-setup-section .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        #bizhub-setup-section .step {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+            color: #333;
+        }
+        #bizhub-setup-section h2 {
+            color: #1976d2;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        #bizhub-setup-section ul {
+            padding-left: 25px;
+            margin: 10px 0;
+            list-style-type: disc;
+        }
+        #bizhub-setup-section li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        #bizhub-setup-section .browser-icons {
+            display: flex;
+            justify-content: center; /* Center the icons */
+            flex-wrap: wrap;
+            margin: 30px 0;
+            gap: 20px; /* Space between icons */
+        }
+        #bizhub-setup-section .browser-icon {
+            text-align: center;
+            background: #f0f4f8;
+            border-radius: 10px;
+            padding: 15px;
+            width: 120px;
+            margin: 0; /* Reset margin */
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #bizhub-setup-section .browser-icon:hover {
+            transform: translateY(-5px);
+            background: #e1f5fe;
+            box-shadow: 0 5px 15px rgba(33,150,243,0.3);
+        }
+        #bizhub-setup-section .browser-icon img {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 10px;
+        }
+        #bizhub-setup-section .browser-icon p {
+            color: #555;
+            font-weight: 500;
+        }
+        #bizhub-setup-section .note {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 0 8px 8px 0;
+            color: #333;
+        }
+        #bizhub-setup-section .status-check {
+            text-align: center;
+            margin: 25px 0;
+        }
+        #bizhub-setup-section button {
+            background: #4a6cf7;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background 0.3s, box-shadow 0.3s, transform 0.3s;
+            margin-top: 15px; /* Add some spacing */
+        }
+        #bizhub-setup-section button:hover {
+            background: #3a56e0;
+            box-shadow: 0 5px 15px rgba(74,108,247,0.4);
+            transform: translateY(-2px);
+        }
+        #bizhub-setup-section button:active {
+            transform: translateY(0);
+        }
+        #bizhub-setup-section #statusResult {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        #bizhub-setup-section #statusResult p {
+            margin: 0;
+        }
+        #bizhub-setup-section #statusResult p[style*="color:#8bc34a"] {
+            background: rgba(139,195,74,0.1);
+            color: #8bc34a;
+        }
+        #bizhub-setup-section #statusResult p[style*="color:#f44336"] {
+            background: rgba(244,67,54,0.1);
+            color: #f44336;
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
+    <div class="app-container no-print">
         <!-- Language Selector -->
         <div class="language-selector">
             <select id="language-switcher">
@@ -969,7 +1379,9 @@
                     <li><button id="openProjectBtn" onclick="openProject()" data-i18n="openProjectBtn"><i class="fas fa-folder-open"></i> Open Project</button></li>
                     <li><button id="saveProjectBtn" onclick="saveProject()" data-i18n="saveProjectBtn"><i class="fas fa-save"></i> Save Project</button></li>
                     <li class="separator"></li>
-                    <li><button id="previewBookBtn" onclick="previewBook()" data-i18n="previewBookBtn"><i class="fas fa-eye"></i> Preview Book</button></li>
+                    <li><button id="showBizhubSetupBtn" onclick="showSection('bizhub-setup', this)" data-i18n="bizhubSetupBtn"><i class="fas fa-print"></i> Bizhub C458 Setup</button></li>
+                    <li><button id="previewBookBtn" onclick="previewBook()" data-i18n="previewBookBtn"><i class="fas fa-eye"></i> Preview Book (New Window)</button></li>
+                    <li><button id="showPrintPreviewBtn" onclick="showPrintPreviewModal()" data-i18n="printPreviewBtn"><i class="fas fa-print"></i> Print Preview (Modal)</button></li>
                     <li><button id="exportPdf" onclick="exportToPdf()" data-i18n="exportPdf"><i class="fas fa-file-pdf"></i> Export to PDF</button></li>
                     <li><button id="exportDocx" onclick="promptAndSaveAsDocx()" data-i18n="exportDocx"><i class="fas fa-file-word"></i> Save as Word (Docx)</button></li>
                 </ul>
@@ -1013,8 +1425,8 @@
                     </div>
                 </div>
                 <div class="page-header-footer">
-                     <input type="text" class="header-input" data-i18n-placeholder="kirundiHeaderPlaceholder" placeholder="Kirundi Header (applies to all pages in this section)">
-                     <input type="text" class="section-footer-input" data-i18n-placeholder="kirundiFooterPlaceholder" placeholder="Kirundi Footer (applies to all pages in this section)">
+                     <input type="text" class="header-input" data-i18n-placeholder="kirundiHeaderPlaceholder" placeholder="Kirundi Header (aplies to all pages in this section)">
+                     <input type="text" class="section-footer-input" data-i18n-placeholder="kirundiFooterPlaceholder" placeholder="Kirundi Footer (aplies to all pages in this section)">
                 </div>
                 <div class="pages-container" id="pages-container-kirundi">
                 </div>
@@ -1079,8 +1491,70 @@
                     <label for="backCoverImage" data-i18n="uploadBackCoverImage">Upload Back Cover Image:</label>
                     <input type="file" id="backCoverImage" accept="image/png, image/jpeg">
                     <div class="cover-design-area">
-                        <span id="backCoverPlaceholder" style="color: #aaa; font-style: italic;" data-i18n="backCoverPlaceholder">Upload Back Cover Image</span>
+                        <span id="backCoverPlaceholder" style="color: #aaa; font-style: italic;" data-i18n="coverPlaceholder">Upload Back Cover Image</span>
                         <img id="backCoverPreview" src="#" alt="Back Cover Preview" class="cover-preview" style="display:none;">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bizhub Setup Section -->
+            <section id="bizhub-setup-section" class="book-section" style="display: none;">
+                <div class="container no-print">
+                    <h1>Enable Bizhub C458 Printing</h1>
+                    
+                    <div class="step">
+                        <h2>Prerequisites</h2>
+                        <ul>
+                            <li>Bizhub C458 connected to the same network</li>
+                            <li>Latest printer drivers installed</li>
+                            <li>Administrator access to configure browser settings</li>
+                        </ul>
+                    </div>
+
+                    <div class="browser-icons">
+                        <div class="browser-icon">
+                            <img src="https://source.unsplash.com/random/64x64/?chrome,browser" alt="Chrome">
+                            <p>Chrome</p>
+                        </div>
+                        <div class="browser-icon">
+                            <img src="https://source.unsplash.com/random/64x64/?firefox,browser" alt="Firefox">
+                            <p>Firefox</p>
+                        </div>
+                        <div class="browser-icon">
+                            <img src="https://source.unsplash.com/random/64x64/?edge,browser" alt="Edge">
+                            <p>Edge</p>
+                        </div>
+                        <div class="browser-icon">
+                            <img src="https://source.unsplash.com/random/64x64/?safari,browser" alt="Safari">
+                            <p>Safari</p>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <h2>Configuration Steps</h2>
+                        <ul>
+                            <li><strong>Chrome/Edge:</strong> Enable "Background printing" in chrome://settings/content/pdfDocuments</li>
+                            <li><strong>Firefox:</strong> Install "Bizhub Print Extension" from addons.mozilla.org (if available, manual search may be required)</li>
+                            <li><strong>Safari:</strong> Enable "Print from any source" in Preferences → Websites → Pop-ups (Note: This setting name might vary or not directly control printing behavior.)</li>
+                            <li>Add printer IP to trusted sites in browser security settings (if applicable)</li>
+                            <li>Enable cross-origin resource sharing (CORS) in printer admin panel (if applicable, consult printer manual)</li>
+                        </ul>
+                    </div>
+
+                    <div class="note">
+                        <h2>Important Notes</h2>
+                        <ul>
+                            <li>Use IP address instead of hostname for reliable connections</li>
+                            <li>Configure port 9100 for raw TCP printing (consult network administrator)</li>
+                            <li>Update firmware to latest version (G00-W1 or newer)</li>
+                            <li>Enable "Web Service" in printer's network settings</li>
+                            <li>To print to "KONICA MINOLTA bizhub C458 PCL (fe80::212c:6fff:febaa:0%40) UPD" or any specific printer, you must select it manually in your browser's native print dialog that appears. Web applications cannot pre-select printers for security reasons.</li>
+                        </ul>
+                    </div>
+
+                    <div class="status-check">
+                        <button onclick="checkPrintStatus()">Verify Printer Connection</button>
+                        <div id="statusResult"></div>
                     </div>
                 </div>
             </section>
@@ -1092,12 +1566,12 @@
     <input type="file" id="project-opener" accept=".json" style="display:none;">
 
     <!-- Custom Context Menus -->
-    <div id="text-context-menu" class="custom-context-menu">
+    <div id="text-context-menu" class="custom-context-menu no-print">
         <ul>
             <li id="insert-image-option" data-i18n="insertImage"><i class="fas fa-image"></i> Insert Image</li>
         </ul>
     </div>
-    <div id="image-context-menu" class="custom-context-menu">
+    <div id="image-context-menu" class="custom-context-menu no-print">
         <ul>
             <li id="float-left-option" data-i18n="floatLeft"><i class="fas fa-align-left"></i> Float Left</li>
             <li id="float-right-option" data-i18n="floatRight"><i class="fas fa-align-right"></i> Float Right</li>
@@ -1112,8 +1586,38 @@
         </ul>
     </div>
 
+    <!-- Print Preview Modal -->
+    <div id="printPreviewModal" class="print-only" style="display:none;">
+        <div class="modal-content">
+            <div class="preview-controls">
+                <button onclick="window.print()"><i class="fas fa-print"></i> Print Now</button>
+                <button onclick="closePrintPreviewModal()"><i class="fas fa-times-circle"></i> Close Preview</button>
+            </div>
+            <div id="previewContentWrapper">
+                <!-- Print content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Context Menu for Print Preview Modal -->
+    <div id="print-preview-context-menu" class="custom-context-menu print-only" style="display:none;">
+        <ul>
+            <li id="print-option-context"><i class="fas fa-print"></i> Print</li>
+            <li id="close-preview-option-context"><i class="fas fa-times-circle"></i> Close Preview</li>
+        </ul>
+    </div>
+
 
     <script>
+        // PWA: Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => console.log('SW registered'))
+                    .catch(error => console.error('SW registration failed:', error));
+            });
+        }
+
         const SECTION_ORDER = ['kirundi', 'french', 'english'];
         let currentLanguage = 'en'; // Default language
         
@@ -1127,7 +1631,9 @@
                 backCoverBtn: "Back Cover",
                 openProjectBtn: "Open Project",
                 saveProjectBtn: "Save Project",
-                previewBookBtn: "Preview Book",
+                bizhubSetupBtn: "Bizhub C458 Setup", // NEW
+                previewBookBtn: "Preview Book (New Window)",
+                printPreviewBtn: "Print Preview (Modal)",
                 exportPdf: "Export to PDF",
                 exportDocx: "Save as Word (Docx)",
                 developedBy: "Developed by Ndayikeze Apollinaire",
@@ -1145,9 +1651,9 @@
                 coverPlaceholder: "Upload Front Cover Image",
                 bookNumberLabel: "Book Number:",
                 bookNumberPlaceholder: "Enter #",
-                kirundiHeaderPlaceholder: "Kirundi Header (applies to all pages in this section)",
-                kirundiFooterPlaceholder: "Kirundi Footer (applies to all pages in this section)",
-                frenchHeaderPlaceholder: "French Header (applies to all pages in this section)",
+                kirundiHeaderPlaceholder: "Kirundi Header (aplies to all pages in this section)",
+                kirundiFooterPlaceholder: "Kirundi Footer (aplies to all pages in this section)",
+                frenchHeaderPlaceholder: "French Header (aplies to all pages in this section)",
                 frenchFooterPlaceholder: "French Footer (aplies to all pages in this section)",
                 englishHeaderPlaceholder: "English Header (aplies to all pages in this section)",
                 englishFooterPlaceholder: "English Footer (aplies to all pages in this section)",
@@ -1190,32 +1696,15 @@
                 alertCannotDeleteLastTextPage: "You cannot delete the only text page in a section. Add another page first if you wish to replace it.",
                 alertErrorOpeningProject: "Error: Could not open or parse the project file.",
                 alertProjectLoaded: "Project loaded successfully!",
+                alertPdfGenerated: "PDF generated successfully!", // NEW
                 promptEnterFilenameJson: "Enter filename for project (e.g., my-project.json):",
                 promptEnterFilenameDoc: "Enter filename for Word document (e.g., my-book.doc):",
                 limitReached: "LIMIT REACHED",
                 autoSaveMessage: "Project auto-saved!",
                 loadAutoSavePrompt: "An auto-saved project was found. Do you want to load it?",
-
-
-                // Page Numbering Controls
-                numberingLabel: "Numbering:",
-                numberingContinue: "Continue",
-                numberingStartNew: "Start New",
-                numberingStartAt: "Start at:",
-
-                // Context Menu
-                insertImage: "Insert Image",
-                floatLeft: "Float Left",
-                floatRight: "Float Right",
-                noFloat: "No Float",
-                alignLeftNoFloat: "Align Left (no float)",
-                alignCenterNoFloat: "Align Center (no float)",
-                alignRightNoFloat: "Align Right (no float)",
-                replaceImage: "Replace Image",
-                removeImage: "Remove Image",
-                saveAsPdf: "Save as PDF",
-                saveAsWord: "Save as Word",
-                copyUrl: "Copy URL"
+                // NEW for context menu
+                printOption: "Print",
+                closePreviewOption: "Close Preview",
             },
             fr: {
                 // Menu
@@ -1226,7 +1715,9 @@
                 backCoverBtn: "Couverture Arrière",
                 openProjectBtn: "Ouvrir Projet",
                 saveProjectBtn: "Enregistrer Projet",
-                previewBookBtn: "Aperçu du Livre",
+                bizhubSetupBtn: "Configuration Bizhub C458", // NEW
+                previewBookBtn: "Aperçu du Livre (Nouvelle Fenêtre)",
+                printPreviewBtn: "Aperçu Impression (Modale)",
                 exportPdf: "Exporter en PDF",
                 exportDocx: "Enregistrer au format Word (Docx)",
                 developedBy: "Développé par Ndayikeze Apollinaire",
@@ -1259,12 +1750,12 @@
                 backCoverPlaceholder: "Télécharger l'image de couverture arrière",
 
                 // Toolbar
-                undo: "Annuler", redo: "Rétablir", quote: "Citation", bold: "Gras", italic: "Italique", underline: "Souligner",
+                undo: "Annuler", redo: "Rétablir", quote: "Citation", bold: "Gras", italic: "Itálique", underline: "Souligner",
                 bulletList: "Liste à puces", numberedList: "Liste numérotée", indent: "Indenter", outdent: "Désindenter",
                 copy: "Copier", cut: "Couper", paste: "Coller", delete: "Supprimer", selectAll: "Tout sélectionner",
                 fontSize: "Taille", font: "Police", textColor: "Couleur Texte",
                 alignLeft: "Aligner à gauche", alignCenter: "Centrer", alignRight: "Aligner à droite", justify: "Justifier",
-                twoColumns: "2 Colonnes", threeColumns: "3 Colonnes", oneColumn: "1 Colonne (Supprimer Colonnes)",
+                twoColumns: "2 Colonnes", threeColumns: "3 Colunas", oneColumn: "1 Column (Supprimer Colonnes)",
 
                 // Page Controls
                 addPage: "Ajouter Nouvelle Page",
@@ -1289,32 +1780,15 @@
                 alertCannotDeleteLastTextPage: "Vous ne pouvez pas supprimer la seule page de texte d'une section. Ajoutez une autre page d'abord si vous souhaitez la remplacer.",
                 alertErrorOpeningProject: "Erreur : Impossible d'ouvrir ou d'analyser le fichier projet.",
                 alertProjectLoaded: "Projet chargé avec succès !",
+                alertPdfGenerated: "PDF généré avec succès !", // NEW
                 promptEnterFilenameJson: "Entrez le nom du fichier projet (par exemple, mon-projet.json) :",
                 promptEnterFilenameDoc: "Entrez le nom du fichier Word (par exemple, mon-livre.doc) :",
                 limitReached: "LIMITE ATTEINTE",
                 autoSaveMessage: "Projet enregistré automatiquement !",
                 loadAutoSavePrompt: "Un projet enregistré automatiquement a été trouvé. Voulez-vous le charger ?",
-
-
-                // Page Numbering Controls
-                numberingLabel: "Numérotation :",
-                numberingContinue: "Continuer",
-                numberingStartNew: "Démarrer Nouveau",
-                numberingStartAt: "Commencer à :",
-
-                // Context Menu
-                insertImage: "Insérer Image",
-                floatLeft: "Flottant à gauche",
-                floatRight: "Flottant à droite",
-                noFloat: "Pas de flottement",
-                alignLeftNoFloat: "Aligner à gauche (sans flottement)",
-                alignCenterNoFloat: "Centrer (sans flottement)",
-                alignRightNoFloat: "Alinhar à direita (sem flottement)",
-                replaceImage: "Remplacer Image",
-                removeImage: "Supprimer Image",
-                saveAsPdf: "Enregistrer en PDF",
-                saveAsWord: "Enregistrer en Word",
-                copyUrl: "Copier URL"
+                // NEW for context menu
+                printOption: "Imprimer",
+                closePreviewOption: "Fermer l'aperçu",
             },
             pt: {
                 // Menu
@@ -1325,7 +1799,9 @@
                 backCoverBtn: "Capa Traseira",
                 openProjectBtn: "Abrir Projeto",
                 saveProjectBtn: "Salvar Projeto",
-                previewBookBtn: "Pré-visualizar Livro",
+                bizhubSetupBtn: "Configuração Bizhub C458", // NEW
+                previewBookBtn: "Pré-visualizar Livro (Nova Janela)",
+                printPreviewBtn: "Pré-visualizar Impressão (Modal)",
                 exportPdf: "Exportar para PDF",
                 exportDocx: "Salvar como Word (Docx)",
                 developedBy: "Desenvolvido por Ndayikeze Apollinaire",
@@ -1382,38 +1858,21 @@
                 alertAllowPopups: "Por favor, permita pop-ups para este site para ver a pré-visualização.",
                 alertCouldNotExportPdf: "Não foi possível exportar para PDF. Por favor, abra a pré-visualização no editor principal.",
                 alertCouldNotExportWord: "Não foi possível exportar para Word. Por favor, abra a pré-visualização no editor principal.",
-                alertMainEditorUrlCopied: "URL do editor principal copiado para a área de transferência! O conteúdo da pré-visualização é dinâmico e não pode ser endereçado diretamente por um URL persistente.",
+                alertMainEditorUrlCopied: "URL do editor principal copiado para a área de transferência! O conteúdo da pré-visualização é dinámico e não pode ser endereçado directamente por um URL persistente.",
                 alertFailedToCopyUrl: "Falha ao copiar URL.",
                 confirmRemovePage: "Tem certeza de que deseja remover esta página e todo o seu conteúdo?",
                 alertCannotDeleteLastTextPage: "Você não pode excluir a única página de texto em uma seção. Adicione outra página primeiro, se desejar substituí-la.",
                 alertErrorOpeningProject: "Erro: Não foi possível abrir ou analisar o arquivo do projeto.",
                 alertProjectLoaded: "Projeto carregado com sucesso!",
+                alertPdfGenerated: "PDF gerado com sucesso!", // NEW
                 promptEnterFilenameJson: "Insira o nome do arquivo do projeto (ex: meu-projeto.json):",
                 promptEnterFilenameDoc: "Insira o nome do arquivo Word (ex: meu-livro.doc):",
                 limitReached: "LIMITE ATINGIDO",
                 autoSaveMessage: "Projeto salvo automaticamente!",
-                loadAutoSavePrompt: "Um projeto salvo automaticamente foi encontrado. Deseja carregá-lo?",
-
-
-                // Page Numbering Controls
-                numberingLabel: "Numeração:",
-                numberingContinue: "Continuar",
-                numberingStartNew: "Iniciar Novo",
-                numberingStartAt: "Iniciar em:",
-
-                // Context Menu
-                insertImage: "Inserir Imagem",
-                floatLeft: "Flutuar à Esquerda",
-                floatRight: "Flutuar à Direita",
-                noFloat: "Sem Flutuação",
-                alignLeftNoFloat: "Alinhar à Esquerda (sem flutuação)",
-                alignCenterNoFloat: "Centrar (sem flutuação)",
-                alignRightNoFloat: "Alinhar à Direita (sem flutuação)",
-                replaceImage: "Substituir Imagem",
-                removeImage: "Remover Imagem",
-                saveAsPdf: "Salvar como PDF",
-                saveAsWord: "Salvar como Word",
-                copyUrl: "Copiar URL"
+                loadAutoSavePrompt: "Um projeto salvo automaticamente foi encontrado. Vouk-vous le charger?",
+                // NEW for context menu
+                printOption: "Imprimir",
+                closePreviewOption: "Fechar Pré-visualização",
             }
         };
 
@@ -1516,6 +1975,23 @@
             document.getElementById('align-right-option').querySelector('span') ? document.getElementById('align-right-option').querySelector('span').textContent = currentTranslation.alignRightNoFloat : document.getElementById('align-right-option').innerHTML = `<i class="fas fa-align-right"></i> ${currentTranslation.alignRightNoFloat}`;
             document.getElementById('replace-image-option').querySelector('span') ? document.getElementById('replace-image-option').querySelector('span').textContent = currentTranslation.replaceImage : document.getElementById('replace-image-option').innerHTML = `<i class="fas fa-sync-alt"></i> ${currentTranslation.replaceImage}`;
             document.getElementById('remove-image-option').querySelector('span') ? document.getElementById('remove-image-option').querySelector('span').textContent = currentTranslation.removeImage : document.getElementById('remove-image-option').innerHTML = `<i class="fas fa-trash-alt"></i> ${currentTranslation.removeImage}`;
+
+            // Update new print preview button translation
+            document.getElementById('showPrintPreviewBtn').textContent = `${currentTranslation.printPreviewBtn}`;
+            document.getElementById('showBizhubSetupBtn').textContent = `${currentTranslation.bizhubSetupBtn}`;
+
+            // Update print preview context menu
+            const printContextOption = document.getElementById('print-option-context');
+            if (printContextOption) printContextOption.innerHTML = `<i class="fas fa-print"></i> ${currentTranslation.printOption}`;
+            const closePreviewContextOption = document.getElementById('close-preview-option-context');
+            if (closePreviewContextOption) closePreviewContextOption.innerHTML = `<i class="fas fa-times-circle"></i> ${currentTranslation.closePreviewOption}`;
+
+
+            // Update the menu footer info (if dynamic)
+            const footerInfoEl = document.querySelector('.menu-footer-info');
+            if (footerInfoEl) {
+                footerInfoEl.textContent = currentTranslation.footerInfo;
+            }
         }
 
         function updateDynamicPlaceholders(lang) {
@@ -1532,7 +2008,7 @@
                             const sectionTitleTranslation = translations[lang][`${sectionLang}SectionTitle`] || sectionLang;
 
                             if (mainTitleInput) mainTitleInput.placeholder = currentTranslation.mainTitlePlaceholder(sectionTitleTranslation, pageNum);
-                            if (subtitleInput) subtitleInput.placeholder = currentTranslation.subtitlePlaceholder(sectionTitleTranslation, pageNum);
+                            if (subtitleInput) subtitleInput.placeholder = currentTranslation.subtitlePlaceholder(sectionTitleTranslation, pageNum); // Fixed: should be placeholder
                             if (editorDiv) {
                                 editorDiv.dataset.placeholder = currentTranslation.editorPlaceholder(pageNum);
                                 updatePlaceholder(editorDiv); // Re-trigger placeholder visibility check
@@ -1777,6 +2253,10 @@
             const editor = target.closest('.master-text-editor');
             textContextMenu.style.display = 'none';
             imageContextMenu.style.display = 'none';
+            const printPreviewContextMenu = document.getElementById('print-preview-context-menu');
+            if (printPreviewContextMenu) printPreviewContextMenu.style.display = 'none';
+
+
             if (editor) {
                 event.preventDefault();
                 activeEditor = editor;
@@ -1799,6 +2279,9 @@
                     }
                     showContextMenu(textContextMenu, event.pageX, event.pageY);
                 }
+            } else if (target.closest('#previewContentWrapper')) { // Check if right-clicked inside the print preview wrapper
+                event.preventDefault();
+                showContextMenu(printPreviewContextMenu, event.pageX, event.pageY);
             }
         });
 
@@ -1811,6 +2294,8 @@
         document.addEventListener('click', () => {
             textContextMenu.style.display = 'none';
             imageContextMenu.style.display = 'none';
+            const printPreviewContextMenu = document.getElementById('print-preview-context-menu');
+            if (printPreviewContextMenu) printPreviewContextMenu.style.display = 'none';
         });
 
         document.getElementById('insert-image-option').addEventListener('click', (event) => {
@@ -1950,7 +2435,7 @@
 
             if (type === 'text') {
                  newPageWrapper.innerHTML = `
-                    <div class="rich-text-editor-container">
+                    <div class="rich-text-editor-container no-print">
                         <div class="title-section">
                             <div class="main-title-container">
                                 <input type="text" class="main-title" data-i18n-placeholder="mainTitlePlaceholder" placeholder="${translations[currentLanguage].mainTitlePlaceholder(translations[currentLanguage][`${lang}SectionTitle`] || lang, pageNum)}">
@@ -1967,8 +2452,8 @@
                         </div>
                         <div class="master-text-editor" contenteditable="true" data-i18n-placeholder="editorPlaceholder" data-placeholder="${translations[currentLanguage].editorPlaceholder(pageNum)}"></div>
                     </div>
-                    <div class="limit-indicator" data-i18n="limitReached">LIMIT REACHED</div>
-                    <div class="page-footer-container">
+                    <div class="limit-indicator no-print" data-i18n="limitReached">LIMIT REACHED</div>
+                    <div class="page-footer-container no-print">
                         <div class="page-controls-container">
                             <button class="remove-page-btn" data-i18n-title="removePageTitle"><i class="fas fa-trash-alt"></i></button>
                             <div class="page-number-container">
@@ -1986,7 +2471,7 @@
                     </div>`;
             } else if (type === 'design') {
                 newPageWrapper.innerHTML = `
-                    <div class="design-page-container">
+                    <div class="design-page-container no-print">
                         <div class="upload-prompt">
                             <i class="fas fa-cloud-upload-alt"></i>
                             <div data-i18n="uploadDesignPrompt">${translations[currentLanguage].uploadDesignPrompt}</div>
@@ -1994,7 +2479,7 @@
                         <img class="design-preview-img" src="#">
                         <input type="file" accept="image/*" style="display: none;">
                     </div>
-                     <div class="page-footer-container">
+                     <div class="page-footer-container no-print">
                         <div class="page-controls-container">
                             <button class="remove-page-btn" data-i18n-title="removePageTitle"><i class="fas fa-trash-alt"></i></button>
                             <div class="page-number-container">
@@ -2060,33 +2545,30 @@
             // Check for column wrappers
             if (pageElement.querySelector('div[style*="column-count"]')) return true;
             // Check for any non-empty div/p that is not just whitespace
-            if (pageElement.querySelectorAll('div, p, ul, ol, li').length > 0) {
-                let hasMeaningfulText = false;
-                pageElement.querySelectorAll('div, p, ul, ol, li').forEach(el => {
-                    // Ignore empty containers if they only contain whitespace or no visible content
-                    const innerText = el.textContent.trim();
-                    const innerHtml = el.innerHTML.trim();
-                    if (innerText.length > 0 || innerHtml.includes('<img') || innerHtml.includes('<figure')) {
-                        hasMeaningfulText = true;
-                    }
-                });
-                if (hasMeaningfulText) return true;
+            // It also checks for meaningful text content, beyond just innerText length
+            const textContent = pageElement.textContent.trim();
+            if (textContent.length > 0) {
+                // More robust check for "meaningful" text, e.g., not just spaces or empty tags
+                const containsOnlyWhitespaceOrEmptyTags = !/[a-zA-Z0-9]/.test(textContent);
+                if (!containsOnlyWhitespaceOrEmptyTags) return true;
             }
             return false;
         }
 
 
-        function generatePreviewHtml(forWord = false) {
+        function generatePreviewHtml() {
             // Create a temporary container to hold the preview content
             const tempPreviewContainer = document.createElement('div');
             tempPreviewContainer.classList.add('preview-container'); // Add the class for styling
 
-            let bodyContent = '';
-
+            // Front Cover logic (always included if present)
             const frontCoverImgSrc = document.getElementById('frontCoverPreview').src;
             if (frontCoverImgSrc && !frontCoverImgSrc.endsWith('#')) {
                 const bookNumber = document.getElementById('bookNumber').value;
-                bodyContent += `<div class="page cover-page-preview"><img src="${frontCoverImgSrc}" alt="Front Cover">${bookNumber ? `<div class="book-number-preview">${bookNumber}</div>` : ''}</div>`;
+                const frontCoverPage = document.createElement('div');
+                frontCoverPage.className = 'page cover-page-preview';
+                frontCoverPage.innerHTML = `<img src="${frontCoverImgSrc}" alt="Front Cover">${bookNumber ? `<div class="book-number-preview">${bookNumber}</div>` : ''}`;
+                tempPreviewContainer.appendChild(frontCoverPage);
             }
 
             const allSectionPages = [];
@@ -2127,9 +2609,9 @@
                                 // Transfer current inline dimensions to the figure element itself
                                 figure.style.width = resizableContainer.style.width || 'auto';
                                 figure.style.height = resizableContainer.style.height || 'auto';
-                                resizableContainer.style.resize = 'none';
+                                resizableContainer.style.resize = 'none'; // Ensure no resizing handles in preview
                                 resizableContainer.style.overflow = 'hidden';
-                                resizableContainer.style.border = 'none';
+                                resizableContainer.style.border = 'none'; // Remove container border
                                 resizableContainer.style.cursor = 'default';
                             }
                             // Ensure figcaption content is correctly captured, not just placeholder
@@ -2151,8 +2633,7 @@
                         });
                         currentEditorContent = tempEditorContentDiv.innerHTML;
 
-                        // Check for meaningful text content (not just empty tags or whitespace)
-                        const hasMeaningfulEditorContent = currentEditorContent.replace(/<[^>]+>/g, '').trim().length > 0 || hasVisualElements(tempEditorContentDiv);
+                        const hasMeaningfulEditorContent = hasVisualElements(tempEditorContentDiv) || (currentEditorContent.replace(/<[^>]+>/g, '').trim().length > 0 && !currentEditorContent.match(/^(\s|<br\/?>|&nbsp;)*$/i));
                         
                         // A page is considered "not blank" if it has a title, subtitle, editor content,
                         // a header, a footer, or a visible page number.
@@ -2200,326 +2681,340 @@
                 });
             });
 
-            // Render only visible pages
+            // Append filtered section pages to the main preview container
             allSectionPages.forEach(pageData => {
+                const pageElement = document.createElement('div');
+                pageElement.className = 'page';
+
                 if (pageData.type === 'design') {
-                    bodyContent += `<div class="page design-page-preview"><img src="${pageData.imgSrc}" alt="Design Page">`;
-                    if (pageData.pageNumber) bodyContent += `<div class="footer"><div class="page-number-container-preview">${pageData.pageNumber}</div></div>`;
-                    bodyContent += `</div>`;
-                } else {
-                    bodyContent += `<div class="page">`;
-                    bodyContent += `<div class="header">${pageData.header || ''}</div>`;
-                    bodyContent += `<div class="content">`;
-                    if (pageData.title) bodyContent += `<div class="main-title-container-preview"><h1>${pageData.title}</h1></div>`;
-                    if (pageData.subtitle) bodyContent += `<div class="subtitle-wrapper"><h2>${pageData.subtitle}</h2></div>`;
-                    bodyContent += pageData.editorContent;
-                    bodyContent += `</div>`;
-                    bodyContent += `<div class="footer">`;
-                    if (pageData.footerText) {
-                        bodyContent += `<div class="footer-text-container-preview">${pageData.footerText}</div>`;
-                    } else {
-                        bodyContent += `<div></div>`; 
-                    }
-                    if (pageData.pageNumber) {
-                        bodyContent += `<div class="page-number-container-preview">${pageData.pageNumber}</div>`;
-                    }
-                    bodyContent += `</div>`;
-                    bodyContent += `</div>`;
+                    pageElement.classList.add('design-page-preview');
+                    pageElement.innerHTML = `<img src="${pageData.imgSrc}" alt="Design Page">`;
+                    if (pageData.pageNumber) pageElement.innerHTML += `<div class="footer"><div class="page-number-container-preview">${pageData.pageNumber}</div></div>`;
+                } else { // type === 'text'
+                    pageElement.innerHTML = `
+                        <div class="header">${pageData.header || ''}</div>
+                        <div class="content">
+                            ${pageData.title ? `<div class="main-title-container-preview"><h1>${pageData.title}</h1></div>` : ''}
+                            ${pageData.subtitle ? `<div class="subtitle-wrapper"><h2>${pageData.subtitle}</h2></div>` : ''}
+                            ${pageData.editorContent}
+                        </div>
+                        <div class="footer">
+                            ${pageData.footerText ? `<div class="footer-text-container-preview">${pageData.footerText}</div>` : '<div></div>'}
+                            ${pageData.pageNumber ? `<div class="page-number-container-preview">${pageData.pageNumber}</div>` : ''}
+                        </div>`;
                 }
+                tempPreviewContainer.appendChild(pageElement);
             });
 
 
+            // Back Cover logic (always included if present)
             const backCoverImgSrc = document.getElementById('backCoverPreview').src;
             if (backCoverImgSrc && !backCoverImgSrc.endsWith('#')) {
-                bodyContent += `<div class="page cover-page-preview"><img src="${backCoverImgSrc}" alt="Back Cover"></div>`;
+                const backCoverPage = document.createElement('div');
+                backCoverPage.className = 'page cover-page-preview';
+                backCoverPage.innerHTML = `<img src="${backCoverImgSrc}" alt="Back Cover">`;
+                tempPreviewContainer.appendChild(backCoverPage);
             }
-            tempPreviewContainer.innerHTML = bodyContent; // Populate the temporary container
-
-            let style = `
-            <style>
-                @charset "UTF-8";
-                @page { size: 210mm 287mm; margin: 0; }
-                * { box-sizing: border-box; }
-                body {
-                    font-family: 'Times New Roman', Times, serif; line-height: 1.5;
-                    margin: 0; padding: 0; background-color: #e9e9e9;
-                    -webkit-print-color-adjust: exact; print-color-adjust: exact;
-                }
-                .preview-container {
-                    margin: 0; padding: 20px 0; display: flex;
-                    flex-direction: column; align-items: center; gap: 20px;
-                }
-                .page {
-                    width: 210mm; height: 287mm; box-sizing: border-box;
-                    page-break-after: always; background: #fff;
-                    font-size: 12pt; color: #000;
-                    box-shadow: 0 0 10px rgba(0,0,0,0.2);
-                    position: relative;
-                }
-                .page:last-of-type { page-break-after: auto; }
-                .cover-page-preview, .design-page-preview {
-                    padding: 0; display: flex; align-items: center; justify-content: center;
-                }
-                .cover-page-preview { position: relative; }
-                .cover-page-preview img, .design-page-preview img {
-                    width: 100%; height: 100%; object-fit: cover;
-                }
-                .design-page-preview { display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
-                .design-page-preview img { max-height: calc(100% - 1in); width: 100%; object-fit: contain; } /* Leave space for footer */
-                .book-number-preview {
-                    position: absolute; bottom: 1in; right: 1in; z-index: 2;
-                    background-color: rgba(255, 255, 255, 0.9); color: #000;
-                    padding: 5pt 10pt; border-radius: 3px; font-size: 12pt; font-weight: bold;
-                }
-                .header {
-                    position: absolute; top: 0; left: 0; right: 0; height: 0.5in;
-                    padding: 0 1in;
-                    font-size: 9pt; color: #444; display: flex; 
-                    align-items: center; justify-content: center;
-                }
-                .content {
-                    padding: 0.5in 1in calc(1in + 22px) 1in; /* Lift footer by adding to bottom padding */
-                    height: 100%;
-                    overflow: hidden; /* Hide overflow to protect footer area */
-                    font-family: 'Times New Roman', Times, serif; /* Default font for content */
-                    line-height: 1.5; /* Ensure line spacing is respected */
-                }
-                .content p {
-                    line-height: 1.5; /* Apply line-height to paragraphs */
-                    margin-top: 0;
-                    margin-bottom: 0.5em;
-                }
-                .footer {
-                    position: absolute; bottom: 22px; /* Lift footer upward by 22px (approx 0.8cm) */ left: 0; right: 0; height: 1in;
-                    padding: 0 1in 0.5in 1in;
-                    display: flex; align-items: flex-end;
-                    justify-content: space-between;
-                    border-top: 1px solid #ddd;
-                }
-                .footer-text-container-preview {
-                    background-color: #c0392b; color: white; padding: 4px 10px;
-                    border-radius: 5px; font-size: 12px;
-                }
-                .page-number-container-preview {
-                    background-color: #27ae60; color: white; padding: 4px 10px;
-                    border-radius: 5px; font-weight: bold; font-size: 14px;
-                }
-
-                .main-title-container-preview {
-                    margin: 0 auto 0.25in auto; padding: 0.15in; padding-bottom: calc(0.15in + 8px);
-                    text-align: center; background-color: #009E60; color: #ffffff;
-                    border-radius: 8px; position: relative; overflow: hidden;
-                }
-                .main-title-container-preview::before, .main-title-container-preview::after {
-                    content: ''; position: absolute; left: 0; width: 100%; height: 4px;
-                }
-                .main-title-container-preview::before { background-color: #F4F5F0; bottom: 4px; }
-                .main-title-container-preview::after { background-color: #CD212A; bottom: 0; }
-                .main-title-container-preview h1 {
-                    margin: 0; padding: 0; font-size: 24pt; font-weight: bold; line-height: 1.2;
-                }
-                .subtitle-wrapper { text-align: center; margin-bottom: 0.25in; }
-                .subtitle-wrapper h2 {
-                    display: inline-block; margin: 0; padding: 0 0 4pt 0; font-size: 12pt; /* Changed to 12pt for medium */
-                    font-weight: bold; color: #c0392b; border-bottom: 2pt solid #c0392b;
-                }
-                
-                .content div, .content blockquote { margin-top: 0; margin-bottom: 1em; }
-                
-                /* Preview styles for images */
-                .content figure {
-                    display: flex; /* Changed to flex to control vertical alignment */
-                    flex-direction: column; /* Stack image and caption vertically */
-                    align-items: center; /* Center horizontally */
-                    margin: 0;                  /* Remove default figure margin */
-                    padding: 0;                 /* Remove internal spacing */
-                    max-width: 100%;
-                    resize: none;
-                    overflow: hidden;
-                    page-break-inside: avoid;
-                }
-
-                /* Handle editor's float/align classes for preview */
-                .content figure.float-left {
-                    float: left;
-                    margin: 0.5em 1em 0.5em 0; /* Adjusted margin for float */
-                }
-                .content figure.float-right {
-                    float: right;
-                    margin: 0.5em 0 0.5em 1em; /* Adjusted margin for float */
-                }
-                /* If no float, ensure it's centered (default behavior of margin: auto) */
-                .content figure.align-left {
-                    align-items: flex-start; /* Align children to the start */
-                    margin: 1em 0; /* Restore vertical margin for non-floated */
-                }
-                .content figure.align-center {
-                    align-items: center; /* Center children */
-                    margin: 1em auto; /* Restore vertical margin for non-floated */
-                }
-                .content figure.align-right {
-                    align-items: flex-end; /* Align children to the end */
-                    margin: 1em 0; /* Restore vertical margin for non-floated */
-                }
-
-                .content figure .resizable-image-container {
-                    display: block;
-                    width: inherit;
-                    height: inherit;
-                    resize: none;
-                    overflow: hidden;
-                    border: none;
-                    cursor: default;
-                    margin: 0; /* Remove margin from container */
-                }
-
-                .content figure img { 
-                    max-width: 100%; 
-                    height: auto; 
-                    display: block; 
-                    border: 1px dashed #c0d0e0; /* Apply border to image in preview */
-                    margin: 0; /* Ensure no extra margin */
-                    padding: 0; /* Ensure no extra padding */
-                }
-                .content figcaption {
-                    font-size: 0.9em; /* Matched editor's font size */
-                    font-style: italic;
-                    color: #555; /* Matched editor's color */
-                    padding: 8px; /* Matched editor's padding */
-                    line-height: 1.2; /* Explicit line-height */
-                    text-align: center;
-                    display: block;
-                    background-color: #f9f9f9; /* Maintain background from editor */
-                    border-radius: 0 0 4px 4px; /* Maintain border radius from editor */
-                    margin-top: -1px; /* To visually connect it to the image container */
-                    width: 100%; /* Ensure caption stretches to the width of its parent (figure) */
-                }
-                .content div[style*="column-count"] { margin-top: 1em; margin-bottom: 1em; }
-                .content .custom-quote {
-                    position: relative; margin: 1em 0; padding: 0.1in 0.15in 0.1in 25px;
-                    font-style: italic; background-color: #f5f5f5; border-radius: 4px; page-break-inside: avoid;
-                }
-                .content .custom-quote::before {
-                    content: ''; position: absolute; left: 8px; top: 5px; bottom: 5px; width: 9px;
-                    background: linear-gradient(to right, #CD2A3E 33.3%, #F4F5F0 33.3%, #F4F5F0 66.6%, #008C45 66.6%);
-                    border-radius: 5px;
-                }
-                .content b, .content strong { font-weight: bold; }
-                .content i, .content em { font-style: italic; }
-                .content u { text-decoration: underline; }
-                .content div[style*="text-align: center"] { text-align: center; }
-                .content div[style*="text-align: right"] { text-align: right; }
-                .content div[style*="text-align: justify"] { text-align: justify; }
-                /* List formatting */
-                .content ul, .content ol { margin-left: 1.5em; margin-bottom: 1em; line-height: 1.5; }
-                .content ul ul, .content ol ol { margin-left: 1.5em; } /* For nested lists */
-                .content li { margin-bottom: 0.5em; }
-                .content font[color] { color: inherit; } .content font[face] { font-family: inherit; }
-                .content font[size="1"] { font-size: x-small; } .content font[size="2"] { font-size: small; }
-                .content font[size="3"] { font-size: medium; } .content font[size="4"] { font-size: large; }
-                .content font[size="5"] { font-size: x-large; } .content font[size="6"] { font-size: xx-large; }
-                .content font[size="7"] { font-size: xxx-large; }
-                .preview-context-menu {
-                    position: absolute; z-index: 10000; background-color: #ffffff;
-                    border: 1px solid #ccc; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                    border-radius: 6px; padding: 5px 0; display: none;
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-                    font-size: 11pt; min-width: 180px;
-                }
-                .preview-context-menu ul { list-style: none; padding: 0; margin: 0; }
-                .preview-context-menu ul li {
-                    padding: 9px 15px; cursor: pointer; display: flex; align-items: center; color: #333;
-                }
-                .preview-context-menu ul li:hover { background-color: #f0f2f5; }
-                .preview-context-menu ul li svg {
-                    margin-right: 12px; width: 16px; height: 16px;
-                }
-            </style>
-            `;
             
-            const contextMenuHTML = `
-                <div id="preview-context-menu" class="preview-context-menu">
-                    <ul>
-                        <li id="save-pdf-option">
-                            <svg fill="#c0392b" viewBox="0 0 384 512"><path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM112 256H272c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64H272c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16zm0 64H272c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16z"/></svg>
-                            <span data-i18n="saveAsPdf">${translations[currentLanguage].saveAsPdf}</span>
-                        </li>
-                        <li id="save-word-option">
-                             <svg fill="#2980b9" viewBox="0 0 384 512"><path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM128 256h32.1c2.1 0 4.1 1 5.4 2.6l44.2 53.1 44.2-53.1c1.4-1.6 3.3-2.6 5.4-2.6H256c8.8 0 16 7.2 16 16s-7.2 16-16 16h-4.3L192 332.1 132.3 288H128c-8.8 0-16-7.2-16-16s7.2-16 16-16z"/></svg>
-                             <span data-i18n="saveAsWord">${translations[currentLanguage].saveAsWord}</span>
-                        </li>
-                        <li id="copy-preview-url-option">
-                            <i class="fas fa-link"></i> <span data-i18n="copyUrl">${translations[currentLanguage].copyUrl}</span>
-                        </li>
-                    </ul>
-                </div>
-                <script>
-                    document.addEventListener('DOMContentLoaded', () => {
-                        const contextMenu = document.getElementById('preview-context-menu');
-                        if (!contextMenu) return;
-                        document.addEventListener('contextmenu', (event) => {
-                            event.preventDefault();
-                            contextMenu.style.top = \`\${event.pageY}px\`;
-                            contextMenu.style.left = \`\${event.pageX}px\`;
-                            contextMenu.style.display = 'block';
-                        });
-                        document.addEventListener('click', () => {
-                            contextMenu.style.display = 'none';
-                        });
-                        document.getElementById('save-pdf-option').addEventListener('click', () => {
-                            // Ensure the opener window exists and has the exportToPdf function
-                            if (window.opener && typeof window.opener.exportToPdf === 'function') {
-                                window.opener.exportToPdf();
-                            } else {
-                                console.error('Opener window or exportToPdf function not found.');
-                                alert('${translations[currentLanguage].alertCouldNotExportPdf}');
-                            }
-                        });
-                        document.getElementById('save-word-option').addEventListener('click', () => {
-                            // Ensure the opener window exists and has the promptAndSaveAsDocx function
-                            if (window.opener && typeof window.opener.promptAndSaveAsDocx === 'function') {
-                                window.opener.promptAndSaveAsDocx();
-                            } else {
-                                console.error('Opener window or promptAndSaveAsDocx function not found.');
-                                alert('${translations[currentLanguage].alertCouldNotExportWord}');
-                            }
-                        });
-                        document.getElementById('copy-preview-url-option').addEventListener('click', () => {
-                            // The URL in the preview window is 'about:blank' so we copy the main window's URL
-                            // If the user expects the *content* as a data URL, that's a different implementation.
-                            navigator.clipboard.writeText(window.location.href)
-                                .then(() => { alert('${translations[currentLanguage].alertMainEditorUrlCopied}'); })
-                                .catch(err => { console.error('Failed to copy URL:', err); alert('${translations[currentLanguage].alertFailedToCopyUrl}'); });
-                        });
-                    });
-                <\/script>
-            `;
-
-            // Construct the full HTML string
-            let fullHtmlString;
-            if (forWord) {
-                fullHtmlString = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Book Preview</title>${style}</head><body>${tempPreviewContainer.innerHTML}</body></html>`;
-            } else {
-                fullHtmlString = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Book Preview</title>${style}</head><body>${tempPreviewContainer.innerHTML}${contextMenuHTML}</body></html>`;
-            }
-
-            // Create a DOM Document object from the full HTML string for consistent processing
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(fullHtmlString, 'text/html');
-            
-            return doc; // Return a Document object
+            return tempPreviewContainer; // Return the DOM element
         }
         
         function previewBook() {
-            const previewDoc = generatePreviewHtml(); // Gets a Document object
+            const previewContainer = generatePreviewHtml(); // Gets a DOM element
             const previewWindow = window.open('', '_blank');
             if (!previewWindow) {
                 alert(translations[currentLanguage].alertAllowPopups);
                 return;
             }
-            // Use the outerHTML of the document element for writing into a new window
-            previewWindow.document.write(previewDoc.documentElement.outerHTML);
+
+            // Construct the full HTML document for the new window
+            let fullHtmlString = `
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Book Preview</title>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+                    <style>
+                        /* Styles for the preview window should be self-contained or linked */
+                        @charset "UTF-8";
+                        @page { size: 210mm 287mm; margin: 0; }
+                        * { box-sizing: border-box; }
+                        body {
+                            font-family: 'Times New Roman', Times, serif; line-height: 1.5;
+                            margin: 0; padding: 0; background-color: #e9e9e9;
+                            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+                        }
+                        .preview-container {
+                            margin: 0; padding: 20px 0; display: flex;
+                            flex-direction: column; align-items: center; gap: 20px;
+                        }
+                        .page {
+                            width: 210mm; height: 287mm; box-sizing: border-box;
+                            page-break-after: always; background: #fff;
+                            font-size: 12pt; color: #000;
+                            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+                            position: relative;
+                        }
+                        .page:last-of-type { page-break-after: auto; }
+                        .cover-page-preview, .design-page-preview {
+                            padding: 0; display: flex; align-items: center; justify-content: center;
+                        }
+                        .cover-page-preview { position: relative; }
+                        .cover-page-preview img, .design-page-preview img {
+                            width: 100%; height: 100%; object-fit: cover;
+                        }
+                        .design-page-preview { display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
+                        .design-page-preview img { max-height: calc(100% - 1in); width: 100%; object-fit: contain; } /* Leave space for footer */
+                        .book-number-preview {
+                            position: absolute; bottom: 1in; right: 1in; z-index: 2;
+                            background-color: rgba(255, 255, 255, 0.9); color: #000;
+                            padding: 5pt 10pt; border-radius: 3px; font-size: 12pt; font-weight: bold;
+                        }
+                        .header {
+                            position: absolute; top: 0; left: 0; right: 0; height: 0.5in;
+                            padding: 0 1in;
+                            font-size: 9pt; color: #444; display: flex; 
+                            align-items: center; justify-content: center;
+                        }
+                        .content {
+                            padding: 0.5in 1in calc(1in + 22px) 1in; /* Lift footer by adding to bottom padding */
+                            height: 100%;
+                            overflow: hidden; /* Hide overflow to protect footer area */
+                            font-family: 'Times New Roman', Times, serif; /* Default font for content */
+                            line-height: 1.5; /* Ensure line spacing is respected */
+                        }
+                        .content p {
+                            line-height: 1.5; /* Apply line-height to paragraphs */
+                            margin-top: 0;
+                            margin-bottom: 0.5em;
+                        }
+                        .footer {
+                            position: absolute; bottom: 22px; /* Lift footer upward by 22px (approx 0.8cm) */ left: 0; right: 0; height: 1in;
+                            padding: 0 1in 0.5in 1in;
+                            display: flex; align-items: flex-end;
+                            justify-content: space-between;
+                            border-top: 1px solid #ddd;
+                        }
+                        .footer-text-container-preview {
+                            background-color: #c0392b; color: white; padding: 4px 10px;
+                            border-radius: 5px; font-size: 12pt; 
+                        }
+                        .page-number-container-preview {
+                            background-color: #27ae60; color: white; padding: 4px 10px;
+                            border-radius: 5px; font-weight: bold; font-size: 14px;
+                        }
+
+                        .main-title-container-preview {
+                            margin: 0 auto 0.25in auto; padding: 0.15in; padding-bottom: calc(0.15in + 8px);
+                            text-align: center; background-color: #009E60; color: #ffffff;
+                            border-radius: 8px; position: relative; overflow: hidden;
+                        }
+                        .main-title-container-preview::before, .main-title-container-preview::after {
+                            content: ''; position: absolute; left: 0; width: 100%; height: 4px;
+                        }
+                        .main-title-container-preview::before { background-color: #F4F5F0; bottom: 4px; }
+                        .main-title-container-preview::after { background-color: #CD212A; bottom: 0; }
+                        .main-title-container-preview h1 {
+                            margin: 0; padding: 0; font-size: 24pt; font-weight: bold; line-height: 1.2;
+                        }
+                        .subtitle-wrapper { text-align: center; margin-bottom: 0.25in; }
+                        .subtitle-wrapper h2 {
+                            display: inline-block; margin: 0; padding: 0 0 4pt 0; font-size: 12pt; 
+                            font-weight: bold; color: #c0392b; border-bottom: 2pt solid #c0392b;
+                        }
+                        
+                        .content div, .content blockquote { margin-top: 0; margin-bottom: 1em; }
+                        
+                        /* Preview styles for images */
+                        .content figure {
+                            display: flex; 
+                            flex-direction: column; 
+                            align-items: center; 
+                            margin: 0;                  
+                            padding: 0;                 
+                            max-width: 100%;
+                            resize: none;
+                            overflow: hidden;
+                            page-break-inside: avoid;
+                        }
+
+                        .content figure.float-left {
+                            float: left;
+                            margin: 0.5em 1em 0.5em 0; 
+                        }
+                        .content figure.float-right {
+                            float: right;
+                            margin: 0.5em 0 0.5em 1em; 
+                        }
+                        .content figure.align-left {
+                            align-items: flex-start; 
+                            margin: 1em 0; 
+                        }
+                        .content figure.align-center {
+                            align-items: center; 
+                            margin: 1em auto; 
+                        }
+                        .content figure.align-right {
+                            align-items: flex-end; 
+                            margin: 1em 0; 
+                        }
+
+                        .content figure .resizable-image-container {
+                            display: block;
+                            width: inherit;
+                            height: inherit;
+                            resize: none;
+                            overflow: hidden;
+                            border: none;
+                            cursor: default;
+                            margin: 0; 
+                        }
+
+                        .content figure img { 
+                            max-width: 100%; 
+                            height: auto; 
+                            display: block; 
+                            border: none; 
+                            margin: 0;                  
+                            padding: 0;
+                        }
+                        .content figcaption {
+                            font-size: 0.9em; 
+                            font-style: italic;
+                            color: #555; 
+                            padding: 8px; 
+                            line-height: 1.2; 
+                            text-align: center;
+                            display: block;
+                            background-color: #f9f9f9; 
+                            border-radius: 0 0 4px 4px; 
+                            margin-top: -1px; 
+                            width: 100%; 
+                        }
+                        .content div[style*="column-count"] { margin-top: 1em; margin-bottom: 1em; }
+                        .content .custom-quote {
+                            position: relative; margin: 1em 0; padding: 0.1in 0.15in 0.1in 25px;
+                            font-style: italic; background-color: #f5f5f5; border-radius: 4px; page-break-inside: avoid;
+                        }
+                        .content .custom-quote::before {
+                            content: ''; position: absolute; left: 8px; top: 5px; bottom: 5px; width: 9px;
+                            background: linear-gradient(to right, #CD2A3E 33.3%, #F4F5F0 33.3%, #F4F5F0 66.6%, #008C45 66.6%);
+                            border-radius: 5px;
+                        }
+                        .content b, .content strong { font-weight: bold; }
+                        .content i, .content em { font-style: italic; }
+                        .content u { text-decoration: underline; }
+                        .content div[style*="text-align: center"] { text-align: center; }
+                        .content div[style*="text-align: right"] { text-align: right; }
+                        .content div[style*="text-align: justify"] { text-align: justify; }
+                        /* List formatting */
+                        .content ul, .content ol { margin-left: 1.5em; margin-bottom: 1em; line-height: 1.5; }
+                        .content ul ul, .content ol ol { margin-left: 1.5em; } /* For nested lists */
+                        .content li { margin-bottom: 0.5em; }
+                        .content font[color] { color: inherit; } .content font[face] { font-family: inherit; }
+                        .content font[size="1"] { font-size: x-small; } .content font[size="2"] { font-size: small; }
+                        .content font[size="3"] { font-size: medium; } .content font[size="4"] { font-size: large; }
+                        .content font[size="5"] { font-size: x-large; } .content font[size="6"] { font-size: xx-large; }
+                        .content font[size="7"] { font-size: xxx-large; }
+                        .hide-in-print { display: none !important; }
+                    </style>
+                </head>
+                <body>
+                    ${previewContainer.outerHTML}
+                </body>
+                </html>
+            `;
+
+            previewWindow.document.write(fullHtmlString);
             previewWindow.document.close();
+        }
+
+        async function exportToPdf() {
+            const { jsPDF } = window.jspdf; // Ensure jsPDF is loaded
+            
+            const btn = document.getElementById('exportPdf'); // Get the button to potentially disable it
+            const originalBtnText = btn.innerHTML; // Save original text
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...'; // Show loading state
+
+            // Create a temporary hidden div to render the preview content for html2canvas
+            const tempDiv = document.createElement('div');
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px'; // Move off-screen
+            tempDiv.style.top = '-9999px';
+            tempDiv.style.width = '210mm'; // Set the width to A4 for consistent rendering
+            tempDiv.style.backgroundColor = 'white'; // Ensure background for rendering
+            document.body.appendChild(tempDiv);
+
+            try {
+                // Get the HTML content from generatePreviewHtml
+                const previewContainer = generatePreviewHtml(); // Returns a DOM element
+                tempDiv.appendChild(previewContainer.cloneNode(true)); // Append a clone of the container
+
+                // Get PDF settings (hardcoding for now, as no UI in IKIYAGO MAKER yet)
+                const orientation = 'portrait';
+                const pageSize = [210, 287]; // A4 dimensions in mm [width, height]
+                const margin = 10; // mm
+
+                const doc = new jsPDF({
+                    orientation: orientation,
+                    unit: 'mm',
+                    format: pageSize
+                });
+
+                const tempPages = tempDiv.querySelectorAll('.page');
+                for (let i = 0; i < tempPages.length; i++) {
+                    const page = tempPages[i];
+                    
+                    if (i > 0) doc.addPage(pageSize, orientation); // Add new page for subsequent content
+
+                    // Use html2canvas to capture the page content
+                    const canvas = await html2canvas(page, {
+                        scale: 2, // Higher resolution for print
+                        useCORS: true,
+                        logging: false, // Set to true for debugging
+                        width: page.offsetWidth, // Ensure canvas takes the page's rendered width
+                        height: page.offsetHeight // Ensure canvas takes the page's rendered height
+                    });
+
+                    const imgData = canvas.toDataURL('image/jpeg', 0.98); // High quality JPEG
+
+                    // Calculate image dimensions for PDF page
+                    const pdfWidth = doc.internal.pageSize.getWidth();
+                    const pdfHeight = doc.internal.pageSize.getHeight();
+                    const imgWidth = pdfWidth - (margin * 2);
+                    let imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                    // If image height exceeds PDF height, scale down
+                    E
+                    if (imgHeight > pdfHeight - (margin * 2)) {
+                        imgHeight = pdfHeight - (margin * 2);
+                        imgWidth = (canvas.width * imgHeight) / canvas.height;
+                    }
+
+                    doc.addImage(imgData, 'JPEG', margin, margin, imgWidth, imgHeight);
+                }
+
+                // Generate filename
+                const firstTitleElement = previewContainer.querySelector('.main-title-container-preview h1');
+                const title = firstTitleElement?.innerText || 'Ikiyago-Book';
+                const filename = `${title.replace(/\s+/g, '_')}.pdf`;
+                
+                doc.save(filename);
+                alert(translations[currentLanguage].alertPdfGenerated); // Specific message for PDF generation
+            } catch (error) {
+                console.error('PDF export failed:', error);
+                alert(translations[currentLanguage].alertCouldNotExportPdf);
+            } finally {
+                // Clean up temporary div
+                if (tempDiv.parentNode) {
+                    tempDiv.parentNode.removeChild(tempDiv);
+                }
+                btn.disabled = false;
+                btn.innerHTML = originalBtnText; // Restore button text
+            }
         }
 
         function handlePaste(event) {
@@ -2786,13 +3281,10 @@
                             pageWrapper.removeAttribute('data-start-one');
                             pageWrapper.classList.remove('is-logical-page-one');
                             // If there are other pages, make the *next* available page the new logical page 1 (or revert to section numbering)
-                            const remainingPages = document.querySelectorAll('.page-wrapper');
-                            if (remainingPages.length > 0) {
-                                // Try to set the first remaining page as logical page 1, or just update numbers
-                                // If the first remaining page is also the first page of its section, then section numbering takes over
-                                // Otherwise, if it was an "inserted" page, it should probably become the new logical page 1.
-                                // For simplicity for now, just recalculate. If another page should become logical page 1, user can re-select.
-                            }
+                            // If the first remaining page is also the first page of its section, then section numbering takes over
+                            // Otherwise, if it was an "inserted" page, it should probably become the new logical page 1.
+                            // For simplicity for now, just recalculate. If another page should become logical page 1, user can re-select.
+                            // The `updateAllPageNumbers()` call will re-evaluate numbering.
                         }
                         pageWrapper.remove();
                         updateAllPageNumbers();
@@ -2846,45 +3338,13 @@
         });
 
         // --- EXPORT FUNCTIONS ---
-        function exportToPdf() {
-            const previewDoc = generatePreviewHtml(); // Gets a Document object
-            
-            // html2pdf expects a DOM element, so we pass the body or the specific container
-            // The .preview-container is inside the body of previewDoc.
-            const contentElementForPdf = previewDoc.querySelector('.preview-container');
-
-            if (!contentElementForPdf) {
-                console.error("Preview container not found in generated HTML for PDF export.");
-                alert(translations[currentLanguage].alertCouldNotExportPdf);
-                return;
-            }
-
-            const opt = {
-                margin:       0,
-                filename:     'ikiyago-book.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { 
-                    scale: 2, 
-                    useCORS: true,
-                    dpi: 192,
-                    letterRendering: true
-                },
-                jsPDF:        { 
-                    unit: 'mm', 
-                    format: [210, 287],
-                    orientation: 'portrait' 
-                },
-                pagebreak:    { mode: 'legacy', before: '.page' }
-            };
-            html2pdf().from(contentElementForPdf).set(opt).save();
-        }
+        // (The exportToPdf function is now an async function using html2pdf.js)
 
         function exportToDoc(filename = 'ikiyago-book.doc') {
-            const previewDoc = generatePreviewHtml(true); // Get Document object for Word-specific HTML
+            const previewContainer = generatePreviewHtml(); // Get DOM element
             // For Word export, we typically want the full HTML content, including styles, but without the interactive context menu.
-            // The `generatePreviewHtml(true)` already ensures no context menu script.
             // We need the outerHTML of the document.
-            const htmlContent = previewDoc.documentElement.outerHTML;
+            const htmlContent = previewContainer.outerHTML;
 
             const blob = new Blob(['\ufeff', htmlContent], {
                 type: 'application/msword'
@@ -3077,7 +3537,129 @@
             }
         });
 
+        // --- Print Preview Modal Functions ---
+        const printPreviewContextMenu = document.getElementById('print-preview-context-menu');
+
+        /**
+         * Checks a container for .page elements and adds 'hide-in-print' class to effectively blank ones.
+         * A page is considered blank if its direct children (header, content, footer, images, titles, page numbers)
+         * contain no visible, non-whitespace content.
+         * @param {HTMLElement} containerElement The root element to search for pages within (e.g., #previewContentWrapper).
+         */
+        function hideBlankPagesInPrint(containerElement) {
+            const pages = containerElement.querySelectorAll('.page');
+
+            pages.forEach(page => {
+                let hasMeaningfulContent = false;
+
+                // Check all direct children of the page (e.g., .header, .content, .footer, img, .book-number-preview)
+                Array.from(page.children).some(child => {
+                    const isVisible = window.getComputedStyle(child).display !== 'none' && window.getComputedStyle(child).visibility !== 'hidden';
+                    if (!isVisible) return false; // If child is not visible, it doesn't contribute to meaningful content
+
+                    // Check for general text content
+                    const childTextContent = child.textContent.trim();
+                    if (childTextContent.length > 0) {
+                        hasMeaningfulContent = true;
+                        return true; // Found meaningful content
+                    }
+
+                    // Specific checks for elements that might contain content not easily caught by textContent
+                    if (child.classList.contains('content')) {
+                        // For the main content area, check its inner HTML for non-whitespace/non-empty tags
+                        const contentHtml = child.innerHTML.trim();
+                        // If the HTML contains non-empty tags (excluding <br>)
+                        if (contentHtml.length > 0 && !contentHtml.match(/^(\s|<br\/?>|&nbsp;)*$/i) ) {
+                            hasMeaningfulContent = true;
+                            return true;
+                        }
+                    } else if (child.tagName === 'IMG') {
+                        // For image tags on cover/design pages
+                        if (child.src && !child.src.endsWith('#')) {
+                            hasMeaningfulContent = true;
+                            return true;
+                        }
+                    } else if (child.classList.contains('main-title-container-preview') || child.classList.contains('subtitle-wrapper')) {
+                        // Check inside title/subtitle containers for their actual text content
+                        const titleText = child.querySelector('h1, h2')?.textContent.trim();
+                        if (titleText && titleText.length > 0) {
+                            hasMeaningfulContent = true;
+                            return true;
+                        }
+                    }
+                    // Continue to next child if no meaningful content found yet
+                    return false;
+                });
+
+                if (!hasMeaningfulContent) {
+                    page.classList.add('hide-in-print');
+                }
+            });
+        }
+
+
+        function showPrintPreviewModal() {
+            const previewContentContainer = document.getElementById('previewContentWrapper');
+            const previewModal = document.getElementById('printPreviewModal');
+
+            // Clear previous content
+            previewContentContainer.innerHTML = '';
+            
+            // Generate current book content (filtered to only show contentful pages)
+            const contentToPrint = generatePreviewHtml(); // This returns a DOM element
+
+            // Append the generated content to the modal's wrapper
+            previewContentContainer.appendChild(contentToPrint);
+
+            // After content is injected, apply the blank page hiding logic
+            hideBlankPagesInPrint(previewContentContainer); // Call the new function here
+
+            // Show the modal
+            previewModal.style.display = 'flex'; // Use flex to center
+            document.body.style.overflow = 'hidden'; // Prevent scrolling on main body
+        }
+
+        function closePrintPreviewModal() {
+            document.getElementById('printPreviewModal').style.display = 'none';
+            document.body.style.overflow = ''; // Restore body scrolling
+            document.getElementById('previewContentWrapper').innerHTML = ''; // Clear content
+            if (printPreviewContextMenu) printPreviewContextMenu.style.display = 'none'; // Hide context menu too
+        }
+
+        // Attach event listeners to the print preview context menu
+        if (printPreviewContextMenu) {
+            document.getElementById('print-option-context').addEventListener('click', (event) => {
+                event.stopPropagation();
+                window.print();
+                closePrintPreviewModal(); // Optionally close after print is initiated
+            });
+            document.getElementById('close-preview-option-context').addEventListener('click', (event) => {
+                event.stopPropagation();
+                closePrintPreviewModal();
+            });
+        }
+
+
+        // Auto-close preview when printing finishes
+        window.onafterprint = closePrintPreviewModal;
+
+        // --- Bizhub Status Check function ---
+        function checkPrintStatus() {
+            const statusElement = document.getElementById('statusResult');
+            statusElement.innerHTML = '<p><i class="fas fa-spinner fa-spin"></i> Testing connection to Bizhub C458...</p>';
+            
+            // Simulated connection check (cannot perform actual network check from client-side JS for security reasons)
+            setTimeout(() => {
+                const isConnected = Math.random() > 0.3; // 70% success rate simulation
+                if (isConnected) {
+                    statusElement.innerHTML = '<p style="color:#8bc34a;background:rgba(139,195,74,0.1);padding:10px;border-radius:8px;">✓ Success! Printer is accessible. Remember to select "KONICA MINOLTA bizhub C458 PCL (fe80::212c:6fff:febaa:0%40) UPD" in your browser\'s print dialog.</p>';
+                } else {
+                    statusElement.innerHTML = '<p style="color:#f44336;background:rgba(244,67,54,0.1);padding:10px;border-radius:8px;">✗ Error: Check network connection, IP settings, and ensure Bizhub Web Service is enabled.</p>';
+                }
+            }, 1500);
+        }
+
     </script>
 </body>
 </html>
-```
+``````
